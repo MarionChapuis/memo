@@ -14,7 +14,7 @@ Schéma explicatif
 
 **Staging area** : Permet de choisir finement le contenu du prochain commit, c'est une zone tampon
 
-! [Schéma Git](schema_git.png)
+![Schéma Git](Schema_git.png)
 
 
 Les commandes GIT 
