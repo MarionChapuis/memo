@@ -9,12 +9,15 @@ Git et GitHub
 **Git** permet de gérer les versions d'un projet et donc de collaborer à plusieurs sur un même projet.
 
 
+
 Schéma explicatif
 -----------------
 
 **Staging area** : Permet de choisir finement le contenu du prochain commit, c'est une zone tampon
 
+
 ![Schéma Git](https://github.com/MarionChapuis/memo/blob/master/Schema_git.png)
+
 
 
 Les commandes GIT 
@@ -46,6 +49,7 @@ Les commandes GIT
 **$ git checkout** : Permet de remettre un fichier dans l'état du dernier commit
 
 **$ git show *n°chat*** : Affiche le commit demandé (utiliser ctr+q pour sortir)  
+
 
 
 La gestion de conflit 
