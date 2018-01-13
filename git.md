@@ -1,9 +1,9 @@
-#Mémo GIT - Marion Chapuis#
+Mémo GIT - Marion Chapuis
+=========================
 
 
-
-##Git et GitHub##
-
+Git et GitHub
+-------------
 
 **GitHub** est une plateforme permettant de stocker des projets Git.
 
@@ -11,8 +11,8 @@
 
 
 
-##Schéma explicatif##
-
+Schéma explicatif
+-----------------
 
 **Staging area** : Permet de choisir finement le contenu du prochain commit, c'est une zone tampon
 
@@ -21,8 +21,8 @@
 
 
 
-##Les commandes GIT ##
-
+Les commandes GIT 
+-----------------
 **$ git init** : Permet d'initaliser un répertoire local en répertoire GIT. Un dossier .git est créé à l'intérieur de ce répertoire permettant ainsi de gérer les versions du projet
 
 **$ git status** : Liste tous les nouveaux fichiers et les fichiers modifiés à commiter
@@ -54,8 +54,8 @@
 
 
 
-##La gestion de conflit ##
-
+La gestion de conflit 
+---------------------
 
 **$ git pull** : Récupérer la dernière version du repository distant
 
