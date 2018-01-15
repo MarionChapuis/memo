@@ -23,7 +23,7 @@ Schéma explicatif
 
 Les commandes GIT 
 -----------------
-**$ git init** : Permet d'initaliser un répertoire local en répertoire GIT. Un dossier .git est créé à l'intérieur de ce répertoire permettant ainsi de gérer les versions du projet
+**$ git init** : Permet d'initialiser un répertoire local en répertoire GIT. Un dossier .git est créé à l'intérieur de ce répertoire permettant ainsi de gérer les versions du projet
 
 **$ git status** : Liste tous les nouveaux fichiers et les fichiers modifiés à commiter
 
@@ -35,7 +35,7 @@ Les commandes GIT
 
 **$ git pull** : Récupère la dernière version disponible sur le repository distant en la mettant sur notre repository local
 
-**$ git clone** : Télécharge un projet et tout son histoire de versions *(Ex : $ git clone htttp://lien-du-projet)*
+**$ git clone** : Télécharge un projet et tout son histoire de versions *(Ex : $ git clone http://lien-du-projet)*
 
 **$ git log**: Avoir le journal du projet 
 
@@ -45,11 +45,11 @@ Les commandes GIT
 
 **$ git config --global user.name "votre_nom"** : Définit le nom qui sera associé aux opérations de commit
 
-**$ git stash** : Enregistre de manière temporaire des fichiers modifiés qui ne seront pas ajouter à la staging area
+**$ git stash** : Enregistre de manière temporaire des fichiers modifiés qui ne seront pas ajoutés à la staging area
 
 **$ git checkout** : Permet de remettre un fichier dans l'état du dernier commit
 
-**$ git show *n°chat*** : Affiche le commit demandé (utiliser ctr+q pour sortir)  
+**$ git show *n°chat*** : Affiche le commit demandé (utiliser ctrl+q pour sortir)  
 
 
 
@@ -63,9 +63,9 @@ La gestion de conflit
 
 **$ git diff** : Indique le contenu du conflit, la partie *HEAD* étant notre version et *========* la version du repository distant
 
-**Ouvrir le fichier avec l'éditeur de texte** : Choisir les parties à conserver et supprimer l'ensemble des marques de merge *HEAD* et *====*
+**Ouvrir le fichier avec l'éditeur de texte** : Choisir les parties à conserver et supprimer l'ensemble des marqueurs de merge *HEAD* et *====*
 
-**$ git add *lefichier*** : Ajouter dans la staging area le fichier modifié
+**$ git add *lefichier.txt*** : Ajouter dans la staging area le fichier modifié
 
 **$ git commit** : Il n'est pas nécessaire d'ajouter un message car GIT sait qu'il s'agit d'une résolution de conflit
 
