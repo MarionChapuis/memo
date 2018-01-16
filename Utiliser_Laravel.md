@@ -95,4 +95,4 @@ Par exemple, on peut créer un template d'une vue qui sera utilisée dans diffé
 
 Dans un premier temps on dit qu’on veut utiliser le template avec @extends et le nom du template « template ». Ensuite on remplit les zones prévues dans le template grâce à la syntaxe @section en précisant le nom de l’emplacement et en fermant avec @endsection. Voici un schéma pour bien visualiser tout ça avec les articles :
 
-![Schéma Template]()
+![Schéma Template](https://github.com/MarionChapuis/memo/raw/principe_template.jpg)
