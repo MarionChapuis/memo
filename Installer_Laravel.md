@@ -4,18 +4,20 @@ Tuto utilisé : [Lien tuto Installation Laravel 5.5](https://laravel.com/docs/5.
 
 **Vérifier que la version de notre PHP est supérieure à 7.**
 
-Touches : windows + pause 
-Choisir : 
-* paramètres systèmes avancés
-* variables d'environnement
-* double clic sur PATH
+## Mettre le bon chemin $PATH
+
+* Touches : windows + pause 
+* Choisir : 
+	* paramètres systèmes avancés
+	* variables d'environnement
+	* double clic sur PATH
 
 * *S'il n'y a pas la bonne version PHP dans le chemin d'accès* :
 	* Nouveau
 	* Copier le chemin : C:\wamp64\bin\php\php7.0.23
 	* OK
 
-Réouvrir Bash, vérifier la version de PHP en entrant la commande : 
+* Réouvrir Bash, vérifier la version de PHP en entrant la commande : 
 $ php -v 
 
 
@@ -43,9 +45,10 @@ $ php -v
 * Les lignes suivantes apparaissent : 
 
 > Laravel development server started: <http://127.0.0.1:8000>
-[Mon Jan 15 10:53:15 2018] 127.0.0.1:52136 [200]: /favicon.ico
-[Mon Jan 15 10:54:07 2018] 127.0.0.1:52137 Invalid request (Unexpected EOF)
-[Mon Jan 15 10:54:07 2018] 127.0.0.1:52139 Invalid request (Unexpected EOF)
+> [Mon Jan 15 10:53:15 2018] 127.0.0.1:52136 [200]: /favicon.ico
+> [Mon Jan 15 10:54:07 2018] 127.0.0.1:52137 Invalid request (Unexpected EOF)
+> [Mon Jan 15 10:54:07 2018] 127.0.0.1:52139 Invalid request (Unexpected EOF)
+
 
 * Pour ouvrir la page d'accueil de Laravel : Ouvrir dans le navigateur : localhost:8000
 
@@ -53,7 +56,7 @@ $ php -v
 
 * **Dans une nouvelle fenêtre Git Bash, vérifier la version de Laravel** avec la commande : $ php artisan --version
 
-	*La ligne ci-dessous apparait en indiquant la version de Laravel : "Laravel Framework 5.5.28"*
+	*La ligne suivante apparait en indiquant la version de Laravel : "Laravel Framework 5.5.28"*
 
 
 
