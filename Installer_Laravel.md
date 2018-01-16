@@ -60,29 +60,6 @@ $ php -v
 
 
 
-## Modifier la page d'accueil de Laravel 
-
-* Avec Sublime, choisir **file/open folder**
-* Choisir le dossier du projet 
-* S'ouvre alors dans l'éditeur de texte Laravel avec tous les dossiers
-* Sélectionner : *resources/views/welcome.blade.php*
-* Modifier le fichier PHP pour afficher le message que l'on souhaite
-
-## Créer d'autres pages 
-
-* Dans resources/views : créer un nouveau fichier avec le nom "monfichier.blade.php"
-* Créer la page
-* Dans Sublime Text, pour ouvrir : ctrl + p
-* Taper : rweb et cliquer dessus (le fichier s'ouvre)
-* Ajouter le chemin : 
-```php
-Route::get('nomdufichier', function () {
-    return view('nomdufichier');
-});
-```
-* Ouvrir le navigateur : localhost:8000/nomdufichier
-
-
 ## Qu'est-ce que Composer ?
 
 **Composer est un outil pour gérer les dépendances en PHP.** 
