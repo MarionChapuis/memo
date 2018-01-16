@@ -85,11 +85,22 @@ Route::get('nomdufichier', function () {
 
 ## Qu'est-ce que Composer ?
 
-Composer est un gestionnaire de dépendance pour PHP.
-Permet de charger les librairies dont a besoin notre application. 
+**Composer est un outil pour gérer les dépendances en PHP.** 
+Les **dépendances**, dans un projet, ce sont toutes **les bibliothèques** dont votre projet dépend pour fonctionner.
+Par exemple, votre projet utilise la bibliothèque SwiftMailer pour envoyer des e-mails, il « dépend » donc de SwiftMailer. Autrement dit, SwiftMailer est une dépendance dans votre projet.
+
+### Concrètement, comment ça marche ?
+Concrètement, voici comment s'utilise Composer :
+
+* On définit dans un fichier la liste des bibliothèques dont le projet dépend, ainsi que leur version ;
+
+* On exécute une commande pour installer ou mettre à jour ces bibliothèques (et leurs propres dépendances donc) ;
+
+ On inclut alors le fichier d'*autoload* généré par Composer dans notre projet.
 
 
-michelf/markdown
+
+*Exemple : michelf/markdown*
 
 * Commande "composer init"
 * Définir les différentes dépendances ? yes
@@ -115,6 +126,18 @@ michelf/markdown
 * Ouvrir Git Bash dans le dossier du projet 
 * Commande : *composer require barryvdh/laravel-debugbar --dev*
 * Se rendre sur la page d'accueil Laravel pour vérifier la présence de la Debug Bar 
+
+
+## Installer le Plugin Laravel dans Sublim Text
+
+* "ctrl + shift + p" 
+* Ecrire : Install
+* Sélectionner : "Package Control : Install Package"
+* "ctrl + shift + p" 
+* Ecrire : Install
+* Sélectionner : "Package Control : Install Package"
+* Ouverture d'une nouvelle liste déroulante, choisir "Laravel 5 artisan"
+
 
 
 ## Installer l'IDE Helper sur PhpStorm
@@ -144,18 +167,6 @@ michelf/markdown
 * Installer
 * Redémarrer PhpStorm
 * Dans la bulle verte, en bas à droite de PhpStorm, cliquer sur "autoconfig"
-
-
-## Installer le Plugin Laravel dans Sublim Text
-
-* "ctrl + shift + p" 
-* Ecrire : Install
-* Sélectionner : "Package Control : Install Package"
-* "ctrl + shift + p" 
-* Ecrire : Install
-* Sélectionner : "Package Control : Install Package"
-* Ouverture d'une nouvelle liste déroulante, choisir "Laravel 5 artisan"
-
 
 
 
