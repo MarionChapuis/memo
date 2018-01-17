@@ -134,17 +134,58 @@ Dans un premier temps on dit qu’on veut utiliser le template avec @extends et 
 ```
 
 
+### Controllers
 
-Nom d'un controller : **N**om**C**ontroller (commence par une majuscule)
+Les controllers permettent de récupèrer des données (d'une BDD par exemple) et de les passer à la vue.
+
+Comment construire un Controller ? 
+
+* Le fichier "MonController.php" est à placer dans le dossier "App / Http / Controllers"
+* Par convention le controller et la page ont le même nom
+* Au début du fichier ajouter "namespace App\Http\Controllers", pour définir l'emplacement du controller
+* Nom d'un controller : **N**om**C**ontroller (commence par une majuscule)
 
 ```php
+<?php
+
+namespace App\Http\Controllers ;
+
 class NomController extends Controller
 {
-	public function() {
-		return view('maVue');
+	public function nomfonction() {
+		return view('maVue'); //permet d'afficher la vue "maVue"
 	}
 }
 ```
 
+* Ajouter dans le fichier Routes/Web.php :
+```php
+Route::get('ingredients', 'NomController@nomFonction');
+```
 
-Le fichier "MonController.php" est à placer dans le dossier "App / Http / Controllers"
+
+
+*Exemple d'un controller*
+```
+<?php 
+
+namespace App\Http\Controllers ; //Définir l'emplacement 
+
+class IngredientsController extends Controller {
+	public function liste() {
+    	$ingredients = ["Eau" => 100, "Café" => 100, "Thé" => 100];
+    	return view('ingredients', ["ing" => $ingredients]);
+	}
+}
+ 
+```
+
+* A noter, les syntaxes ci-dessous sont équivalentes : 
+```
+<?php 
+compact('ingredients') = ['ingredients' => $ingredients]
+?>
+```
+
+
+
