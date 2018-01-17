@@ -166,6 +166,7 @@ Route::get('ingredients', 'NomController@nomFonction');
 
 
 *Exemple d'un controller*
+* Création du controller
 ```
 <?php 
 
@@ -183,9 +184,21 @@ class IngredientsController extends Controller {
 * A noter, les syntaxes ci-dessous sont équivalentes : 
 ```
 <?php 
-compact('ingredients') = ['ingredients' => $ingredients]
+compact('ing') = ['ing' => $ingredients]
 ?>
 ```
 
+* Créer le lien dans Routes/web.php 
+```php
+Route::get('ingredients', 'IngredientsController@liste');
+````
 
+* Utiliser mes données dans mon html, fichier "ingredients.blade.php"
+```
+@foreach ($ing as $unIngredient => $stock)
+    <tr><td>{{ $unIngredient }}</td>
+    <td>{{ $stock }}</td></tr>
+@endforeach
+```
+*A noter, ma variable dans le html qui contient le tableau associatif porte le même nom (en ajoutant un $) que la variable que j'ai créée dans mon tableau associatif dans le controller (ing)*
 
