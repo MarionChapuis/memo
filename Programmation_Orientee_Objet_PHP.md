@@ -130,7 +130,7 @@ Cette syntaxe retournera une erreur lorsque l'attribut est **Private**.
 Il faut donc **utiliser une méthode dans la classe pour accèder à l'attribut**. 
 
 
-##### Comment accèder à l'attribut dans notre méthode ? $this
+#### Comment accèder à l'attribut dans notre méthode ? $this
 
 ```php
 <?php
@@ -372,7 +372,7 @@ A noter : une **constante de prend pas de "$"** devant son nom et est **en majus
 
 ### Les attributs et méthodes statiques 
 
-##### Les méthodes statiques 
+#### Les méthodes statiques 
 
 Les méthodes statiques sont faites pour **agir sur une classe et non sur un objet**. La méthode ne doit donc pas utiliser $this.
 
@@ -390,7 +390,7 @@ Les méthodes statiques sont faites pour **agir sur une classe et non sur un obj
 
 
 
-##### Les attributs statiques 
+#### Les attributs statiques 
 
 Le principe est le même, c'est-à-dire qu'un attribut statique **appartient à la classe et non à un objet**. Ainsi, **tous les objets auront accès à cet attribut et cet attribut aura la même valeur pour tous les objets**.
 
@@ -399,6 +399,14 @@ Le principe est le même, c'est-à-dire qu'un attribut statique **appartient à 
 
 * **Syntaxe de création : private static $\_nomAttribut ;**
 * **Syntaxe d'appel dans une méthode : self::$\_nomAttribut ;**
+
+
+
+## Manipulation de données stockées  
+
+* Etape 1 : créer une classe avec comme attributs les champs de la BDD 
+
+* Etape 2 : créer les getter et les setter pour ces attributs 
 
 
 
