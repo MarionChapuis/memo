@@ -61,7 +61,7 @@ Route::get('NomVue', function () {
 
 
 
-## Blade Templates
+## Blade
 
 ### Syntaxes de bases 
 
