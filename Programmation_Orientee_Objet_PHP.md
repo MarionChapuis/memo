@@ -1,19 +1,13 @@
 # Programmation orientée objet
 
-## Définitions  
+## Définition d'une classe
 
-### Définition d'une classe
-
-Une classe est une **entité regroupant des variables et des fonctions**. Chacune de ces fonctions aura accès aux variables de cette entité.
-
-Une classe est un **regroupement logique de variables et fonctions que tout objet issu de cette classe possédera**.
-
-La classe contient le plan de fabrication d'un objet et on peut s'en servir autant qu'on veut afin d'obtenir une infinité d'objets.
+* **Entité regroupant des attributs (variables) et des méthodes (fonctions)**
 
 
-### Définition d'une instance 
+## Définition d'une instance 
 
-Une instance est le résultat d'une instanciation. Instancier c'est se servir d'une classe pour créer un objet.
+* Une instance est un objet, lors
 
 Une **instance est un objet**.
 
@@ -534,3 +528,139 @@ Il suffit d'appeler la méthode parente avec : **parent::méthodeAAppeler();**
 # Ressources :
 
 [Mémo POO](http://www.logicbig.com/tutorials/misc/php/php-oop-cheat-sheet/)
+
+
+
+# POO : point commun 
+
+
+## Visibilité 
+
+* Private = visible que dans la classe 
+* Public = visible partout 
+* Protected = visible depuis la classe et ses enfants
+
+```php
+<?php 
+	class Personne 
+	{
+		public $nom ;
+		protected $age ;
+		protected $age ; 
+	}
+
+	$toto = new Personne() ; 
+
+	// Fonctionne car l'attribut est public
+	$toto->nom ;
+```
+
+
+
+
+## Getter et Setter
+
+* Getter : méthode, dans la classe, permettant d'afficher un attribut 
+* Syntaxe : porte par convention le nom de l'attribut qu'il affiche 
+
+```php
+<?php 
+	class Personne 
+	{
+		public function nom()
+		{
+			return $this->nom ;
+		}
+	}
+	$toto = new Personne() ; 
+	echo $toto->nom() ; //affiche le nom
+```
+
+* Setter : permet de gérer la modification un attribut (porte le nom : setAttribut)
+
+```php
+<?php 
+	class Personne 
+	{
+		public function setNom($name)
+		{
+			$this->nom = $name ;
+		}
+	}
+	$toto = new Personne() ; 
+	$toto->setNom('Dupont') ; // Modifie l'attribut "nom" de l'objet $toto par "Dupont"
+```
+
+
+## Constructeur 
+
+* Permet de structurer la création d'une instance, en par exemple pré-remplissant les champs souhaités
+* Lors d'une instanciation, le constructeur est automatiquement appelé 
+
+
+```php
+<?php 
+	class Personne 
+	{
+		public function __construct($name)
+		{
+			$this->nom = $name ;
+		}
+	}
+	$toto = new Personne("Dupont") ; Crée l'instance $toto avec pour attribut Nom = "Dupont"
+```
+
+
+## Static 
+
+* Permet d'appeler les méthodes et attributs Static sans les instancier
+* Simplifie la vie : exécute la méthode sans créer l'objet
+
+```php
+<?php 
+	class Boisson 
+	{
+		public static function find($id)
+		{
+			//en SQL SELECT FROM Boissons WHERE id = $id;
+			return ...;
+		}
+	}
+	
+	Boisson::find(12) ; // Affiche l'objet boisson dont l'id est 12 sans même créer une instance
+```
+
+
+## Accèder à des attributs ou méthodes 
+
+$instance->attribut(qui est également une instance)->attribut
+
+
+## Héritage : class ClasseEnfant extends ClasseParent
+
+* Récupère tous les attributs et méthodes (sauf les privés)
+
+
+## self:: 
+
+* Dans les méthodes normales on utilise $this
+
+* Dans les méthodes statics on utilise self::
+
+```php
+<?php 
+	class Math 
+	{
+		const q = 1 ; //si cet attribut n'était pas static, la fonction suivante ne fonctionnerait pas
+
+		public static function sommeQ ($a, $b)
+		{
+			return $a + $b + self::q
+		}
+
+		Math::sommeQ(1 , 12); //Affichera 14
+	}
+```
+
+*self:: est peu utilisé*
+
