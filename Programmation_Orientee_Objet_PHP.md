@@ -31,11 +31,9 @@ Les objets contiennent des attributs et des méthodes.
 
 La visibilité d'un attribut ou d'une méthode indique à partir d'où on peut y avoir accès.
 
-Si un attribut ou une méthode est **Public** on pourra y **avoir accès** depuis n'importe où, depuis **l'intérieur de l'objet (dans les méthodes qu'on a créées)** comme **depuis l'extérieur, c'est à dire tout le code qui n'est pas dans la classe**. 
-
-Avec la visibilité **Private** on aura accès aux attributs et méthodes **seulement depuis l'intérieur de la classe**. 
-
-
+* Public = accessible partout 
+* Protected = accessible par la classe et ses enfants uniquement 
+* Private = accessible par la classe uniquement
 
 ## Syntaxe de base 
 
@@ -218,7 +216,7 @@ class Personnage
 Lorsqu'un attribut est privé seule la classe peut le lire et le modifier. 
 
 
-### Accéder à un attribut : l'accesseur 
+### Accéder à un attribut : l'accesseur - GETTER
 
 Pour accèder à un attribut, nous utilisation des méthodes donc le rôle sera de nous donner l'attribut demander : ce sont des **accesseurs *(ou getters)***. 
 
@@ -238,7 +236,7 @@ Par convention, l'accesseur porte le même nom que l'attribut qu'il retourne.
 ```
 
 
-### Modifier la valeur d'un attribut : les mutateurs
+### Modifier la valeur d'un attribut : les mutateurs - SETTER
 
 Lorsqu'on souhaite **modifier un attribut, la classe doit impérativement contrôler la valeur** afin d'assurer son intégrité.
 
@@ -409,6 +407,54 @@ Le principe est le même, c'est-à-dire qu'un attribut statique **appartient à 
 * Etape 2 : créer les getter et les setter pour ces attributs 
 
 
+### L'hydratation 
 
 
 
+## L'héritage
+
+Lorsque la classe B (l'enfant) hérite de la classe A (le parent), la classe B **hérite de l'ensemble des attributs et méthodes publiques** de la classe A.
+
+Les attributs étant en général privés, la classe B héritera uniquement des méthodes publiques.
+
+Il faut procéder à un héritage quand on peut dire que B est un A (ex : un chien est un aniaml).
+
+
+### Procéder à un héritage : extends
+
+``` php
+<?php 
+	class Personnage
+	{
+	
+	}
+
+	class Magicien extends Personnage    // Magicien hérité des attributs et méthodes publiques de Personnage
+	{
+
+	}
+```
+
+
+Chaque classe peut créer des attributs et méthodes qui lui seront propres, en plus des attributs et méthodes hérités. 
+
+*Si vous essayez d'accéder à un attribut privé de la classe parente, aucune erreur fatale ne s'affichera, seulement une notice si vous les avez activées disant que l'attribut n'existe pas.*
+
+
+### Redéfinir les méthodes : parent::
+
+Il est **possible de réécrire les méthodes** de la classe Parent dans la classe Enfant.
+
+Il suffit d'appeler la méthode parente avec : **parent::méthodeAAppeler();** 
+
+
+
+
+
+
+
+
+
+# Ressources :
+
+[Mémo POO](http://www.logicbig.com/tutorials/misc/php/php-oop-cheat-sheet/)
