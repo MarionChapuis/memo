@@ -447,6 +447,46 @@ Il est **possible de réécrire les méthodes** de la classe Parent dans la clas
 
 Il suffit d'appeler la méthode parente avec : **parent::méthodeAAppeler();** 
 
+*Exemple*
+```php
+<?php 
+	public function gagnerExperience()
+	{
+		parent::gagnerExpercience();  //On appelle la méthode gagnerExperience de la classe parente
+		if ($this->_magie < 100) {
+			// ...
+		}
+	}
+```
+
+/!\ : On ne peut redéfinir en PRIVATE une méthode qui était PUBLIC
+
+
+## Imposer des contraintes
+
+### Abstraction des classes : abstract class NomClasse
+
+* Permet d'empêcher qu'une classe soit instancier
+* Utile si on veut faire de cette classe un modèle sans pour autant l'instancier
+* Cette classe aura donc uniquement des enfants 
+
+*Exemple :*
+```php
+<?php 
+	abstract class Personnage // Notre classe Personnage est abstraite
+	{ //... }
+
+	class Magicien extends Personnage // Création d'une classe Magicien héritant de la classe Personnage
+	{ //...}
+
+	$magicien = new Magicien; // Tout va bien, la classe Magicien n'est pas abstraite.
+	$perso = new Personnage; // Erreur fatale car on instancie une classe abstraite.
+```
+
+
+### Abstraction d'une méthode: abstract public function nomFonction
+
+
 
 
 
