@@ -387,3 +387,9 @@ Consulter le fichier **PHP error log** : journal des erreurs rencontrées sur le
 |Nom de la fonction | Rôle de la fonction | Exemple
 :------------------:|:-------------------:| :--------:
 | date ("l j F Y")  | Retourne la date et l'heure locale avec la forme demandée dans les paramètres| Ressources  [Site documentation PHP](http://php.net/manual/fr/function.date.php)
+
+
+
+# Ressources 
+
+[Mémo PHP](http://www.logicbig.com/tutorials/misc/php/php-cheat-sheet/)

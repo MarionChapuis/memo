@@ -84,8 +84,8 @@ La visibilité d'un attribut ou d'une méthode indique à partir d'où on peut y
 
 ```php
 <?php
-	$variable = new NomClasse ; 
-	$perso = new Personnage ;
+	$variable = new NomClasse() ; 
+	$perso = new Personnage() ;
 ```
 
 $perso est donc un objet de type Personnage, nous avons créée une instance de la classe Personnage. 
@@ -104,7 +104,7 @@ Pour appeler une méthode d'un objet, on utilise l'opérateur "->" : **objet -> 
 		}
 	}
 
-	$perso = new Personnage ; 
+	$perso = new Personnage() ; 
 	$perso->parler(); //appeler la méthode parler() sur l'objet $perso
 ```
 
@@ -471,21 +471,57 @@ Il suffit d'appeler la méthode parente avec : **parent::méthodeAAppeler();**
 * Cette classe aura donc uniquement des enfants 
 
 *Exemple :*
+
 ```php
 <?php 
 	abstract class Personnage // Notre classe Personnage est abstraite
-	{ //... }
+	{ /*...*/ }
 
 	class Magicien extends Personnage // Création d'une classe Magicien héritant de la classe Personnage
-	{ //...}
+	{ /*...*/}
 
-	$magicien = new Magicien; // Tout va bien, la classe Magicien n'est pas abstraite.
-	$perso = new Personnage; // Erreur fatale car on instancie une classe abstraite.
+	$magicien = new Magicien(); // Tout va bien, la classe Magicien n'est pas abstraite.
+	$perso = new Personnage(); // Erreur fatale car on instancie une classe abstraite.
+
 ```
 
 
 ### Abstraction d'une méthode: abstract public function nomFonction
 
+* Pour qu'une méthode soit abstraite il faut que la classe elle même soit abstraite
+
+
+
+
+## Classes finales : final class NomClass
+
+* Il ne pourra **pas avoir de classe héritant** de la classe Final
+
+
+## Méthodes finales : final public function nomFonction
+
+* Les classes enfants ne pourront **pas redéfinir la méthode**
+
+
+## Accèder aux attributs et méthodes sans instancier : public STATIC méthode/attribut
+
+* Permet d'accèder à un attribut ou une méthode sans instancier 
+
+*Exemple :*
+```php
+<?php
+    class King {
+        public static function proclaim() {
+            echo "A kingly proclamation!";
+        }
+    }
+    
+    King::proClaim(); // Fait appel à la méthode proClaim()
+```
+
+
+
+## Le mot clé : SELF 
 
 
 
