@@ -1,156 +1,153 @@
 # Programmation orientée objet
 
-## Définition d'une classe
+## Définitions
 
-* **Entité regroupant des attributs (variables) et des méthodes (fonctions)**
-
-
-## Définition d'une instance 
-
-* Une instance est un objet, lors
-
-Une **instance est un objet**.
+* **Classe** = Entité regroupant des attributs (variables) et des méthodes (fonctions)
+* **Instance** = objet créée à partir d'une classe 
+* **Attribut** = Variable 
+* **Méthode** = Fonction
 
 
-### Définitions d'attributs et méthodes
-
-Les objets contiennent des attributs et des méthodes. 
-
-**Attribut = Variable** 
-
-**Méthode = Fonction**
-
-
-### Visibilité d'un attribut ou d'une méthode 
+## Visibilité d'un attribut ou d'une méthode 
 
 La visibilité d'un attribut ou d'une méthode indique à partir d'où on peut y avoir accès.
 
-* Public = accessible partout 
-* Protected = accessible par la classe et ses enfants uniquement 
-* Private = accessible par la classe uniquement
+* **Public** = accessible partout
+* **Protected** = accessible par la classe et ses enfants uniquement 
+* **Private** = accessible par la classe uniquement
 
-## Syntaxe de base 
+*Exemple :*
+```php
+<?php 
+	class Personne 
+	{
+		public $nom ;
+		protected $prenom ;
+		private $_age ; 
+	}
+
+	$toto = new Personne() ; 
+
+	// Fonctionne car l'attribut est public
+	$toto->nom ;
+```
 
 
-### Créer une classe 
+## Syntaxes
+
+La notation PEAR indique les conventions suviantes : 
+* Attribut ou méthode **privé** précédé d'un "\_" : $\_attribut
+* Le **nom** d'une **classe** commence par une **majuscule**
+
+### Créer une classe avec des attributs et des méthodes
 
 ```php
 <?php
 	class NomClasse
 	{
-		//Déclaration des attributs et méthodes
-	}
-```
+		private $_attribut = 5;
+		protected $attribut = "toto";
+		public $attribut = "bonjour";	
 
-
-### Créer des attributs
-
-```php
-<?php 
-	class Personnage
-	{
-		private $_force = 50 ;        // Force du personnage
-		private $_localisation; 	  // Sa localisation
-  		private $_experience = 1 ;    // Son expérience
-  		private $_degats = 0 ;        // Ses dégâts
-	} 
-```
-
-*La notation PEAR indique que chaque nom d'élément privé (attribut ou méthode) doit être précédé d'un "_".*
-
-*Le nom des classes commence par une majuscule.*
-
-### Créer des méthodes 
-
-```php
-<?php 
-	class Personnage
-	{
-		public function deplacer()  // Méthode qui déplacera le personnage
+		public function nomFonction(paramètre)  // Méthode
 		{
-
+			//...
 		}
 	}
 ```
 
 
-### Créer un objet 
+### Créer une instance
 
 ```php
 <?php
 	$variable = new NomClasse() ; 
-	$perso = new Personnage() ;
 ```
 
-$perso est donc un objet de type Personnage, nous avons créée une instance de la classe Personnage. 
+
+### Appeler une méthode de l'objet
+
+* Utiliser l'opérateur "->" : **objet -> méthode();** 
+```php
+<?php
+	$objet->methode() ; 
+```
 
 
-### Appeler les méthodes de l'objet
 
-Pour appeler une méthode d'un objet, on utilise l'opérateur "->" : **objet -> méthode();** .
+## Getter : afficher un attribut
+
+* Getter : méthode dans la classe permettant d'afficher un attribut (porte le **nom de l'attribut**)
 
 ```php
 <?php 
-	class Personnage {
-		public function parler()
+	class Personne 
+	{
+		public function nomAttribut()
 		{
-			echo "Bonjour";
+			return $this->nom ;
+		}
+	}
+	$toto = new Personne() ; 
+	echo $toto->nom() ; //affiche le nom
+```
+
+
+## Setter : modifier un attribut
+
+* Setter : permet de gérer la modification un attribut (**porte le nom : setAttribut**)
+
+```php
+<?php 
+	class Personne 
+	{
+		public function setNom($name)
+		{
+			$this->nom = $name ;
+		}
+	}
+	$toto = new Personne() ; 
+	$toto->setNom('Dupont') ; // Modifie l'attribut "nom" de l'objet $toto par "Dupont"
+```
+
+
+## Constructeur 
+
+* Permet de structurer la création d'une instance, en par exemple pré-remplissant les champs souhaités
+* Lors d'une instanciation, le constructeur est automatiquement appelé 
+
+```php
+<?php 
+	class Personne 
+	{
+		public function __construct($name)
+		{
+			$this->nom = $name ;
+		}
+	}
+	$toto = new Personne("Dupont") ; Crée l'instance $toto avec pour attribut Nom = "Dupont"
+```
+
+
+## $this : accéder à un attribut dans une méthode
+
+* Permet à la méthode de connaître l'attribut qui est dans sa classe (peu importe sa visibilité) 
+
+```php
+<?php 
+	class NomClasse 
+	{
+		protected $attribut = "chainedecaractères" ;
+
+		public function __construct($parametre)
+		{
+			$this->attribut = $parametre ;
 		}
 	}
 
-	$perso = new Personnage() ; 
-	$perso->parler(); //appeler la méthode parler() sur l'objet $perso
+	$instance = new NomClasse("parametre") ; // Crée l'instance avec comme valeur de $attribut = $parametre
 ```
 
-
-### Accéder à un élément depuis la classe
-
-Lorsqu'un **attribut est Public** on peut y accèder de la manière suivante :
-
-```php
-<?php 
-	class Personnage {
-		public $name = "Marion";
-	}
-
-	$perso = new Personnage ; 
-	$perso->$name; // on accède directement à la variable
-```
-
-Cette syntaxe retournera une erreur lorsque l'attribut est **Private**.
-
-Il faut donc **utiliser une méthode dans la classe pour accèder à l'attribut**. 
-
-
-#### Comment accèder à l'attribut dans notre méthode ? $this
-
-```php
-<?php
-	class Personnage
-	{
-	  private $_experience = 50;
-
-	  public function afficherExperience()
-	  {
-	    echo $this->_experience;
-	  }
-
-	  public function gagnerExperience()
-	  {
-	    // On ajoute 1 à notre attribut $_experience.
-	    $this->_experience = $this->_experience + 1;
-	  }
-	}
-	    
-	$perso = new Personnage;
-	$perso->gagnerExperience();   // On gagne de l'expérience
-	$perso->afficherExperience(); // On affiche la nouvelle valeur de l'attribut
-```
-
-**$this permet à la méthode de connaître l'attribut** (qu'il soit public ou private). 
-Il s'agit là, de la notion de portée. 
-
-**A noter, avec $this, lorsqu'on note l'attribut il faut supprimer le "$"**.
 
 
 ### Implémenter d'autres méthodes 
@@ -202,109 +199,6 @@ class Personnage
   }
 }
 ```
-
-
-
-## Accesseurs et mutateurs 
-
-Lorsqu'un attribut est privé seule la classe peut le lire et le modifier. 
-
-
-### Accéder à un attribut : l'accesseur - GETTER
-
-Pour accèder à un attribut, nous utilisation des méthodes donc le rôle sera de nous donner l'attribut demander : ce sont des **accesseurs *(ou getters)***. 
-
-Par convention, l'accesseur porte le même nom que l'attribut qu'il retourne.
-
-```php
-<?php 
-	class Personnage
-	{
-		// la méthode force() : elle se charge de renvoyer le contenu de l'attribut $_force
-
-	  public function force()
-	  {
-	    return $this->_force;
-	  }
-	}
-```
-
-
-### Modifier la valeur d'un attribut : les mutateurs - SETTER
-
-Lorsqu'on souhaite **modifier un attribut, la classe doit impérativement contrôler la valeur** afin d'assurer son intégrité.
-
-Les méthodes permettant de modifier la valeur d'un attribut se nommes : **mutateurs**.
-
-Leur forme : setNomDeLAttribut()
-
-```php
-<?php
-	class Personnage 
-	{
-		public function setForce($force)
-		{
-			if (!is_int($force)) // S'il ne s'agit pas d'un nombre entier.
-		    {
-		      trigger_error('La force d\'un personnage doit être un nombre entier', E_USER_WARNING);
-		      return;
-		    }
-    
-		    if ($force > 100) // On vérifie bien qu'on ne souhaite pas assigner une valeur supérieure à 100.
-		    {
-		      trigger_error('La force d\'un personnage ne peut dépasser 100', E_USER_WARNING);
-		      return;
-		    }
-		    
-		    $this->_force = $force;
-		}
-	}
-```
-
-
-## Constructeur
-
-Le **constructeur** permet d'**initialiser les attributs d'un objet dès sa création**.
-
-Le constructeur est exécuté dès la création de l'objet.
-
-```php
-<?php
-	public function __contruct($paramètre)
-	{
-		//code
-	}
-```
-
-
-*Exemple :*
-```php
-<?php
-	class Personnage
-	{
-		private $_force;
-		private $_localisation;
-		private $_experience;
-		private $_degats;
-
-		public function __construct($force, $degats) // Constructeur demandant 2 paramètres
-		{
-			echo 'Voici le constructeur !'; // Message s'affichant une fois que tout objet est créé.
-			$this->setForce($force); // Initialisation de la force.
-			$this->setDegats($degats); // Initialisation des dégâts.
-			$this->_experience = 1; // Initialisation de l'expérience à 1.
-	  	}
-	}
-```
-
-*Création de l'objet :*
-```php
-<?php
-	$perso1 = new Personnage(60, 0); //60 de force, 0 de dégât
-```
-
-**Ne jamais mettre une méthode construct avec la visibilité private**
-
 
 
 ## L'opérateur de résolution de portée 
@@ -534,81 +428,6 @@ Il suffit d'appeler la méthode parente avec : **parent::méthodeAAppeler();**
 # POO : point commun 
 
 
-## Visibilité 
-
-* Private = visible que dans la classe 
-* Public = visible partout 
-* Protected = visible depuis la classe et ses enfants
-
-```php
-<?php 
-	class Personne 
-	{
-		public $nom ;
-		protected $age ;
-		protected $age ; 
-	}
-
-	$toto = new Personne() ; 
-
-	// Fonctionne car l'attribut est public
-	$toto->nom ;
-```
-
-
-
-
-## Getter et Setter
-
-* Getter : méthode, dans la classe, permettant d'afficher un attribut 
-* Syntaxe : porte par convention le nom de l'attribut qu'il affiche 
-
-```php
-<?php 
-	class Personne 
-	{
-		public function nom()
-		{
-			return $this->nom ;
-		}
-	}
-	$toto = new Personne() ; 
-	echo $toto->nom() ; //affiche le nom
-```
-
-* Setter : permet de gérer la modification un attribut (porte le nom : setAttribut)
-
-```php
-<?php 
-	class Personne 
-	{
-		public function setNom($name)
-		{
-			$this->nom = $name ;
-		}
-	}
-	$toto = new Personne() ; 
-	$toto->setNom('Dupont') ; // Modifie l'attribut "nom" de l'objet $toto par "Dupont"
-```
-
-
-## Constructeur 
-
-* Permet de structurer la création d'une instance, en par exemple pré-remplissant les champs souhaités
-* Lors d'une instanciation, le constructeur est automatiquement appelé 
-
-
-```php
-<?php 
-	class Personne 
-	{
-		public function __construct($name)
-		{
-			$this->nom = $name ;
-		}
-	}
-	$toto = new Personne("Dupont") ; Crée l'instance $toto avec pour attribut Nom = "Dupont"
-```
 
 
 ## Static 
