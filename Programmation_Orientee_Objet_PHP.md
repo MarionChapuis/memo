@@ -409,16 +409,6 @@ Il suffit d'appeler la méthode parente avec : **parent::méthodeAAppeler();**
 
 
 
-## Le mot clé : SELF 
-
-
-
-
-
-
-
-
-
 # Ressources :
 
 [Mémo POO](http://www.logicbig.com/tutorials/misc/php/php-oop-cheat-sheet/)
@@ -426,8 +416,6 @@ Il suffit d'appeler la méthode parente avec : **parent::méthodeAAppeler();**
 
 
 # POO : point commun 
-
-
 
 
 ## Static 
