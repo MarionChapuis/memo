@@ -13,21 +13,14 @@ Modifier les éléments suivants du ".env" :
 
 ## Raw Sql Queries 
 
-Ajouter des requêtes SQL dans notre controller 
+* Ajouter des requêtes SQL dans notre controller 
 
 ```php 
 $variable = DB::select('SELECT * FROM table WHERE id= ?', [variable remplaçant le ?]); 
 return view ('mavue', ["nomVariable" => $variable]);
 ```
 
-
-## Renommer une route 
-
-Route::get('boissons/{id}', 'BoissonsController@showBoissons')->name('BoissonsShow'); //Je renomme la route 
-
-
-## Avoir des paramètres dans une route
-
+* Avoir des paramètres non définis dans une requête
 ```php
 public function showBoissons($id) 
 {
@@ -40,21 +33,28 @@ public function showBoissons($id)
 * $drink[0] : car le tableau contient un seul objet issu de la requête
 * pour appeler les infos : $boisson->name
 
-Dans ma route : 
 
+## Renommer une route 
+
+Route::get('boissons/{id}', 'BoissonsController@showBoissons')->name('BoissonsShow'); //Je renomme la route 
+
+
+## Avoir des paramètres dans une route
+
+* Dans ma route : 
 ```php
 Route::get('boissons/{id}', 'BoissonsController@showBoissons');
 ```
 
 
-
-## Faire des liens avec ROUTE 
+## Faire des liens href vers une ROUTE 
 
 * On indique que l'on fait un lien avec la route "nomRoute" ayant pour paramètre "id" étant issue de l'objet $uneboisson->id
 
 ```php
 <a href="{{ route('nomRoute', ['id'=>$uneBoisson->id]) }}">Texte</a>
 ```
+
 
 ## Asset : trouver le bon fichier
 
@@ -79,8 +79,25 @@ Route::get('boissons/{id}', 'BoissonsController@showBoissons');
 
 * Les migrations sont dans le dossier : Database/Migrations
 * Créer une migration et une table en ligne de commande : php artisan make:migration Nom_Migration --create=NomTable
-* Dans le fichier de migration créé, renseigner la fonction "UP" avec les champs à créer
-* Anticiper une erreur (clé trop longue) : App/Providers/AppServiceProvider.php 
+	* *exemple : php artisan make:migration create_boisson_table --create=boissons*
+* Dans le fichier de migration créé, renseigner la fonction "UP" avec les champs à créer 
+```php
+class CreateBoissonTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('boissons', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->unique();
+            $table->integer('price');
+            $table->timestamps();
+        });
+    }
+}
+```
+
+
+* Anticiper une erreur (clé trop longue), dans le fichier : App/Providers/AppServiceProvider.php 
 * Dans la fonction boot(), ajouter : 
 ```php
 use Illuminate\Support\Facades\Schema;
@@ -99,27 +116,44 @@ class AppServiceProvider extends ServiceProvider
 
 
 
+
 # Modèles
 
 **Un modèle permet d'interagir avec les tables.** 
 
 
-## Créer un modèle 
+## Créer un modèle & sa migration
 
-* Créer un modèle avec la ligne de commande : php artisan make:model Nom_modèle -m
+* Créer un modèle avec la ligne de commande : php artisan make:model Nom_modèle
+	* Ou *Créer un modèle avec la ligne de commande et sa migration : php artisan make:model Nom_modèle -m*
 * Le fichier suivant est créé : App/Nom_modèle.php
+* Dans le fichier de migration créé (Database/Migrations/create_nomTable_table), renseigner la fonction "UP" avec les champs à créer dans la table
+```php
+class CreateBoissonTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('boissons', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name')->unique();
+            $table->integer('price');
+            $table->timestamps();
+        });
+    }
+}
+```
+* Dans le modèle créé, indiquer dans la classe les champs que l'on autorise à modifier 
+```php
+class Boisson extends Model
+{
+    //Préciser les champs que l'on a le droit de modifier 
+    protected $fillable = ['name', 'price'];
+}
+```
+* Finaliser et créer la table : php artisan migrate
 
 
-## Ajouter un enregistrement 
-
-* Lancer la ligne de commande : php artisan tinker
-* Créer une instance de notre modèle (le modèle est une classe) : $instance = new App\Modèle(); 
-	* On utilise App\ car le modèle indique "namespace App;"
-* Remplir l'enregistrement : $instance->attribut1 = "blablabla";
-* Sauvegarder l'enregistrement : $instance->save(); 
-
-Méthode avec "create" : 
-* $boisson = App\Boisson::create(['name' => 'Café Long', 'price' => 80]);
+A noter, dans Bash, il est possible d'utiliser Tinker pour dialoguer avec la BDD - ligne de commande : php artisan tinker
 
 
 ## Indiquer les éléments modifiables 
@@ -134,54 +168,21 @@ class Boisson extends Model
     protected $fillable = ['name', 'price'];
 }
 ```
-* Redémarrer Tinker : php artisan tinker
-* Méthode avec "create" : 
-```php
-$boisson = App\Boisson::create(['name' => 'Café Long', 'price' => 80]);
-```
 
 
-## Utiliser les méthodes de la classe Modèle 
+# Synthèse des méthodes 
 
-* Trouver un enregistrement avec la méthode Static Find : App\NomModèle::find(n°);  
-```php
-App\Boisson::find(1);
-=> App\Boisson {#808
-     id: 1,
-     name: "Café court",
-     price: 50,
-     created_at: "2018-01-23 13:24:53",
-     updated_at: "2018-01-23 13:24:53",
-   }
-```
+Les méthodes, souvent héritées de Model, peuvent être enchaînées : where('attribut', '= à')->select()->...
+Méthodes | Définition | Exemple 
+|:-------:|:-------:|:-------:|
+| new NomClass(); | Créer une instance d'une classe | $instance = new NomClass();
+| $instance->attribut=""; | Modifier la valeur d'un attribut | $instance->attribut = "bla";
+| save() | Méthode permettant d'enregistrer l'instance | $instance->save();
+| create | Méthode permettant de passer en paramètre un tableau pour renseigner les attributs d'une instance | $boisson = App\Boisson::create(['name' => 'Café Long', 'price' => 80]);
+| find($paramètre) | Méthode permettant de trouver un enregistrement | NomClasse::find($id); 
+| findOrFail($paramètre) | Méthode permettant de trouver un enregistrement et retourner une erreur s'il n'existe pas | NomClasse::findOrFail($id); 
+| where('attribut' , '= à')->get(); | Where permet de trouver un enregistrement avec un contenu spécifique et de le récupèrer grâce à get() | where('name', 'toto')->get()
 
-
-* Trouver un enregistrement avec la sécurité de retourner une erreur s'il n'existe pas : App\NomModèle::findOrFail(n°);
-```
->>> App\Boisson::findOrFail(3)
-Illuminate\Database\Eloquent\ModelNotFoundException with message 'No query results for model [Ap
-p\Boisson] 3'
->>>
-```
-
-
-* Trouver un enregistrement avec un contenu précis : App\NomModèle::where('attribut' , 'est à égale à Blablabla')->get(); 
-```
->>> App\Boisson::where('name', 'Café Court')->get();
-=> Illuminate\Database\Eloquent\Collection {#808
-     all: [
-       App\Boisson {#812
-         id: 1,
-         name: "Café Court",
-         price: 50,
-         created_at: "2018-01-23 13:24:53",
-         updated_at: "2018-01-23 13:29:50",
-       },
-     ],
-   }
-```
-
-* Possible d'enchaîner les méthodes : App\NomModèle::where('attribut' , 'est à égale à Blablabla')->get()->first() ;
 
 * Trouver un enregistrement et sélectionner les infos à afficher :  App\NomModèle::where('attribut', 'blabla')->select(['attribut1', 'attribut2'])->get();
 
@@ -301,3 +302,170 @@ public function deleteDrink(Boisson $boisson)
 ```
 
 
+
+
+# Relations entre modèles 
+
+## Créer l'index dans la table 
+
+* Dans le fichier de migration (create_nomModel_table), ajouter l'index : nomTable2_id
+```php 
+class CreateVentesTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('ventes', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('nbSugar');
+            $table->integer('boisson_id')->unsigned()->index(); //unsigned : valeur positive
+            $table->timestamps();
+        });
+    }
+}
+```
+
+
+## Créer le type de relation dans les Models 
+
+### Relation One to One : hasOne et belongsTo
+
+Relation : un utilisateur a un téléphone
+
+* Dans l'un des Model on ajoute une méthode portant le nom de l'autre Model 
+```php
+class User extends Model
+{
+	public function phone()
+	{
+		return $this->hasOne('App\Phone');
+	}
+}
+```
+	* hasOne : nom de la relation
+	* App\Phone : lien vers le 2ème Model
+
+* Eloquent crée automatiquement la clé étrangère dans le 2ème Model 
+* Dans le 2ème Model on crée : belongsTo
+```php
+class Phone extends Model 
+{ 
+	public function user()
+	{
+		return $this->belongsTo('App\Phone');
+	}
+} 
+```
+
+
+## Relation One To Many : hasMany et belongsTo
+
+Relation une Boisson a plusieurs Ventes 
+
+* Dans le Model Boisson, on crée la méthode "ventes" 
+```php
+class Boisson extends Model
+{
+	public function ventes()
+	{
+		return $this->hasMany('App\Vente');
+	}
+}
+```
+
+* Dans le Model Vente, on crée la méthode "boisson"
+```php
+class Vente extends Model
+{
+	public function boisson()
+	{
+		return $this->belongsTo('App\Boisson');
+	}
+}
+```
+
+* On crée la clé étrangère et les champs dans le fichier de migration de Ventes
+```php
+class CreateVentesTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('ventes', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('nbSugar');
+            $table->integer('boisson_id')->unsigned();
+            $table->foreign('boisson_id')->references('id')->on('boissons');
+            $table->timestamps();
+        });
+    }
+}
+```
+
+* Dans les Models, on précise les champs que l'on pourra modifier 
+```php
+class Vente extends Model
+{
+    //Préciser les champs que l'on peut modifier 
+    protected $fillable = ['nbSugar', 'boisson_id'];
+}
+```
+
+* Faire la migration en ligne de commande : php artisan migrate
+
+
+## Relation Many To Many : belongsToMany
+
+Relation entre Boisson et Ingredient 
+
+* Dans le Model Boisson, on crée la méthode "ingredients" et les champs qu'on autorise à modifier
+```php
+class Boisson extends Model
+{
+    //Préciser les champs que l'on a le droit de modifier 
+    protected $fillable = ['name', 'price'];
+
+    public function ingredients()
+    {
+    	return $this->belongsToMany('App\Ingredient');
+    }
+}
+```
+
+* Dans le Model Ingredient, on crée la méthode "boissons" et les champs qu'on autorise à modifier
+```php
+class Ingredient extends Model
+{
+    protected $fillable = ['name', 'stock'];
+
+    public function boissons()
+    {
+    	return $this->belongsToMany('App\Boisson');
+    }
+}
+```
+
+* Faire une migration pour créer la table de liaison : elle se nomme nomModel1_nomModel2 (par ordre alphabétique)
+```
+$ php artisan make:migration create_boisson_ingredient_table
+```
+
+* Dans le fichier de migration qui vient d'être créé, on précise les champs dans la table de liaison (clé primaire & étrangère)
+```php
+class CreateBoissonIngredientTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('boisson_ingredient', function (Blueprint $table) 
+        {
+            $table->integer('boisson_id');
+            $table->integer('ingredient_id');
+            $table->primary(['boisson_id','ingredient_id']);  //clé primaire : couple
+            $table->foreign('boisson_id')->references('id')->on('boissons'); //clé étrangère
+            $table->foreign('ingredient_id')->references('id')->on('ingredients'); //clé étrangère
+            $table->integer('quantity');
+            $table->timestamps();
+        });
+    }
+}
+```
+
+* Faire la migration en ligne de commande : php artisan migrate
