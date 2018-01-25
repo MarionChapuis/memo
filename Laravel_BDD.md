@@ -106,7 +106,7 @@ class AppServiceProvider extends ServiceProvider
 
 ## Créer un modèle 
 
-* Créer un modèle avec la ligne de commande : php artisan make:model Nom_modèle
+* Créer un modèle avec la ligne de commande : php artisan make:model Nom_modèle -m
 * Le fichier suivant est créé : App/Nom_modèle.php
 
 
@@ -114,7 +114,7 @@ class AppServiceProvider extends ServiceProvider
 
 * Lancer la ligne de commande : php artisan tinker
 * Créer une instance de notre modèle (le modèle est une classe) : $instance = new App\Modèle(); 
-	* On utilise App\ car le modèle indique "namepspace App;"
+	* On utilise App\ car le modèle indique "namespace App;"
 * Remplir l'enregistrement : $instance->attribut1 = "blablabla";
 * Sauvegarder l'enregistrement : $instance->save(); 
 
@@ -219,3 +219,85 @@ public function showBoissons(Boisson $boisson)
 	return view('editBoissons', ["boisson" => $boisson]);
 }
 ```
+
+
+## Mise à jour des données avec le Model
+
+### Ajouter des données 
+
+* Ajouter en haut de la page le lien pour avoir accès à Request : use Illuminate\Http\Request;
+* Ajouter une méthode Store dans le Controller 
+```php
+public function store(Request $request)
+{
+	// Je récupère les infos de mon formulaire
+	$data = 
+	[
+        'name'  => $request->input('name'),
+        'price'   => $request->input('price'),
+    ];
+
+	// J'ajoute dans ma BDD les infos de mon formulaire
+      $boisson=Boisson::create($data);
+        
+    // //J'affiche ma liste des boissons 
+    return redirect()->route('Drinks');   //sans utiliser une route renommée : return redirect('boissons');
+} 
+``` 
+
+
+### Modifier des données 
+
+* Ajouter en haut de la page le lien pour avoir accès à Request : use Illuminate\Http\Request;
+* Ajouter une méthode Publish dans le Controller 
+```php
+public function update(Request $request, $boisson)
+{
+	//Je récupère les données de mon formulaire
+	$data = 
+	[
+	'name'  => $request->input('name'),
+	'price' => $request->input('price'),
+	];
+	
+	// Je met à jour ma boisson avec les données de mon formulaire
+	$boisson::update($data);
+
+	// //J'affiche ma liste des boissons 
+	return redirect()->route('Drinks');
+}
+``` 
+
+* Ajouter dans le formulaire le Input magique (sinon ça ne marche pas )
+```html
+<input type="hidden" name="_method" value="put">
+```
+
+
+### Supprimer des données 
+
+* Ajouter en haut de la page le lien pour avoir accès à Request : use Illuminate\Http\Request;
+* Ajouter une méthode Delete dans le Controller 
+```php
+public function deleteDrink(Boisson $boisson)
+{
+	$boisson->delete();
+	return redirect()->route('Drinks');
+}
+``` 
+
+* Ajouter dans le formulaire le Input magique (sinon ça ne marche pas )
+```html
+<input type="hidden" name="_method" value="delete">
+```
+
+*exemple de bouton pour supprimer :*
+```php
+<form method="post">
+	{{ csrf_field() }}
+	<input type="hidden" name="_method" value="delete">
+	<button type="submit" class="btn btn-lg btn-warning col-md-offset-1 col-md-3">Supprimer</button>
+</form>
+```
+
+
