@@ -3,7 +3,7 @@
 ## Créer un Controller et l'ensemble de ses routes 
 
 Créer un controller avec l'ensemble de ces méthodes à l'intérieur et toutes les routes associées (et nommées).
-* lLgne de commande : php artisan make:controller NomController --resource
+* Ligne de commande : php artisan make:controller NomController --resource
 * Dans le fichier web : 
 ```php
 Route::resource('ingredients', 'IngredientController') ; 
