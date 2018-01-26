@@ -173,31 +173,25 @@ class Boisson extends Model
 # Synthèse des méthodes 
 
 Les méthodes, souvent héritées de Model, peuvent être enchaînées : where('attribut', '= à')->select()->...
-Méthodes | Définition | Exemple 
+
+
+| Méthodes | Définition | Exemple 
 |:-------:|:-------:|:-------:|
 | new NomClass(); | Créer une instance d'une classe | $instance = new NomClass();
 | $instance->attribut=""; | Modifier la valeur d'un attribut | $instance->attribut = "bla";
 | save() | Méthode permettant d'enregistrer l'instance | $instance->save();
-| create | Méthode permettant de passer en paramètre un tableau pour renseigner les attributs d'une instance | $boisson = App\Boisson::create(['name' => 'Café Long', 'price' => 80]);
+| create(array) | Méthode permettant de passer en paramètre un tableau pour renseigner les attributs d'une instance | $boisson = App\Boisson::create(['name' => 'Café Long', 'price' => 80]);
 | find($paramètre) | Méthode permettant de trouver un enregistrement | NomClasse::find($id); 
 | findOrFail($paramètre) | Méthode permettant de trouver un enregistrement et retourner une erreur s'il n'existe pas | NomClasse::findOrFail($id); 
-| where('attribut' , '= à')->get(); | Where permet de trouver un enregistrement avec un contenu spécifique et de le récupèrer grâce à get() | where('name', 'toto')->get()
+| where('attribut' , '= à')->get(); | Where permet de trouver un enregistrement avec un contenu spécifique et de le récupèrer grâce à get() | NomClasse::where('name', 'toto')->get()
+| select([attributs]) | Sélectionner les infos à afficher | NomClass::where(..)->select(['attribut1','attribut2'])->get() ;
+| toArray() | Obtenir le résultat dans un tableau | NomClasse::where(..)->get()->toArray() ;
+| delete() | Supprimer un enregistrement | $instance->delete() ;
+| destro(id) | Supprimer un enregistrement en le sélectionnant | $instance->destroy(id) 
+| all() | Afficher tous les engistrements | $instance = NomClass::all() ; (Dans la vue : $instance->attribut1)
+| orderBy('attribut', 'asc ou desc') | Trier les enregistrements | NomClass::order('name', 'desc')->get() ;
 
 
-* Trouver un enregistrement et sélectionner les infos à afficher :  App\NomModèle::where('attribut', 'blabla')->select(['attribut1', 'attribut2'])->get();
-
-* Le mettre dans un tableau : App\Boisson::where('name', 'Café Court')->select(['price'])->get()->toArray();
-
-* Supprimer un enregistrement : delete() 
-	* Stocker l'enregistrement dans une variable : $variable = App\NomModèle::find(1) ; 
-	* Le supprimer : $variable->delete();
-
-* Supprimer un enregistrement en utilisant l'id : destroy(id);
-
-* Afficher tous les enregistrements : $variable = NomModèle::all(); 
-	* Dans la vue : $variable->name;
-
-* Trier les enregistrements : $variable = NomModèle::orderBy('attribut', 'asc ou desc')->get();
 
 
 ## Imposer une instance d'une classe en paramètre  
@@ -205,7 +199,7 @@ Méthodes | Définition | Exemple
 * Retourner une vue affichant les informations d'une boisson sélectionnée (par l'id)
 
 ```php
-public function showBoissons($boisson)
+public function showBoissons($id)
 {
 	$drink = Boisson::find($id);
 	return view('editBoissons', ["boisson" => $boisson]);
@@ -218,6 +212,18 @@ public function showBoissons($boisson)
 public function showBoissons(Boisson $boisson)
 {
 	return view('editBoissons', ["boisson" => $boisson]);
+}
+```
+* $boisson est une instance de la classe Boisson. Pour fonctionner il se base sur le champ "id"
+
+*A noter, s'il n'y a pas de champs "id" dans notre table, il faut indiquer dans le model le champs servant d'id* :
+```php
+class Boisson extends Models
+{
+    public function getRouteKeyName()
+    {
+        return 'code_boisson';
+    }
 }
 ```
 
@@ -306,28 +312,8 @@ public function deleteDrink(Boisson $boisson)
 
 # Relations entre modèles 
 
-## Créer l'index dans la table 
 
-* Dans le fichier de migration (create_nomModel_table), ajouter l'index : nomTable2_id
-```php 
-class CreateVentesTable extends Migration
-{
-    public function up()
-    {
-        Schema::create('ventes', function (Blueprint $table) {
-            $table->increments('id');
-            $table->integer('nbSugar');
-            $table->integer('boisson_id')->unsigned()->index(); //unsigned : valeur positive
-            $table->timestamps();
-        });
-    }
-}
-```
-
-
-## Créer le type de relation dans les Models 
-
-### Relation One to One : hasOne et belongsTo
+## Relation One to One : hasOne et belongsTo
 
 Relation : un utilisateur a un téléphone
 
@@ -354,6 +340,21 @@ class Phone extends Model
 		return $this->belongsTo('App\Phone');
 	}
 } 
+```
+
+* Dans le fichier de migration (create_nomModel_table), ajouter l'index : nomTable2_id
+```php 
+class CreatePhoneTable extends Migration
+{
+    public function up()
+    {
+        Schema::create('ventes', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('user_id')->unsigned()->index(); //unsigned : valeur positive
+            $table->timestamps();
+        });
+    }
+}
 ```
 
 
@@ -469,3 +470,5 @@ class CreateBoissonIngredientTable extends Migration
 ```
 
 * Faire la migration en ligne de commande : php artisan migrate
+
+
