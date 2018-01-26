@@ -1,5 +1,25 @@
 # BDDLaravel
 
+## Créer un Controller et l'ensemble de ses routes 
+
+Créer un controller avec l'ensemble de ces méthodes à l'intérieur et toutes les routes associées (et nommées).
+* lLgne de commande : php artisan make:controller NomController --resource
+* Dans le fichier web : 
+```php
+Route::resource('ingredients', 'IngredientController') ; 
+// ingredients : nom de la ressource 
+// IngredientController : nom du controller
+````
+
+* Obtenir la liste des routes et leur nom : php artisan route:list
+
+* Penser dans le controller à ajouter : use App\NomModel (ex App\Ingredient)
+* Dans une vue insérer directement avec le nom de la route : 
+```php
+<a href="{{route('ingredients.index')}}"></a>
+```
+
+
 ## Principe de base 
 
 route -> controller -> vue 
@@ -142,6 +162,7 @@ class CreateBoissonTable extends Migration
     }
 }
 ```
+
 * Dans le modèle créé, indiquer dans la classe les champs que l'on autorise à modifier 
 ```php
 class Boisson extends Model
@@ -190,7 +211,6 @@ Les méthodes, souvent héritées de Model, peuvent être enchaînées : where('
 | destro(id) | Supprimer un enregistrement en le sélectionnant | $instance->destroy(id) 
 | all() | Afficher tous les engistrements | $instance = NomClass::all() ; (Dans la vue : $instance->attribut1)
 | orderBy('attribut', 'asc ou desc') | Trier les enregistrements | NomClass::order('name', 'desc')->get() ;
-
 
 
 
@@ -251,6 +271,20 @@ public function store(Request $request)
     return redirect()->route('Drinks');   //sans utiliser une route renommée : return redirect('boissons');
 } 
 ``` 
+
+* Formulaire d'ajout :
+```php
+<form action="{{route('ingredients.store')}}" class="form-group well col-md-offset-2 col-md-8" method="post">
+    {{ csrf_field() }}
+    <label class="col-md-4" for="name">Nom Ingrédient</label>
+    <input class="col-md-8" name="name" required="required" type="text">
+    <br><br>
+    <label class="col-md-4" for="stock">Stock</label>
+    <input class="col-md-8" type="text" name="stock" required="required">
+    <br><br>
+    <button type="submit" class="btn btn-lg btn-primary">Ajouter</button>
+</form>
+```
 
 
 ### Modifier des données 
@@ -418,6 +452,7 @@ class Vente extends Model
 Relation entre Boisson et Ingredient 
 
 * Dans le Model Boisson, on crée la méthode "ingredients" et les champs qu'on autorise à modifier
+* Pour tous les champs autres que "boisson_id" et "ingredient_id", il faut les préciser dans les 2 Models : "withPivot"
 ```php
 class Boisson extends Model
 {
@@ -426,7 +461,7 @@ class Boisson extends Model
 
     public function ingredients()
     {
-    	return $this->belongsToMany('App\Ingredient');
+    	return $this->belongsToMany('App\Ingredient')->withPivot('quantity');
     }
 }
 ```
@@ -439,7 +474,7 @@ class Ingredient extends Model
 
     public function boissons()
     {
-    	return $this->belongsToMany('App\Boisson');
+    	return $this->belongsToMany('App\Boisson')->withPivot('quantity');
     }
 }
 ```
@@ -471,4 +506,28 @@ class CreateBoissonIngredientTable extends Migration
 
 * Faire la migration en ligne de commande : php artisan migrate
 
+### Accèder aux éléments de la table de liaison
 
+**La table de liaison est connu sous le nom de "pivot", qui est un objet.**
+
+* Fonction permettant de récupèrer la recette d'une boisson :
+```php
+public function showBoissons(Boisson $boisson) //je demande un paramètre de la classe Boisson (cherche par défaut l'id)
+    {
+        //Récupèrer les ingrédients d'une boisson
+        $recette = $boisson->ingredients;
+
+        //Retourner la vue avec les données 
+        return view('editBoissons', ["boisson" => $boisson, "recette"=> $recette]);
+    }
+```
+
+* Dans la vue, pour afficher tous les ingrédients et les quantités (nb doses) :
+```php
+@foreach ($recette as $unIng)
+    <tr>
+        <td>{{ $unIng->name }}</td> //On récupère le nom de l'ingrédient dans la table ingrédient
+        <td>{{ $unIng->pivot->quantity }}</td> //On récupère la quantité dans la table Pivot (boisson_ingredient)
+    </tr>
+@endforeach
+```

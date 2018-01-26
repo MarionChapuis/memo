@@ -28,7 +28,7 @@ Trio gagnant : route -> Controller -> Vue
 
 | Action | Méthode du controller | Route
 | :-----:| :---------:| :-------:|
-| Liste | liste | /x/
+| Liste | list | /x/
 | Detail | show | /x/{id}
 | Afficher Formulaire Création | create | /x/create
 | Traiter Formulaire création | store | /x/    (Post)
@@ -56,8 +56,14 @@ Se charge de la BDD (ajout, suppression, modification...) peu importe le SGBD (M
 
 
 
-$boisson = new Boisson();   ou $boisson = Boisson::find($id);
-$boisson->save(); 
 
-Boisson::all() = retourne tout 
-Boisson::find() = retourne un seul
+
+Nommage :
+
+nom table : pluriel minuscule
+nom model : une Majuscule singulier 
+nom Controller : une Majuscule singulier
+
+return view(boisson.list)
+boisson.list = boisson/list
+
