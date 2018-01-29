@@ -2,16 +2,18 @@
 
 ## DNS et Registrar
 
-* DNS : Domain Name System
-* Le DNS se charge de convertir une adresse IP (173.194.39.78) en un nom lisible : www.google.com 
+* **DNS : Domain Name System**
+* Le DNS se charge de **convertir une adresse IP** (173.194.39.78) en un nom lisible : www.google.com 
 * Les DNS se finissent pas un "." à la fin même si ce dernier n'apparaît pas sur le navigateur
 
 Description : Les parties sont séparées par un point
 * Extension : TLD (Top Level Domain) 
     * TLD nationaux (fr, it, de...)
     * TLD génériques (com, org, net...)
-* Sous-domaine : google.fr est un sous-domaine de fr.
+* Sous-domaine : google.fr est un sous-domaine de "fr."
 * www : nom de la machine dans le domaine 
+
+* **Registrar** : bureau d'enregistrement gérant la réservation des noms de domaine (ex : Gandi, OVH...)
 
 ## Configuration : pointer vers l'adresse IP du serveur 
 
@@ -25,22 +27,23 @@ Types d'enregistrement : A, AAAA, Cname, MX, NS
 
 ## Créer des sous-domaines 
 
-Dans le fichier de zone, cliquer sur Editer et entrer :
+Sur le site Gandi, dans "Domaines/Enregistrement DNS", dans le fichier de zone, cliquer sur Editer et entrer :
 * marion 1800 IN A 163.172.191.63 
     * le lien sera marion.coffee-break.pw
 * enregistrer 
 
 ## Créer un VirtualHost 
 
+* Ouvrir un Bash
 * Entrer dans le répertoire /etc/apache2/sites-available
-* Copier le fichier "000-default.conf" en lui donnant le nom "marion.conf" : cp 000-default.conf marion.conf
+* Copier le fichier "000-default.conf" en lui donnant le nom "marion.conf" : **cp 000-default.conf marion.conf**
 * Entrer dans le fichier "marion.conf" et le mettre à jour :
     * ServerAdmin webmaster@localhost  (adresse pour envoyer les emails d'erreurs)
     * ServerName marion.coffee-break.pw    (lien du site)
-    * DocumentRoot /var/www/html/PHP_MachineCafe    (dossier où trouver le site sur le serveur)
+    * DocumentRoot /var/www/html/marion/PHP_MachineCafe    (dossier où trouver le site sur le serveur)
     * DirectoryIndex machineCafe.php    (indiquer le fichier "index" à ouvrir)
-* Activer le site : a2ensite marion 
-* Relancer Apache : systemctl reload apache2
+* Activer le site : **a2ensite marion** 
+* Relancer Apache : **systemctl reload apache2**
 
 Visualisation du fichier marion.conf 
 ```
@@ -56,7 +59,7 @@ Visualisation du fichier marion.conf
 
         ServerAdmin webmaster@localhost
         ServerName marion.coffee-break.pw
-        DocumentRoot /var/www/html/PHP_MachineCafe
+        DocumentRoot /var/www/html/marion/PHP_MachineCafe
                 DirectoryIndex machineCafe.php
 
         # Available loglevels: trace8, ..., trace1, debug, info, notice, warn,
