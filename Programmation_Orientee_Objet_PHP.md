@@ -80,16 +80,18 @@ La notation PEAR indique les conventions suviantes :
 * Getter : méthode dans la classe permettant d'afficher un attribut (porte le **nom de l'attribut**)
 
 ```php
-<?php 
+<?php 	
 	class Personne 
 	{
+		private $_nomAttribut="Toto";
+
 		public function nomAttribut()
 		{
 			return $this->nom ;
 		}
 	}
 	$toto = new Personne() ; 
-	echo $toto->nom() ; //affiche le nom
+	echo $toto->nomAttribut() ; //affiche le nom
 ```
 
 
@@ -101,6 +103,7 @@ La notation PEAR indique les conventions suviantes :
 <?php 
 	class Personne 
 	{
+		private $_nom="Toto";
 		public function setNom($name)
 		{
 			$this->nom = $name ;

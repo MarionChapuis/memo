@@ -24,24 +24,18 @@ $ php -v
 ## Installer Composer 
 
 * Télécharger Composer via le lien : [Lien téléchargement](https://getcomposer.org/download/)
-
 	*Lors de l'installation vérifier le chemin d'accès : wamp64\bin\php\php.exe*
+* ou Entrer les commandes : 
+	* apt-get update
+	* apt-get install composer
 
 * Réouvrir Bash et entrer la commande : composer
-
 	*les informations sur composer doivent s'afficher*
-
-
 * Entrer la commande : composer global require "laravel/installer"
-
 	*Installation des composants*
-
 * Ouvrir Bash dans le répertoire où l'on souhaite mettre notre projet et entrer la commande : laravel new NomProjet 
-
 	*Installation des composants*
-
 * Ouvrir Bash à l'intérieur du dossier de notre projet et entre la commande : php artisan serve 
-
 * Les lignes suivantes apparaissent : 
 
 > Laravel development server started: <http://127.0.0.1:8000>
@@ -70,10 +64,8 @@ Par exemple, votre projet utilise la bibliothèque SwiftMailer pour envoyer des 
 Concrètement, voici comment s'utilise Composer :
 
 * On définit dans un fichier la liste des bibliothèques dont le projet dépend, ainsi que leur version ;
-
 * On exécute une commande pour installer ou mettre à jour ces bibliothèques (et leurs propres dépendances donc) ;
-
- On inclut alors le fichier d'*autoload* généré par Composer dans notre projet.
+	* On inclut alors le fichier d'*autoload* généré par Composer dans notre projet.
 
 
 
@@ -147,14 +139,14 @@ Concrètement, voici comment s'utilise Composer :
 
 
 
-# PhpStorm
+## Lorsqu'on clone un projet GIT Laravel 
 
-## Augmenter la taille de police dans PhpStorm 
+* composer install (permet d'installer toutes les dépendances nécessaires)
+* cp .env.example .env (copier le fichier et le renommer en .env)
+* php artisan key:generate
+* mettre à jour les informations dans ".env" pour l'adapter à l'environnement du serveur (ex : lien bdd)
 
-* Ctrl + Shift + a 
-* Choisir "Increase font size" 
 
-## Accéder au code de la page depuis le code d'une autre page
 
-* "Ctrl + clic" sur le nom de la page 
-* ou "Ctrl + b" sur le nom de la page  
+
+
