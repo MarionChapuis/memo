@@ -1,5 +1,6 @@
 # Réseau et Système
 
+
 ## DNS et Registrar
 
 * **DNS : Domain Name System**
@@ -173,7 +174,7 @@ Ajouter le code suivant pour que le fichier .htaccess (présent dans le projet L
 
 Ajouter à la fin du fichier marion-laravel.conf (/etc/apache2/sites-availables/) : 
 ```
-<Directory /var/www/>
+<Directory /var/www/html/marion/Machine_Cafe>
         Options Indexes FollowSymLinks
         AllowOverride All
         Require all granted
@@ -206,15 +207,17 @@ APP_DEBUG=false
 
 [Ressource](https://certbot.eff.org/#debianstretch-apache) 
 
-Dans la racine du serveur (entrer "cd"), installer le package Certbot :
+
+Dans la racine du serveur (entrer "cd"), installer le package Certbot : **A réaliser uniquement la première fois**
 ```
 sudo apt-get install python-certbot-apache -t stretch-backports
 ```
+
 Lancer la commande : 
 ```
 sudo certbot --authenticator webroot --installer apache
 ```
-Puis ci-dessous les réponses à apporter aux différentes questions posées 
+Puis ci-dessous les réponses à apporter aux différentes questions posées. A noter, l'ensemble des questions sont posées uniquement la première fois :
 * Entrer un email 
 ```
 Enter email address (used for urgent renewal and security notices) (Enter 'c' to
@@ -277,4 +280,33 @@ Select the appropriate number [1-2] then [enter] (press 'c' to cancel): 2
 ```
 
 Message de félicitations :-)
+
+# Créer une clé SSH 
+
+Sur la machine en local, générer la clé SSH, avec la commande dans un Bash :
+```
+ssh-keygen
+```
+Dans les questions : 
+* Ne rien renseigner dans la question pour entrer une phrase (en effet, la clé SSH est là pour se connecter sans mot de passe)
+* Entrer le mot de passe du serveur
+
+Toujours sur la machine en local, copier la clé sur le serveur 
+```
+ssh-copy-id root@163..... // utilisateur@ip_serveur
+```
+
+Laisser un Bash avec le serveur ouvert (en cas de problème) et réouvrir un Bash pour tester la connexion en clé SSH
+
+Les clés SSH sont disponibles dans le fichier :
+```
+.ssh/authorized_keys
+```
+
+**Lors du premier dépôt de clé SSH sur le serveur** :
+Dans le fichier "sshd_config" disponible dans le dossier /etc/ssh/, décomenter la ligne : 
+```
+PubkeyAuthentication // supprimer le # pour décommenter
+```
+
 
