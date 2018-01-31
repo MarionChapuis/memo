@@ -192,6 +192,12 @@ Relancer le serveur Apache
 systemctl reload apache2
 ```
 
+## Supprimer la debugbar du site en ligne
+
+Dans le fichier ".env" du projet, indiquer "false" : 
+```
+APP_DEBUG=false
+```
 
 
 # Chiffrer un site avec HTTPS 
@@ -271,3 +277,4 @@ Select the appropriate number [1-2] then [enter] (press 'c' to cancel): 2
 ```
 
 Message de félicitations :-)
+
