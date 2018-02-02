@@ -283,6 +283,8 @@ Message de félicitations :-)
 
 # Créer une clé SSH 
 
+Système de clés asymétriques permettant la connexion sans entrer le mot de passe. 
+
 Sur la machine en local, générer la clé SSH, avec la commande dans un Bash :
 ```
 ssh-keygen
@@ -308,5 +310,74 @@ Dans le fichier "sshd_config" disponible dans le dossier /etc/ssh/, décomenter 
 ```
 PubkeyAuthentication // supprimer le # pour décommenter
 ```
+
+
+# Docker 
+
+## Définitions 
+
+* Docker : Système de containers utilisant le système d'exploitation existant déjà de l'hôte. Contrairement à une machine virtuelle qui elle contient un OS.
+* Image : template prêt à l'emploi pour la création de container
+* DockerHub : librairie contenant les images
+* DockerFile : permet de créer une image étape par étape de façon automatisée
+
+
+## Commandes
+
+Créer un container se basant sur l'image Debian (le container aura uniquement les fichiers mais pas le système d'exploitation)
+```
+docker run debian
+```
+Créer un container et rester dans ce container en lui donnant un nom :
+```
+docker run --name=marion_test -ti debian
+```
+Voir l'ensemble des containers :
+```
+docker ps -a
+```
+Voir uniquement les containers en cours d'exécution :
+```
+docker ps
+```
+Entrer dans un container qui n'est pas en cours d'exécution :
+* Mettre en exécution le container :
+```
+docker start 013 // 013 correspond au début de l'id du container
+```
+* Entrer dans le container :
+```
+docker attach 013
+// ou 2ème solution 
+docker exec -it 013 bash 
+```
+* Sortir d'un container : commande exit
+```
+root@46717396aeaf:/# exit
+```
+* Supprimer un docker 
+```
+docker rm 013
+```
+* Créer un fichier et écrire dans ce fichier :
+```
+echo "bonjour" >> monfichier.txt
+```
+
+* Exécuter une commande dans un container actif :
+```
+docker exec -ti nom_docker bash
+```
+
+## Créer un DockerFile 
+
+Le DockerFile permet de créer sa propre image à partir d'une existante
+
+ 
+
+
+
+
+
 
 

@@ -130,11 +130,17 @@ class AppServiceProvider extends ServiceProvider
 }
 ``` 
 * Pour obtenir la dernière version : php artisan migrate
-* S'il y a une erreur, corriger l'erreur puis : php artisan migrate:fresh 
+* S'il y a une erreur, corriger l'erreur puis : php artisan migrate:fresh (permet de tout efface dans les tables)
 
 [Lien résolution de l'erreur](https://laravel-news.com/laravel-5-4-key-too-long-error)
 
+## Commande php artisan migrate 
 
+| Commande | Action |
+| :-------:|:-------:|
+| php artisan migrate | Actualiser notre BDD avec les dernières modifications
+| php artisan migrate:rollback | Supprimer la dernière migration (voir dans la table "migrations" de la BDD pour savoir quels seront les modifications supprimées)
+|  
 
 
 # Modèles
