@@ -537,3 +537,188 @@ public function showBoissons(Boisson $boisson) //je demande un paramètre de la 
     </tr>
 @endforeach
 ```
+
+
+### Ajouter un élément dans la table de liaison : ATTACH
+
+Dans le controller, créer une méthode permettant d'ajouter une recette pour la boisson sélectionnée 
+
+```
+public function addRecipe(Request $request, Boisson $boisson)
+{
+    // Je récupère les infos de mon formulaire
+    $data = 
+    [
+        'ingredient_id'  => $request->input('ingredient_id'),
+        'quantity'   => $request->input('quantity'),
+    ];
+
+    //J'ajoute l'ingrédient dans ma recette
+    $boisson->ingredients()->attach($data['ingredient_id'], ['quantity'=>$data['quantity']]);
+
+    return redirect()->route('FormulaireRecette', ['boisson'=>$boisson]);
+}
+```
+
+**Explications** : 
+* la table de liaison contient les champs suivants : boisson_id , ingredient_id et quantity
+* boisson_id est récupéré par le paramètre de la méthode (Boisson $boisson)
+* ingredient_id et quantity sont récupérés dans le formulaire 
+* les 2 champs sont ajoutés à la table via attach(ingredient_id, [AutreChampsPivot => valeur de ce champs])
+et attaché avec "attach"
+
+**Les routes** : 
+* Route pour afficher le formulaire 
+```
+Route::get('boissons/{boisson}/recette', 'BoissonsController@formRecipe')->name('FormulaireRecette');
+```
+* Route pour ajouter un ingrédient 
+```
+Route::post('boissons/{boisson}/recette', 'BoissonsController@addRecipe')->name('ajoutRecette');
+```
+
+
+
+### Supprimer un élément dans la table de liaison : DETACH 
+
+Dans le controller, créer une méthode permettant de supprimer un ingrédient pour la boisson sélectionnée 
+```
+public function deleteIng(Request $request, Boisson $boisson)
+{
+    //Récupérer l'id_ingrédient via le bouton sélectionné 
+    $ingredient= $request->input('ingredient');
+
+    $boisson->ingredients()->detach($ingredient);
+    return redirect()->route('FormulaireRecette', ['boisson'=>$boisson]);
+}
+```
+
+Dans la vue, créer un bouton dans un tableau permettant de détacher l'ingrédient de la recette 
+```
+<form method="post">
+{{ csrf_field() }}
+    <table class="table table-hover table-bordered tableRecette">
+        <tr>
+        <th>Ingrédient</th>
+        <th>Dose</th>
+        <th>Supprimer</th>
+        </tr>
+    @foreach ($recette as $unIng)
+        <tr>
+            <td>{{ $unIng->name }}</td>
+            <td>{{ $unIng->pivot->quantity }}</td>
+            <td> 
+                //Créer un input caché avec la méthode "delete"
+                <input type="hidden" name="_method" value="delete">
+                // Créer un bouton type submit ayant comme valeur l'id de l'ingrédient et comme nom "ingredient"
+                <button type="submit" value="{{ $unIng->id}}" name="ingredient" class="btn btn-sm btn-danger">Supprimer</button>
+            </td>
+        </tr>
+    @endforeach
+    </table>
+</form>
+```
+
+**Les routes** : 
+* Route pour afficher le formulaire 
+```
+Route::get('boissons/{boisson}/recette', 'BoissonsController@formRecipe')->name('FormulaireRecette');
+```
+* Route pour supprimer un ingrédient 
+```
+Route::delete('boissons/{boisson}/recette', 'BoissonsController@deleteIng')->name("IngRecipeDelete");
+```
+ 
+
+
+
+# Messages flash 
+
+## Etape 1 : Créer une vue flash-message.blade.php 
+
+```php
+@if ($message = Session::get('success'))
+<div class="alert alert-success alert-block">
+    <button type="button" class="close" data-dismiss="alert">×</button> 
+        <strong>{!! $message !!}</strong>
+</div>
+@endif
+
+
+@if ($message = Session::get('error'))
+<div class="alert alert-danger alert-block">
+    <button type="button" class="close" data-dismiss="alert">×</button> 
+        <strong>{!! $message !!}</strong>
+</div>
+@endif
+
+
+@if ($message = Session::get('warning'))
+<div class="alert alert-warning alert-block">
+    <button type="button" class="close" data-dismiss="alert">×</button> 
+    <strong>{!! $message !!}</strong>
+</div>
+@endif
+
+
+@if ($message = Session::get('info'))
+<div class="alert alert-info alert-block">
+    <button type="button" class="close" data-dismiss="alert">×</button> 
+    <strong>{!! $message !!}</strong>
+</div>
+@endif
+
+
+@if ($errors->any())
+<div class="alert alert-danger">
+    <button type="button" class="close" data-dismiss="alert">×</button> 
+    Please check the form below for errors
+</div>
+@endif
+```
+
+## Etape 2 : Inclure la vue dans le template Structure
+
+Pour que le message puisse s'afficher dans toutes les pages
+
+```php 
+<div class="content">
+    <div class="title m-b-md">
+    @yield('TitlePageName')
+    </div>
+    @include ('flash-message')
+    @yield('content')
+</div>
+```
+
+## Etape 3 : afficher le message 
+
+Dans la méthode à l'intérieur du controller :
+* Paramètrer le message : with()
+* Renvoyer la même page : back()
+
+```
+public function destroy(Ingredient $ingredient)
+{
+    if ($ingredient->boissons->count()>0) // Si l'ingrédient est associé à au moins une boisson
+    {
+        $boissons = $ingredient->boissons;
+        $liste='';
+        foreach($boissons as $boisson)
+        {
+            $liste .= "<li> ".$boisson->name. " (prix : " . $boisson->price/100 . " €, id : ". $boisson->id. " )</li>";
+        }
+
+        $informations = "Impossible de supprimer cet ingrédient car il est associé au(x) boisson(s) suivante(s) : ".$liste;
+        
+        // Revenir sur la même page en affichant le message type "error"
+        return back()->with("error", $informations);
+    }
+    
+    // Dans les autres cas, supprimer l'ingrédient
+    $ingredient->delete();
+
+    //Direction la route nommée avec le message type "info"
+    return redirect()->route('ingredients.index')->with("info", "L'ingrédient ".$ingredient->name ." a bien été supprimé");
+}
+```
