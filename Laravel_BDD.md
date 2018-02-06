@@ -541,6 +541,8 @@ public function showBoissons(Boisson $boisson) //je demande un paramètre de la 
 
 ### Ajouter un élément dans la table de liaison : ATTACH
 
+Attach permet "d'attacher" un élément à un autre. Par exemple, 
+
 Dans le controller, créer une méthode permettant d'ajouter une recette pour la boisson sélectionnée 
 
 ```
@@ -580,6 +582,8 @@ Route::post('boissons/{boisson}/recette', 'BoissonsController@addRecipe')->name(
 
 
 ### Supprimer un élément dans la table de liaison : DETACH 
+
+Detach permet de "détacher" un élément d'un autre. Par exemple, détacher un ingrédient d'une boisson (l'ingrédient ne fait donc plus partie de la recette).
 
 Dans le controller, créer une méthode permettant de supprimer un ingrédient pour la boisson sélectionnée 
 ```
@@ -722,3 +726,72 @@ public function destroy(Ingredient $ingredient)
     return redirect()->route('ingredients.index')->with("info", "L'ingrédient ".$ingredient->name ." a bien été supprimé");
 }
 ```
+
+**Pour pouvoir ajouter des balises HTML dans le message** : 
+* Dans le fichier "flash-message.blade.php" les messages sont affichés via : {{ $message }}
+* Les {{ }} ne permettent pas d'utiliser un message avec des balises HTML à l'intérieur 
+* Modifier les {{ }} en {!! !!} pour pouvoir ajouter des balises HTML
+
+*Exemple:*
+```php 
+@if ($message = Session::get('error'))
+<div class="alert alert-danger alert-block">
+    <button type="button" class="close" data-dismiss="alert">×</button> 
+        <strong>{!! $message !!}</strong> // par défaut : {{ $message }}
+</div>
+@endif
+```
+
+
+# Authenfication 
+
+Laravel contient déjà une partie authentification permettant de se connecter, déconnecter, enregistrer et même envoyer un email lors de la perte du mot de passe.
+
+## Créer les routes et vues 
+
+Pour créer automatiquement les routes et vues, lancer la commande suivante dans le Bash : 
+```
+php artisan make:auth
+```
+
+Pour avoir la liste des routes : 
+```
+php artisan route:list
+```
+
+## Protéger les routes 
+
+Pour que les utilisateurs qui ne sont pas authentifiés ne puissent pas accéder au site, il faut protéger les routes.
+
+Ajouter à la fin de toutes les routes le **Middleware** : 
+```php
+Route::get('ventes', 'VentesController@listeVentes')->middleware('auth');
+```
+
+Si l'on entre l'URL "machine/ventes" on sera redirigé vers la page Login.
+
+
+
+
+
+## Infos 
+
+Liste des fichiers créés automatiquement :
+* Dans le fichier "web.php", le code suivant a été ajouté pour créer l'ensemble des routes : 
+```
+Auth::routes();
+Route::get('/home', 'HomeController@index')->name('home');
+```
+* Vue : 'home'
+* Dans les "Views" il y a 2 nouveaux dossiers : Auth et Layouts
+* Dossier "Auth" :
+    * Dossier Passwords contenant les vues 'email' et 'reset'
+    * Vue 'Login'
+    * Vue 'Register'
+* Dossier "Layouts" :
+    * Vue 'app' : template avec barre de navigation et déconnexion 
+* Controller : HomeController (App\Http\Controllers)
+* ...
+
+
+
