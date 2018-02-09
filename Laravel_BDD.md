@@ -452,6 +452,37 @@ class Vente extends Model
 
 * Faire la migration en ligne de commande : php artisan migrate
 
+### Accéder aux données 
+
+Je souhaite afficher mes ventes et remplacer "boisson_id" par le nom de la boisson (dispo dans le Model Boisson). 
+J'utilise la relation entre les modèles.
+
+* Dans mon VenteController, je retourne l'ensemble des ventes : 
+```php
+public function index()
+    {
+        $data =
+            [
+                'ventes' => Vente::orderBy('id')->get(),
+            ];
+        return view('ventes.list', $data);
+    }
+```
+
+* Dans ma vue, je réalise une boucle pour afficher chaque vente et j'accède au nom de ma boisson
+```php
+@foreach ($ventes as $vente)
+    <tr>
+        <td>{{ $vente->id }}</td>
+        <td>{{ $vente->created_at }}</td>
+        <td>{{ $vente->boisson->name }}</td>
+        <td>{{ $vente->nbSugar }}</td>
+    </tr>
+@endforeach
+```
+
+* **$vente->boisson->name** : je peux accèder à ma table Boisson contenant le nom
+
 
 ## Relation Many To Many : belongsToMany
 
@@ -640,7 +671,7 @@ Route::delete('boissons/{boisson}/recette', 'BoissonsController@deleteIng')->nam
 
 ## Etape 1 : Créer une vue flash-message.blade.php 
 
-```php
+```
 @if ($message = Session::get('success'))
 <div class="alert alert-success alert-block">
     <button type="button" class="close" data-dismiss="alert">×</button> 
@@ -701,7 +732,7 @@ Dans la méthode à l'intérieur du controller :
 * Paramètrer le message : with()
 * Renvoyer la même page : back()
 
-```
+```php
 public function destroy(Ingredient $ingredient)
 {
     if ($ingredient->boissons->count()>0) // Si l'ingrédient est associé à au moins une boisson
@@ -759,6 +790,23 @@ Pour avoir la liste des routes :
 php artisan route:list
 ```
 
+Dans le fichier web, les routes suivantes sont crées : 
+```
+Auth::routes();
+Route::get('/home', 'HomeController@index')->name('home');
+```
+
+* Il faut donc modifier le "/home" en /
+* En cas de problème de redirection : checker le HomeController : 
+```php
+public function index()
+{
+    return view('tableaubord'); //choisir la bonne vue à retourner
+}
+```
+
+
+
 ## Protéger les routes 
 
 Pour que les utilisateurs qui ne sont pas authentifiés ne puissent pas accéder au site, il faut protéger les routes.
@@ -770,6 +818,26 @@ Route::get('ventes', 'VentesController@listeVentes')->middleware('auth');
 
 Si l'on entre l'URL "machine/ventes" on sera redirigé vers la page Login.
 
+
+## Récupérer les informations Utilisateurs 
+
+**Ajouter dans le Controller le lien :**
+```
+use Illuminate\Support\Facades\Auth;
+```
+
+* Vérifier si l'utilisateur est connecté :
+```
+Auth::check(); // Retourne True or False
+```
+* Récupérer l'id de l'utilisateur :
+```
+Auth::id();
+```
+* Récupérer un objet avec les données de l'utilisateur 
+```
+Auth::user();
+```
 
 
 
@@ -793,5 +861,61 @@ Route::get('/home', 'HomeController@index')->name('home');
 * Controller : HomeController (App\Http\Controllers)
 * ...
 
+
+# Profils utilisateurs 
+
+## Vérifier si l'utilisateur est connecté
+
+Pour vérifier si l'utilisateur est connecté : 
+* Dans un Controller :
+```php
+Auth::check();
+```
+* Dans une Vue :
+```php 
+Illuminate\Support\Facades\Auth::check();
+```
+
+Exemple : 
+* Dans un Controller :
+```php
+use Illuminate\Support\Facades\Auth;
+
+public function index()
+{
+    if (Auth::check()) {
+        $data =
+        [
+        'ventes' => Vente::orderBy('id')->get(),
+        ];
+        return view('ventes.list', $data);
+    }
+    else
+    {
+        return redirect()->route('machine');
+    }
+}
+```
+* Dans une Vue :
+```php
+<ul class="nav navbar-nav">
+    <li><a href="{{route('machine')}}">Machine</a></li>
+
+    @if (Illuminate\Support\Facades\Auth::check())
+        <li><a href="{{url('boissons')}}">Boissons</a></li>
+        <li><a href="{{url('triBoissons')}}">Boissons triées</a></li>
+        <li><a href="{{route('ingredients.index')}}">Ingrédients</a></li>
+        <li><a href="{{url('monnayeur')}}">Monnayeur</a></li>
+        <li><a href="{{route('ventes.index')}}">Ventes</a></li>
+    @endif
+</ul>
+```
+
+
+# Authorization 
+
+## GATES 
+
+## POLICIES
 
 
