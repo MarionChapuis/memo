@@ -914,6 +914,100 @@ public function index()
 
 # Authorization 
 
+Donner le droit d'accès à des routes selon le profil de l'utilisateur.
+
+
+## MIDDLEWARE
+
+Un Middleware est entre le Routing et le Controller. Il peut donc refuser l'accès à un Controller.
+
+#### Créer un Middleware
+
+* Ligne de commande 
+```
+php artisan make:middleware NomMiddleware
+```
+* Emplacement : App\Http\Middleware
+
+**Exemple**
+```
+php artisan make:middleware CheckRole
+```
+
+
+#### Définir la méthode 'handle'
+
+Lors de la création du Middleware, une méthode 'handle' est automatiquement créée. 
+
+**Exemple** 
+
+Si l'utilisateur n'est pas connecté comme 'admin' il est automatiquement redirigé vers la page d'accueil
+
+```
+class CheckRole
+{
+    public function handle($request, Closure $next)
+    {
+        // Si l'utilisateur n'est pas connecté avec un rôle 'admin', retour vers la page d'accueil
+        if ($request->user()->role != 'admin') {
+            return redirect('/');
+        }
+        // Sinon la demande est acceptée : la requête URL est validée
+        return $next($request);
+    }
+}
+```
+
+* Request : correspond à la requête URL 
+* next : permet l'affichage du résultat de l'URL (prochaine étape)
+
+#### Enregistrer le Middleware dans Kernel.php
+
+Le fichier Kernel regroupe l'ensemble des Middlewares. Il faut donc ajouter notre nouveau Middleware.
+
+* Enregistrer le Middleware 
+```
+protected $routeMiddleware = 
+[
+    'auth'       => \Illuminate\Auth\Middleware\Authenticate::class,
+    'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
+    'bindings'   => \Illuminate\Routing\Middleware\SubstituteBindings::class,
+    'can'        => \Illuminate\Auth\Middleware\Authorize::class,
+    'guest'      => \App\Http\Middleware\RedirectIfAuthenticated::class,
+    'throttle'   => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+    'role'       => \App\Http\Middleware\CheckRole::class, // 'role' a été ajouté et fait le lien avec le Middleware 'CheckRole'
+]
+```
+
+#### Utiliser le Middleware pour protéger une route 
+
+**Exemple**
+```
+// Route pour afficher la liste des boissons 
+Route::get('boissons', 'BoissonsController@listeBoissons')->name("Drinks")->middleware(['auth', 'role']);
+```
+
+* 'auth' : accès possible uniquement par les utilisateurs connectés
+* 'role' : accès possible uniquement par les utilisateurs avec un profil 'admin' (selon le Middleware)
+
+**Il est possible, d'ajouter des paramètres à 'role'**
+```
+Route::get('boissons', 'BoissonsController@listeBoissons')->name("Drinks")->middleware(['auth', 'role:admin']); 
+```
+
+```
+public function handle($request, Closure $next, $role)
+    {
+        // Si l'utilisateur n'est pas connecté avec un rôle 'admin', retour vers la page d'accueil
+        if ($request->user()->role != $role) {
+            return redirect('/');
+        }
+        // Sinon la demande est acceptée : la requête URL est validée
+        return $next($request);
+    }
+```
+
+
 ## GATES 
 
 ## POLICIES
