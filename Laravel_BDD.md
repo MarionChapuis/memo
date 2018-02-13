@@ -196,6 +196,66 @@ class Boisson extends Model
 }
 ```
 
+## Pré-remplir la BDD avec des données définies 
+
+* Renseigner le fichier DatabaseSeeder.php dans Database/Seeds
+```php
+use App\User;
+
+public function run()
+{
+    // $this->call(UsersTableSeeder::class);
+    User::create(
+        [
+            'id'       => 1,
+            'name'     => 'Guest',
+            'email'    => '',
+            'password' => '',
+            'role'     => 'guest',
+        ]
+    );
+    User::create(
+        [
+            'id'       => 2,
+            'name'     => 'Admin',
+            'email'    => 'admin@example.com',
+            'password' => 'MonSuperMotDePasse',
+            'role'     => 'guest',
+        ]
+    );
+}
+```
+
+* En ligne de commande 
+```
+php artisan db:seed
+```
+
+## Encrypter les password 
+
+Lorsque les mots de passe sont directement renseignés dans la BDD (via PhpMyAdmin par exemple), le mot de passe est visible. 
+
+Il faut donc encrypter aussi ces mots de passe.
+
+* Ajouter une fonction dans le Model "User.php"
+```
+public function setPasswordAttribute($password)
+    {
+        $this->attributes['password'] = bcrypt($password);
+    }
+```
+
+* Modifier le fichier "RegistrerController.php"
+```
+protected function create(array $data)
+    {
+        return User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => $data['password'], //j'ai supprimé le "bcrypt"
+        ]);
+    }
+```
 
 # Synthèse des méthodes 
 
