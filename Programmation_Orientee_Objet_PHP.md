@@ -298,8 +298,9 @@ Le principe est le même, c'est-à-dire qu'un attribut statique **appartient à 
 * Etape 2 : créer les getter et les setter pour ces attributs 
 
 
-### L'hydratation 
+## Le surchargement - Overriding
 
+Lorsqu'une méthode d'une classe mère est modifiée dans sa classe fille.
 
 
 ## L'héritage
