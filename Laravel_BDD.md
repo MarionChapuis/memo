@@ -1003,7 +1003,7 @@ Lors de la création du Middleware, une méthode 'handle' est automatiquement cr
 
 Si l'utilisateur n'est pas connecté comme 'admin' il est automatiquement redirigé vers la page d'accueil
 
-```
+```php
 class CheckRole
 {
     public function handle($request, Closure $next)
@@ -1026,7 +1026,7 @@ class CheckRole
 Le fichier Kernel regroupe l'ensemble des Middlewares. Il faut donc ajouter notre nouveau Middleware.
 
 * Enregistrer le Middleware 
-```
+```php
 protected $routeMiddleware = 
 [
     'auth'       => \Illuminate\Auth\Middleware\Authenticate::class,
@@ -1042,7 +1042,7 @@ protected $routeMiddleware =
 #### Utiliser le Middleware pour protéger une route 
 
 **Exemple**
-```
+```php
 // Route pour afficher la liste des boissons 
 Route::get('boissons', 'BoissonsController@listeBoissons')->name("Drinks")->middleware(['auth', 'role']);
 ```
@@ -1051,11 +1051,11 @@ Route::get('boissons', 'BoissonsController@listeBoissons')->name("Drinks")->midd
 * 'role' : accès possible uniquement par les utilisateurs avec un profil 'admin' (selon le Middleware)
 
 **Il est possible, d'ajouter des paramètres à 'role'**
-```
+```php
 Route::get('boissons', 'BoissonsController@listeBoissons')->name("Drinks")->middleware(['auth', 'role:admin']); 
 ```
 
-```
+```php
 public function handle($request, Closure $next, $role)
     {
         // Si l'utilisateur n'est pas connecté avec un rôle 'admin', retour vers la page d'accueil
@@ -1069,6 +1069,24 @@ public function handle($request, Closure $next, $role)
 
 
 ## GATES 
+
+### Retourner une page d'erreur 
+
+Lorsque l'utilisateur n'a pas les droits d'accès à une page, retourner une page d'erreur. 
+Ainsi, impossible de savoir si la page existe ou non. 
+
+```php 
+public function index()
+{
+    if (User::check())
+    {
+        ....
+    }
+    // Retourner une page d'erreur s'il n'est pas connecté
+    return abort(404); // n° de la page d'erreur : 404, 501 ... 
+}
+
+```
 
 ## POLICIES
 
