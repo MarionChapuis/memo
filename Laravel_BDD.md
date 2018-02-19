@@ -277,10 +277,44 @@ Les méthodes, souvent héritées de Model, peuvent être enchaînées : where('
 | destro(id) | Supprimer un enregistrement en le sélectionnant | $instance->destroy(id) 
 | all() | Afficher tous les engistrements | $instance = NomClass::all() ; (Dans la vue : $instance->attribut1)
 | orderBy('attribut', 'asc ou desc') | Trier les enregistrements | NomClass::order('name', 'desc')->get() ;
+| first() | Récupérer le premier élément d'une collection, à utiliser quand la collection contient un seul élément | NomClasse::where('name', 'sucre')->first();
+| isNotEmpty() | Tester si une Collection est vide (retourne true ou false) | $instance->isNotEmpty() ;
 
+
+[Documentation sur les méthodes Laravel pour les collections](https://laravel.com/docs/5.6/collections#available-methods)
+
+
+
+**Créer un champs temporaire dans un objet** 
+* Dans le Controller 
+```php
+public function index()
+{
+    $boisson->dispo = true;
+}
+```
+* Dans la Vue 
+```php
+@if ($boisson->dispo === true)
+//...
+@endif
+```
+
+**Quelques calculs sur les données**
+* Compter des données
+```php
+$user->ventes->count(); // Compte le nombre de ventes d'un utilisateur
+```
+* Calculer une somme
+```php
+number_format($user->ventes->sum('price')/100,2); // Calculer la somme des prix de ventes d'un utilisateur 
+// number_format(number, nb décimal) permet de formater le résultat
+``` 
 
 
 ## Imposer une instance d'une classe en paramètre  
+
+Typer les données en imposant une instance d'une classe en paramètre d'une fonction.
 
 * Retourner une vue affichant les informations d'une boisson sélectionnée (par l'id)
 
@@ -1090,4 +1124,6 @@ public function index()
 
 ## POLICIES
 
+
+# Validation de formulaire 
 
