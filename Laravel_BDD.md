@@ -427,6 +427,14 @@ public function deleteDrink(Boisson $boisson)
 }
 ``` 
 
+* Ajouter dans le formulaire la méthode suivante (sinon ça ne marche pas )
+```html
+<form>
+{{csrf_method('delete')}}
+</form>
+```
+
+*La méthode ci-dessous fonctionne aussi mais il vaut mieux utiliser la précédente*
 * Ajouter dans le formulaire le Input magique (sinon ça ne marche pas )
 ```html
 <input type="hidden" name="_method" value="delete">
@@ -759,6 +767,20 @@ Route::delete('boissons/{boisson}/recette', 'BoissonsController@deleteIng')->nam
 ```
  
 
+**Attention avec les BDD de type InnoDB, il n'est pas possible de supprimer un élément ayant des relations**
+
+Par exemple, si l'on souhaite supprimer une boisson qui a une recette (donc des liens avec des ingrédients), il faut d'abord casser les liaisons pour supprimer la boisson. 
+
+```php
+if ($boisson->ingredients->count() >0) //Si la boisson a des ingrédients liés
+{
+    foreach ($boisson->ingredients as $ingredient) 
+    {
+        $boisson->ingredients()->detach($ingredient); //détacher chaque ingrédient
+    }
+}
+$boisson->delete();
+```
 
 
 # Messages flash 
@@ -1126,4 +1148,100 @@ public function index()
 
 
 # Validation de formulaire 
+
+# JAVASCRIPT & PHP 
+
+## Placer les fichiers JS & Images
+
+Les fichiers JS et images sont respectivement à placer dans les dossiers suivants : 
+* public/js
+* public/images 
+
+## Données PHP connues par JS 
+
+Une solution provisoire pour que JavaScript connaisse des données PHP.
+
+* Dans la vue PHP, ajouter une balise script 
+```php
+<script> valeurMaxStock ={{$maxSucre}}</script>
+```
+**Exemple** :
+* valeurMaxStock sera utilisée dans le JS 
+* $maxSucre est une variable connue par la vue PHP
+
+
+
+# Quelques petites bouts de codes
+
+### Formulaire avec des images à cliquer 
+
+Avoir un formulaire caché permettant de cliquer sur une image pour la sélectionner 
+
+* Dans le CSS :
+```css
+label > input{ /* HIDE RADIO */
+    visibility: hidden; /* Makes input not-clickable */
+    position: absolute; /* Remove input from document flow */
+}
+label > input + img{ /* IMAGE STYLES */
+    cursor:pointer;
+    border:2px solid transparent;
+}
+label > input:checked + img { /* (RADIO CHECKED) IMAGE STYLES */
+    background-color: rgba(173,255,47,0.51);
+    border-radius : 20px;
+}
+```
+
+* Dans la Vue Blade 
+```php
+<table class="tableBoissons table-responsive">
+@foreach ($drinks as $uneBoisson)
+{{--Si la boisson est activée et que les stocks sont suffisants --}}
+@if ($uneBoisson->active === 1 && $uneBoisson->dispo())
+<tr>
+<td>
+<label>
+<input type="radio" name="boisson_id" value="{{$uneBoisson->id}}" required>
+<img class="petiteTasse" id="petiteTasse" src="image_machine/Vue1-assets/tasse.png" prixBoisson="{{$uneBoisson->price}}">
+</label>
+</td>
+<td>{{ $uneBoisson->name }}</td>
+<td class="droite price{{$uneBoisson->id}}">{{ number_format($uneBoisson->price/100,2) }}€</td>
+</tr>
+@endif
+@endforeach
+</table>
+```
+
+* Récupèrer l'info "prixBoisson" : il est possible d'ajouter un attribut à une image par exemple, pour récupérer une info dans le JS
+```javascript
+let prixBoisson = $(this).attr('prixBoisson'); //je récupère le prix de la boisson sélectionnée
+```
+
+### Ajouter du son 
+
+* Dans la vue Blade, ajouter une balise script contenant la librairie Jquery permettant l'ajout de piste audio
+```php
+<script src='https://cdn.rawgit.com/admsev/jquery-play-sound/master/jquery.playSound.js'></script>
+```
+
+* Dans le script JavaScript, ajouter le fichier audio (à noter le dossier Audio est à placer dans Public)
+```Javascript
+$('.bouton').click(function(){
+    $.playSound('audio/donald.mp3');
+    });
+```
+
+
+### Bouton 'activer / désactiver'
+
+* Dans un formulaire, ajouter une checkbox 
+```php
+<label class="switch col-md-8"> //La classe Switch est une classe Bootstrap
+    <input type="checkbox" name="active" value="1">
+    <span class="slider round"></span> // La classe Slider Round est une classe Bootstrap
+</label>
+```
+
 
