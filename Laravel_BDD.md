@@ -1123,10 +1123,7 @@ public function handle($request, Closure $next, $role)
     }
 ```
 
-
-## GATES 
-
-### Retourner une page d'erreur 
+## Retourner une page d'erreur 
 
 Lorsque l'utilisateur n'a pas les droits d'accès à une page, retourner une page d'erreur. 
 Ainsi, impossible de savoir si la page existe ou non. 
@@ -1144,10 +1141,16 @@ public function index()
 
 ```
 
+## GATES 
+
+
+
 ## POLICIES
 
 
 # Validation de formulaire 
+
+
 
 # JAVASCRIPT & PHP 
 
@@ -1242,6 +1245,41 @@ $('.bouton').click(function(){
     <input type="checkbox" name="active" value="1">
     <span class="slider round"></span> // La classe Slider Round est une classe Bootstrap
 </label>
+```
+
+
+### Jouer avec les touches du clavier
+
+Lorsqu'on appuie sur la fléche gauche du clavier le sucre réduit et inversement pour la flèche droite. 
+
+* Fonction JS dans le fichier script.js
+```javascript
+function sugarFunction(event) {
+    var key = event.keyCode; //la variable Key est l'évènement d'une touche
+    if (key == 37) {
+        let nbActuelSucreForm = parseInt($('.choixSucre').val());
+        removeSugar();
+        $(this).attr('src', 'image_machine/Vue1-assets/Bouton_moins_etat2.png');
+        if (nbActuelSucreForm > 0) {
+            $('.choixSucre').val(nbActuelSucreForm - 1);
+            $('#bonhommeSucre').attr('src','image_machine/Vue1-assets/sugar'+(nbActuelSucreForm-1)+'.png');
+        };
+    } else if (key == 39) {
+        let nbActuelSucreForm = parseInt($('.choixSucre').val()); //je récupère la valeur du nombre de sucre sélectionné
+        addSugar();
+        $(this).attr('src', 'image_machine/Vue1-assets/Bouton_plus_etat2.png');
+        if (nbActuelSucreForm < valeurMaxStock) {
+            $('.choixSucre').val(nbActuelSucreForm + 1);
+            $('#bonhommeSucre').attr('src','image_machine/Vue1-assets/sugar'+(nbActuelSucreForm+1)+'.png');
+        };
+    }
+};
+```
+
+* Dans la vue blade, il faut ajouter l'évènement qui est "lorsqu'on appuie sur la touche" dans la balise Body
+```php
+<body onkeydown="sugarFunction(event);">
+// 'onkeydown' : lorsqu'on appuie sur la touche
 ```
 
 
