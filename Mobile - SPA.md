@@ -795,6 +795,80 @@ Utilisation du composant dans un autre composant "MachineList.vue":
 
 * Pour passer des données dans un attribut, il faut ajouter ':' devant l'attribut : ':name="machine.name' (idem que v-bind:name="machine.name")
 
+# Hook 
+
+Evènements : 
+create()
+mounted()
+beforeCreate()
+
+# Propriétés calculées 
+
+Les propriétés calculées ... 
+
+
+**Exemple : afficher les machines selon le status 'ko', 'ok' et 'all'**
+
+```javascript
+<template>
+  <div>
+    <h1>Liste des machines</h1>
+    <!--Bouton pour afficher les machines ok-->
+    <button class="btn btn-lg btn-success" @click="afficheMachinesOk">Machines ok</button>
+
+    <!--Bouton pour afficher les machines ko-->
+    <button class="btn btn-lg btn-danger" @click="afficheMachinesKo">Machines ko</button>
+
+    <!--Bouton pour afficher toutes les machines -->
+    <button class="btn btn-lg btn-primary" @click="afficheMachineAll">Machines</button>
+
+    <br><br>
+    <!--Afficher la liste des machines selon leur status-->
+    <machine v-for="machine in machineFilter" :key="machine.id" :machine="machine"></machine>
+
+  </div>
+</template>
+
+<script>
+  import Machine from './Machine.vue';
+
+  export default {
+    components: {Machine},
+    name: "machine-list",
+    props: ['machines', 'loading', 'error'],
+    data() {
+      return {
+        statusMachine:'', //variable pour afficher les machines selon leur status
+      }
+    },
+    methods: {
+      afficheMachinesOk : function(){
+        this.statusMachine = "true"; //statusMachine permet après de filtrer les machines avec un status "true"
+      },
+      afficheMachinesKo : function(){
+        this.statusMachine = "false"; //statusMachine permet après de filtrer les machines avec un status "false"
+      },
+      afficheMachineAll : function(){
+        this.statusMachine =  ''; //statusMachine étant null je pourrais afficher toutes les machines
+      }
+    },
+    //computed: propriétés calculées
+    computed:{
+      machineFilter: function(){
+        if(this.statusMachine === ''){
+          return this.machines;
+        }
+        return this.machines.filter(machine => machine.status === this.statusMachine);
+      }
+    }
+  }
+</script>
+```
+
+**Explications**
+* 3 boutons appelant des fonctions pour donner à la variable 'statusMachine' des valeurs différentes ("true", "false", "")
+* 3 méthodes changeant la valeur de la variable 'statusMachine'
+* 1 fonction 'machineFilter' qui si la variable 'statusMachine' est vide elle retourne toute la liste des machines sinon on applique une méthode 'filter' qui affichera les machines selon la valeur de leur status
 
 
 # Mise en place d'un routeur
@@ -806,6 +880,10 @@ C'est la même chose que Laravel, sauf qu'ici le routeur est côté client, nous
 Cela tombe bien, Vue a un routeur tout prêt que nous allons utiliser, [vue-router](https://router.vuejs.org/fr/installation.html)
 
 ## Installation 
+
+2 possibilités pour installer le router :
+* npm
+* cdn
 
 #### Installation avec NPM
 
@@ -889,14 +967,14 @@ new Vue({
 ## Installer Google Map 
 
 * Lancer la commande :
-```
+```bash
 npm install vue2-google-maps
 ```
 
 Documentation GitHub : [vue-google-maps](https://github.com/xkjyeah/vue-google-maps)
 
 * Dans le fichier "main.js" :
-```
+```javascript
 import * as VueGoogleMaps from 'vue2-google-maps'
 Vue.use(VueGoogleMaps, {
   load: {
@@ -906,6 +984,33 @@ Vue.use(VueGoogleMaps, {
 ```
 
 * Récupérer une clé API google Map : [En cliquant sur 'Obtenir une clé'](https://developers.google.com/maps/documentation/javascript/get-api-key?refresh=1)
+
+### Protéger la clé API 
+
+* Mettre la clé API dans une variable, dans un fichier JavaScript qui ne sera pas commité :
+```javascript
+//Dans le fichier 'secret.js'
+myKey = 'xxxxxxxxxxxxxxxxxxxxx'
+```
+* Dans le fichier 'main.js', appeler le fichier (require) et remplacer notre clé API dans 'Vue.use' par la variable :
+```javascript
+require('./secret.js') //appel au fichier js contenant la clé
+
+import * as VueGoogleMaps from 'vue2-google-maps'
+Vue.use(VueGoogleMaps, {
+  load: {
+    key: myKey
+  }
+})
+```
+* Créer un fichier 'x.example.js' pour permettre à d'autres collaborateurs de comprendre ce qu'est 'myKey' :
+```javascript
+myKey = 'Ma clé API Google' //Générer depuis Google API - obtenir une clé
+```
+* Ajouter dans le fichier '.gitignore', le fichier contenant la Clé à protéger :
+```javascript
+secret.js
+```
 
 
 ## Afficher une Map
@@ -929,5 +1034,224 @@ Vue.use(VueGoogleMaps, {
   margin: auto;
 }
 </style>
+```
+
+## Afficher des marqueurs 
+
+* Dans le template du fichier .vue, ajouter les balises gmap-marker et une boucle v-for (car il y a plusieurs positions): 
+```
+<gmap-marker
+    :key="machine.id"
+    v-for="machine in machines"
+    :position="machine.position" // position doit être un objet de la forme {lat: xxxx, lng: xxxx}
+    :clickable="true" // permet de cliquer sur la position
+    :draggable="true" //permet de bouger le marqueur
+></gmap-marker>
+```
+
+
+## Initialiser la map sur la géolocalisation du navigateur
+
+Afficher la map en centrant sur la position de l'utilisateur 
+
+```javascript
+<template>
+    <gmap-map
+      class="maps"
+      v-show="!loading && !error.length"
+      :center="{lat:maPosition.latitude, lng:maPosition.longitude}" //centrer sur la position de l'utilisateur
+      :zoom="7"
+    ></gmap-map>
+</template
+
+<script>
+  import Machine from './Machine.vue';
+
+  export default {
+    name: "machines-map",
+    components: {Machine},
+    props: ['machines', 'loading', 'error'],
+    data() {
+      return {
+        infoMachine: '', //Variable pour stocker les infos de la machine sur laquelle l'utilisateur a cliquée
+        maPosition: {
+          latitude: 48,
+          longitude: 2,
+        },
+      }
+    },
+    methods: {
+      affiche: function (objetMachine) {
+        this.infoMachine = objetMachine; //récupérer les infos de la machine
+      },
+    },
+    mounted() {
+      if (navigator.geolocation) {
+        let self = this;
+        navigator.geolocation.getCurrentPosition(function (position) {
+          self.maPosition = position.coords;
+        })
+      }
+    }
+  }
+</script>
+```
+
+* mounted() : lance le script lorsque l'objet a été créé et que le composant est rattaché au DOM 
+* let self = this : 'this' permet de remonter au parent, sauf que 'self.maPosition', le parent est celui qui appelle la 'fonction (position)'
+
+# API 
+
+## Consulter la documentation de l'API : exemple
+* URL permettant de récupérer les 5 premières machines triées par nom
+```
+https://machine-api-campus.herokuapp.com/api/machines?limit=5&&sort=name
+```
+* adresse de l'API : 
+```
+https://machine-api-campus.herokuapp.com/
+```
+* afficher l'ensemble des machines 
+```
+api/machines
+```
+* limiter et trier 
+```
+?limit=5&&sort=name
+```
+
+## Installer la librairie AXIOS 
+
+VueJS préconise l'utilisation de la librairie [axios](https://github.com/axios/axios) 
+
+* Installer avec NPM axios
+```bash
+npm install axios
+```
+* Importer axios pour l'utiliser 
+```javascript
+<script>
+  import axios from 'axios';
+```
+
+## Récupérer des données d'une API 
+
+```javascript
+<script>
+  import axios from 'axios';
+
+  export default {
+    name: "machine-list",
+    data() {
+      return {
+        machines: [],
+        loading: false,
+        error: null,
+      }
+    },
+    created(){
+      axios.get('https://machine-api-campus.herokuapp.com/api/machines').then(response =>{
+      this.machines = response.data}) //j'ajoute dans mon tableau machines les données récupérées de l'API
+      .catch(e => {
+        this.errors.push(e) //ajoute dans 'error' les erreurs rencontrées
+      })
+    }
+  }
+</script>
+```
+
+## Paramétrer un message d'attente & d'erreur
+
+* Partie Script
+```javascript
+<script>
+  import Machine from './Machine.vue';
+  import axios from 'axios';
+
+  export default {
+    components: {Machine},
+    name: "machine-list",
+    data() {
+      return {
+        machines: [], //la liste des machines est vide avant de télécharger les données de l'API
+        loading: true, // loading est par défaut "true" pour afficher un message d'attente pendant le téléchargement
+        error: [], //la liste des erreurs est vide et se remplira en cas d'erreurs de téléchargement
+      }
+    },
+    created() {
+      axios.get('https://machine-api-campus.herokuapp.com/api/machines').then(response => {
+        this.machines = response.data; // les données récupérer s'ajoute dans la collection "machines"
+        this.loading = false; //loading devient false afin de ne plus afficher le message d'attente
+      })
+        .catch(e => {
+          this.loading= false; //ne plus afficher le message d'attente
+          this.error.push(e); //ajouter les erreurs dans le tableau 'error'
+        })
+    },
+  }
+</script>
+```
+
+* Partie Template 
+```html
+<template>
+  <div>
+    <h1>Liste des machines</h1>
+
+    <!--Afficher le message d'erreur s'il y a des erreurs-->
+    <h2 class="erreur" v-if="error && error.length">Erreur téléchargement</h2>
+
+    <!--Animation téléchargement avant l'arrivée des données API-->
+    <h2 v-show="loading" class="msgLoading">Loading<br><i class="fa fa-circle-o-notch fa-spin fa-5x"></i></h2>
+
+    <!--Afficher la liste des machines-->
+    <machine v-for="machine in machines" :key="machine.id" :name="machine.name" :status="machine.status" :checked-at="machine.checkedAt"></machine>
+
+  </div>
+</template>
+```
+
+* Dans l'index HTML, ajouter le lien pour afficher les animations [fontawesome](https://fontawesome.com/)
+```html
+<head>
+   <meta charset="utf-8">
+   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+   <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
+   <title>appli_parc_machines</title>
+</head>
+```
+
+## Récupérer les données d'une API dans App.vue 
+
+Pour pouvoir alimenter plusieurs composants avec une API, il faut l'appeler dans 'App.vue' : 
+* Ajouter les props dans les composants 
+```javascript
+props: ['machines', 'loading', 'error'],
+```
+* Dans 'App.vue', ajouter dans Data les variables 'machines', 'loading', 'error'
+```javascript 
+data() {
+      return {
+        msg: 'Welcome to Your Vue.js App',
+        machines: [],
+        loading: true,
+        error: [],
+      }
+    },
+    created() {
+      axios.get('https://machine-api-campus.herokuapp.com/api/machines').then(response => {
+        this.machines = response.data; //ajouter dans la collection 'machines' les données de l'API
+        this.loading = false; //désactiver le message d'attente de téléchargement
+      })
+        .catch(e => {
+          this.loading = false; //désactiver le message d'attente de téléchargement
+          this.error.push(e); //ajouter les erreurs rencontrées dans le tableau des erreurs
+        })
+    }
+```
+* Passer les données à 'App.vue' 
+```
+<router-view v-bind:machines="machines" :loading="loading" :error="error"></router-view>
 ```
 
