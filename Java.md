@@ -1,14 +1,42 @@
 # Java
 
+[Super mémo Java](http://thierry-leriche-dessirier.developpez.com/tutoriels/java/mots-cles-java/#LIV-B-9)
+
 ## Définition & Installation
 
-Langage compilé et typé.
+JAVA est un langage compilé et typé.
 
 JDK : Java Development Kit 
 
 JRE : Java Environment Execution
 
 Le code est exécuté par une machine virtuelle grâce au JRE et JDK.
+
+## Mots clés 
+
+| Mot clé | Définition  
+|:-----:|---------
+| Classe |Entité regroupant des attributs (variables) et des méthodes (fonctions)
+| Instance | objet créée à partir d'une classe 
+| Attribut | Variable 
+| Méthode | Fonction
+| Getter | méthode dans la classe permettant de retourner un attribut
+| Setter | méthode dans la classe permettant de gérer la modification d'un attribut
+| Constructeur | Permet de structurer la création d'une instance (Lors d'une instanciation, le constructeur est automatiquement appelé)
+| Héritage (extends) | Lorsque la classe B (l'enfant) hérite de la classe A (le parent), la classe B hérite de l'ensemble des attributs et méthodes publiques de la classe A (on peut dire que B est un A, - class B extends A)
+| Surchargement (overriding) | lorsqu'une méthode d'une classe mère est modifiée dans sa classe fille
+| Interface | Contient une ou des méthodes qui peuvent être utilisées par plusieurs classes différentes
+| Implementer | Une classe qui implémente une interface définit les méthodes de l'interface
+| Abstraite | Une classe abstraite permet de définir des méthodes abstraites qui seront implémentées dans les classes filles. Ainsi les classes filles ont déjà une structure déterminée par la classe mère. Une classe abstraite ne peut être instanciée 
+| Concrète | Une classe concrète contient des méthodes concrètes, c'est-à-dire qu'elles sont définies. Ces méthodes peuvent implémenter des méthodes d'une classe abstraite
+| Package | Il s'agit d'un dossier qui contient des classes 
+| Import | 	Permet d'importer un autre package avec ses classes
+| Final | Indique qu'un élément ne peut être ni modifié, ni étendu. Une classe avec le mot clé Final ne peut pas avoir de fille par héritage. Une méthode Final indique que les classes filles ne peuvent pas surcharger la méthode. Appliqué à une variable, il indique que la variable est une constante
+| Static | Les méthodes statiques sont faites pour agir sur une classe et non sur un objet. Une méthode statique peut être utilisée sans instancier un objet de la classe
+| Void | Indique que la méthode ne retournera pas de valeur (ex : public void maMethode(){System.out.println("je retourne rien");} )
+
+
+
 
 ### IDE 
 
@@ -124,9 +152,80 @@ java -cp target/<artifactId> <mainClass>
 ```
 * Créer le Read.me et GIT 
 
+## Exemple HelloWorld 
+
+Consignes : 
+* une interface Bonjour avec une méthode sayHello qui renvoie une chaîne de caractères
+* une classe abstraite Animal qui implémente l'interface ci-dessus
+* deux classes qui étendent d'Animal : Human et Dog
+* créer une instance pour chacune des classes concrètes
+
+Créer l'interface Bonjour avec une méthode sayHello qui renvoie une chaîne de caractères
+```java
+package hello;
+
+public interface Bonjour{
+	public String sayHello();
+}
+```
+
+Une classe abstraite Animal qui implémente l'interface Bonjour
+```java
+package hello;
+
+public abstract class Animal implements Bonjour {
+    public abstract String sayHello();
+}
+
+```
+
+2 classes qui étendent d'Animal : Human et Dog
+```java
+package hello;
+
+public class Human extends Animal {
+    public String sayHello(){
+        return "Hello";
+    }
+}
+```
 
 Dans le fichier HelloWorld (le mainClass) :
 ```java
+package hello;
+
+public class HelloWorld {
+    public static void main(String[] args){
+        Animal canardo = new Duck();
+        Animal humain = new Human();
+        System.out.println("Le canard : "+ canardo.sayHello());
+        System.out.println("L'humain : " + humain.sayHello());
+    }
+}
+```
+
+
+Compiler et installer les dépendances avec Maven :
+```bash
+mvn install
+```
+
+Lancer la classe pour afficher dans le terminal :
+```bash
+java -cp target/hello-1.jar hello.HelloWorld
+```
+
+
+
+## Interface 
+
+Contient une ou des méthodes qui peuvent être utilisées par plusieurs classes différentes.
+
+Créer une interface :
+```java
+public interface Bonjour{
+
+}
 ```
 
 
@@ -205,6 +304,21 @@ Le traitement arithmétique s'effectue que sur des variables de même type.
 | * | Multiplier 
 | / | Diviser 
 | % | Renvoi le reste de la division entière de 2 variables, il s'agit du modulo
+| < | Plus petit que
+| <= | Plus petit ou égal à 
+| > | Plus grand que 
+| >= | Plug grand ou égal à 
+| == | Egal à 
+| != | N'est pas égal
+| && | Et 
+| \|\| | Ou 
+| ! | N'est pas  
+
+**Priorité des opérateurs booléens** 
+! : est évalué le 1er
+&& : est évalué le 2ème
+|| : est évalué le 3ème
+
 
 Incrémenter 
 ```java
@@ -239,6 +353,43 @@ double nbre1 = 10, nbre2 = 3;
 int resultat = (int)(nbre1 / nbre2); //retournera un entier : 'int'
 System.out.println("Le résultat est = " + resultat);
 ```
+
+## Conditions 
+
+Syntaxe classique if, else if, else : 
+```java
+int round = 1;
+
+if (round > 12) {
+	System.out.println("The match is over!");
+} else if (round > 0) {
+	System.out.println("The match is underway!");
+} else {
+	System.out.println("The boxing match hasn't started yet.");
+}	
+```
+
+Syntaxe alternative : () ? if : else ;
+```java
+char maCondition = (monScore > 20) ? 'W' : 'L' ;
+```
+
+Syntaxe Switch : 
+```java
+switch (maCondition) {
+	case 1 : /* */ ;
+	break;
+	case 2 : /* */ ;
+	break;
+	case 3 : /* */ ;
+	break;
+	case 4 : /* */ ;
+	break;
+	default : /* */ ; 
+	break;
+}
+```
+
 
 
 ## Conversion : cast
@@ -275,4 +426,180 @@ int resultat = (int)(nbre1 / nbre2);
 
 Utilisation de l'underscore.
 
+
+## Les entrées claviers 
+
+Utilisation de l'objet **Scanner** pour la lecture des entrées clavier.
+* Importer le package 
+* Initialiser l'objet Scanner avec l'entrée standard "System.in"
+* Il y a une méthode de récupération de données pour chaque type (sauf les char) : nextLine() pour les String, nextInt() pour les int ...
+
+```java
+import java.util.Scanner;
+
+public class Main {
+  public static void main(String[] args){
+    Scanner sc = new Scanner(System.in);
+	System.out.println("Veuillez saisir un mot :");
+	String str = sc.nextLine();
+	System.out.println("Vous avez saisi : " + str);
+  }
+}
+```
+
+## Les tableaux 
+
+Un tableau ne peut contenir qu'un seul type de variables et a la structure : <\Type de variables> <\NomTableau>[] = {item, item}; 
+
+#### Tableau simple 
+```java
+int tableauEntier[] = {0,1,2,3,4,5,6,7,8,9};
+double tableauDouble[] = {0.0,1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0};
+char tableauCaractere[] = {'a','b','c','d','e','f','g'};
+String tableauChaine[] = {"chaine1", "chaine2", "chaine3" , "chaine4"};
+```
+
+Initialiser un tableau vide est possible mais il faut indiquer le nombre de cases 
+```java
+int tableau[] = new int [5]; 
+```
+
+#### Tableau multidimentionnel 
+
+Il s'agit d'un tableau contenant au minimum 2 tableaux.
+
+```java
+int premiersNombres[][] = { {0,2,4,6,8},{1,3,5,7,9} };
+```
+
+Pour rechercher un élément : 
+```java
+premiersNombres[0][1] // correspond dans le premier tableau au 2ème élément : 2
+```
+
+## Les classes 
+
+### Les constructeurs 
+
+Si le constructeur n'est pas déclaré dans la classe, il en existe un par défaut qui est vide : public NomConstructeur(){}
+
+**Le nom du constructeur est celui de la Classe**.
+
+```java
+public class Ville{   
+  //Stocke le nom de notre ville
+  String nomVille;
+  //Stocke le nom du pays de notre ville
+  String nomPays;
+  //Stocke le nombre d'habitants de notre ville
+  int nbreHabitants;
+     
+  //Constructeur 
+  public Ville(){    
+    nomVille = "Inconnu";
+    nomPays = "Inconnu";
+    nbreHabitants = 0;
+  } 
+}
+```
+
+### Getter et Setter 
+
+Un Getter retourne le nom de la variable : getNomVariable(){}
+Un Setter permet de modifier la valeur d'une variable : setNomVariable(){}
+```java
+public class Ville {
+	String nomVille;
+          
+  //*************   ACCESSEURS - GETTER *************
+    
+  //Retourne le nom de la ville
+  public String getNom()  {  
+    return nomVille;
+  }
+
+  //*************   MUTATEURS  - SETTER *************
+
+  //Définit le nom de la ville
+  public void setNom(String pNom)
+  {
+    nomVille = pNom;
+  }
+}
+```
+
+### Classes Abstraites & Concrètes
+
+#### Classes Abstraites 
+
+Une classe abstraite permet de définir des méthodes abstraites qui seront implémentées dans les classes filles. 
+Ainsi les classes filles ont déjà une structure déterminée par la classe mère. 
+Une classe abstraite ne peut être instanciée. 
+
+Les méthodes d'une classes abstraites sont forcément abstraites elles aussi.
+
+```java
+public abstract class Animal{
+  public abstract String sayHello(); //méthode abstraite retournant une chaîne de caractères
+}
+```
+
+#### Classes Concrètes 
+
+Une classe concrète contient des méthodes concrètes, c'est-à-dire qu'elles sont définies. 
+Ces méthodes peuvent implémenter des méthodes d'une classe abstraite.
+
+```java
+public class Felin{
+	public String sayHello(){
+		return "Miaou"; 
+	}
+}
+```
+
+### Les méthodes 
+
+Lors de la déclaration d'une méthode il faut indiquer 2 choses :
+* Sa visibilité : public, private, protected
+* Le type de variable qu'elle retourne : String, int ... 
+
+#### Les méthodes retournant un type de variable
+
+```java
+public class Felin{
+	public String sayHello(){
+		return "Miaou"; //la méthode retourne une chaîne de caractères
+	}
+}
+```
+
+
+#### Void 
+
+Indique que la méthode ne retournera pas de valeur.
+
+```java
+public class Felin{
+	public void maMethode(){
+		System.out.println("je retourne rien");
+	}
+}
+```
+
+#### Void main 
+
+Pour qu'un programme en Java puisse être exécuté, une méthode est absolument indispensable, c’est la méthode main. Elle se déclare toujours de la manière suivante :
+
+```java
+package hello;
+
+public class HelloWorld {
+    public static void main(String[] args){
+        Animal canardo = new Duck();
+        Animal humain = new Human();
+        System.out.println("Le canard : "+ canardo.sayHello());
+        System.out.println("L'humain : " + humain.sayHello());
+    }
+}
+```
 
