@@ -141,7 +141,7 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 </project>
 ```
 * A noter dans ce fichier :
-	* mainClass : fichier principal où on mettre tout
+	* mainClass : fichier principal où on met tout
 	* artifactId : version.jar
 * Coder en mettant les fichiers java dans 'hello'
 * Utiliser Maven :
@@ -149,8 +149,30 @@ http://maven.apache.org/maven-v4_0_0.xsd">
 mvn compile
 mvn install
 java -cp target/<artifactId> <mainClass>
+//exemple 
+java -cp target/hello-1.jar hello.HelloWorld
 ```
 * Créer le Read.me et GIT 
+
+### Dans l'IDE IntelliJ IDEA 
+
+##### Changer la source dans les paramètres pour pouvoir utiliser le bon chemin dans "package NomDossier" (et non main.java.NomDossier) 
+* File / Project Structure / Module 
+* Clic droit sur le dossier "Java" dans l'arborescence 'src/main/java/NomDossier' 
+* Sélectionner "Sources"
+* Supprimer dans la partie "Sources Folders" la ligne "src" pour ne conserver que la source que l'on vient de créer
+
+##### Paramètrer la console de débug pour jouer le code :
+
+* En haut à droite il y a une liste déroulante proposant "edit configuration", sélectionner cette partie
+* Une fenêtre "Run/Debug Configurations" s'ouvre 
+* Cliquer sur le bouton "+" et sélectionner "Application"
+* Donner un nom dans le champs "Name"
+* Configurer en ajoutant la "Main.class" (NomDossier/ClasseAjouer, ex: hello.HelloWorld)
+* Séllectionner "Apply" puis "ok" pour enregistrer les modifs 
+* Dans la liste déroulante, il y a à présent notre configuration que l'on peut sélectionner pour exécuter le code
+
+
 
 ## Exemple HelloWorld 
 
@@ -391,10 +413,29 @@ switch (maCondition) {
 ```
 
 
+## Les boucles FOR 
+
+Pour boucler avec un for:
+```java
+for (int i = 0 ; i < nomArrayList.size() ; i++){
+  System.out.println( nomArrayList.get(i) );
+}
+```
+
+## Les boucles FOREACH 
+
+Pour "chaque élément dans la liste" :
+```java
+for (Integer unElement : nomArrayList){
+    System.out.println(unElement);
+}
+```
+
 
 ## Conversion : cast
 
 Convertir des variables se nomme conversion d'ajustement ou **cast** de variable.
+
 
 Un type 'int' en type 'float'
 ```java
@@ -422,9 +463,18 @@ double nbre1 = 10, nbre2 = 3;
 int resultat = (int)(nbre1 / nbre2);
 ```
 
-**Formatage des nombres depuis Java 7**
 
-Utilisation de l'underscore.
+**Exemple : une classe Personnage et 2 classes (Guerrier et Magicien) qui extends de Personnage**
+
+Les guerriers et magiciens sont stockés dans un tableau de type Personnage. 
+Nous souhaitons modifier des attributs spécifiques de Guerrier et Magicien.
+Mais ce n'est pas possible car ils sont de type Personnage et que cette classe ne connait pas les getters et setters de Guerrier et Magicien.
+
+Solution : changer le type Personnage en un Guerrier ou Magicien
+```java
+Magicien magicien = (Magicien) monPerso; // monPerso qui était de type Personnage devient de type Magicien
+```
+
 
 
 ## Les entrées claviers 
@@ -446,6 +496,16 @@ public class Main {
   }
 }
 ```
+
+Indiquer le type de variable que l'on souhaite récupérer :
+```java
+Scanner sc = new Scanner(System.in);
+int i = sc.nextInt(); //Récupérer un entier 
+double d = sc.nextDouble(); // Récupérer un double
+long l = sc.nextLong(); 
+byte b = sc.nextByte();
+```
+
 
 ## Les tableaux 
 
@@ -600,6 +660,362 @@ public class HelloWorld {
         System.out.println("Le canard : "+ canardo.sayHello());
         System.out.println("L'humain : " + humain.sayHello());
     }
+    public static void autreMethode(){
+      //Toutes les autres méthodes doivent être static car "main" est static
+    }
 }
 ```
 
+Toutes les autres méthodes doivent être static car "main" qui est le point d'entrée est static.
+
+## Les énumérations 
+
+Une énumération se déclare comme une classe et permet de définir une liste de valeurs possibles. 
+Cela permet de créer des types de données personnalisées. 
+
+Syntaxe :
+```java
+public enum NomEnumeration
+{
+  valeur1,
+  valeur2,
+  valeur3
+}
+```
+
+Exemple : 
+Une classe Personnage avec 2 classes qui Extends de Personnage : Guerrier et Magicien. 
+Pour pouvoir connaître le type du personnage (Guerrier ou Magicien) il y a une variable "type" dans la classe de personnage.
+
+* Création de l'énumération (créée au-dessus de la classe abstraite Personnage)
+```java
+public enum PersonnageType
+{
+    Guerrier,
+    Magicien
+}
+```
+* Création d'une variable "type" de type "PersonnageType" dans la classe Personnage 
+```java
+public abstract class Personnage 
+{
+    private String nom;
+    private String image;
+    private String niveauVie;
+    private String forceAttaque;
+    private PersonnageType type;
+}
+```
+* Création des getter et setter pour "type"
+```java
+public PersonnageType getType() 
+{
+  return type;
+}
+
+public void setType(PersonnageType ptype) 
+{
+  type = ptype;
+}
+```
+* Création du constructeur de Personnage en imposant aux classes enfants d'avoir un "type"
+```java
+public Personnage(PersonnageType type){
+  this.type = type;
+}
+```
+* Création du constructeur dans la classe enfant Guerrier qui définit le "type"
+```java
+public Guerrier()
+{
+  super(PersonnageType.Guerrier); //super() permet d'appeler le constructeur de la classe mère
+}
+```
+* Vérifier le type d'une instance de Guerrier 
+```java
+if (personnageToModified.getType() == PersonnageType.Magicien)
+{
+  //si le type de mon personnage est de type Magicien alors j'exécute le code
+}
+```
+
+## Instanceof
+
+Vérifier si une variable est une instance d'une classe en retournant un booléen.
+
+Exemple : Vérifier si un personnage est une instance de Magicien 
+```java
+monPersonnage instanceof Magicien 
+```
+
+
+## Méthode "toString" : afficher les infos d'un objet
+
+La méthode "toString" permettant de convertir en chaîne de caractères les informations d'un objet :
+```java
+package campus;
+
+public class Magicien extends Personnage {
+	public String toString()
+	{
+		return super.toString() + "\nSort : " + sort + "\nPhiltre : " + philtre;
+	}
+}
+```
+Infos : 
+* super.toString() : fait référence à la méthode "toString" de la classe parente 
+* "\n" permet d'aller à la ligne
+
+## Gérer les erreurs : try - catch
+
+Pour gérer les erreurs, utiliser try-catch. Dans le try se trouve le code qu'il faut essayer d'éxécuter puis dans le catch on attrape des erreurs pour pouvoir les traiter.
+
+Par exemple, l'utilisateur doit renseigner le "Niveau de vie" d'un personnage.
+
+Pour cela, même si dans l'idée la variable est un Entier, il faut la déclarer en String dès le début pour pouvoir dans le try-catch gérer les erreurs.
+
+```java
+//Fonction permettant de choisir le niveau de vie du personnage et qui retourne l'élément sélectionné
+    private static String SelectNiveauViePerso() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Quel niveau de vie souhaitez-vous donner à votre personnage (0-100) ?");
+        //Initialiser une variable à "null" qui stockera ensuite le choix de l'utilisateur
+        String niveauVie = null;
+        //Variable pour permettre de boucler
+        boolean isInteger = false;
+
+        //Boucler tant que la variable "isInteger" est fausse
+        while (!isInteger) {
+            niveauVie = sc.nextLine();
+            try {
+              //Si la variable peut être convertie en un Entier alors on arrête la boucle
+                Integer.parseInt(niveauVie);
+                isInteger = true;
+            } 
+            catch (java.lang.NumberFormatException e) {
+              //Si ce n'est pas possible relancer un message pour recommencer la saisie
+                System.out.println("Erreur de saisie, renseigner une valeur entre 0 et 100");
+            }
+        }
+
+        return niveauVie;
+    }
+```
+
+
+#### 2 belles méthodes pour gérer les erreurs
+
+
+```java
+// Fonction permettant de convertir une chaîne de caractères en entier
+    private static int ConvertStringToInteger(String str) {
+        try {
+            return Integer.parseInt(str);
+        } catch (java.lang.NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    //Fonction permettant de vérifier le choix de l'utilisateur et boucler tant que l'utilisateur n'a pas choisi un entier
+    private static int GetUserChoice(String message) {
+        int userChoice = -1;
+        while (userChoice == -1) {
+            Scanner sc = new Scanner(System.in);
+            System.out.println(message);
+            String selectPerso = sc.nextLine();
+            userChoice = ConvertStringToInteger(selectPerso);
+        }
+        return userChoice;
+    }
+
+```
+
+## Les collections 
+
+### ArrayList 
+
+L'objet ArrayList est un objet qui n'a pas de taille limite et qui acceptent n'importe quel type de données y compris null.
+Il est également possible de typer les données à l'intérieur de l'ArrayList.
+
+##### ArrayList non typée 
+
+```java
+ArrayList al = new ArrayList();
+    al.add(12);
+    al.add("Une chaîne de caractères !");
+    al.add(12.20f);
+    al.add('d');
+```
+
+##### Déclarer une ArrayList : 
+
+Syntaxe :
+```java
+ArrayList<Type de variables> nomListe = new ArrayList<Type de variables>();
+```
+
+Exemple : 
+```java
+ArrayList<Integer> temperatures = new ArrayList<Integer>();
+```
+
+
+##### Ajouter des données 
+
+Pour ajouter des données dans la liste on utilise la méthode "add".
+
+Syntaxe :
+```java
+nomArrayList.add(variable);
+```
+
+Exemple : 
+```java
+temperatures.add(35);
+```
+
+
+##### Insérer des données 
+
+Pour insérer des données dans la liste on utilise la méthode "add" avec 2 paramètres :
+* 1er : la position dans la liste
+* 2ème : la valeur à ajouter
+
+Syntaxe :
+```java
+nomArrayList.add(position , variable);
+```
+
+Exemple : 
+```java
+temperatures.add(1, 35); //ajout en 2ème position de la liste de la valeur 35
+```
+
+##### Accéder aux éléments
+
+Il faut utiliser la position dans la liste pour accéder à l'élément avec la méthode "get". L'index commence à 0.
+
+Syntaxe :
+```java
+nomArrayList.get(index);
+```
+
+Exemple : 
+```java
+temperatures.get(2); //accéder au 3ème élément de la liste
+```
+
+
+##### Boucler dans une ArrayList 
+
+Pour afficher l'ensemble des données on utilise une boucle ainsi que la méthode "size" pour obtenir le nombre d'éléments dans la liste (retourne un entier).
+
+**Boucler avec une boucle FOR** :
+```java
+for (int i = 0 ; i < nomArrayList.size() ; i++){
+  System.out.println( nomArrayList.get(i) );
+}
+```
+
+**Boucler avec un FOREACH** : un element dans (:) la liste d'éléments
+```java
+for (Integer unElement : nomArrayList){
+    System.out.println(unElement);
+}
+```
+
+### HashMap 
+
+Le principe est qu'il y a une "clé" et une "valeur associée".
+
+##### Déclarer un HashMap
+
+Syntaxe :
+```java
+HashMap<type Clé, type Valeur> nomHashMap = new HashMap<type Clé, type Valeur>();
+```
+
+Par exemple : le nom d'un ami associé à son âge
+```java
+HashMap<String, Integer> myFriends = new HashMap<String, Integer>();
+```
+
+##### Ajouter des données 
+
+Pour ajouter des données on utilise la méthodes "put".
+
+Syntaxe :
+```java
+nomHashMap.put("clé", "valeur");
+```
+
+Exemple :
+```java
+myFriends.put("Mark", 24);
+```
+
+
+##### Insérer des données 
+
+Pour insérer des données dans la liste on utilise la méthode "add" avec 2 paramètres :
+* 1er : la position dans la liste
+* 2ème : la valeur à ajouter
+
+Syntaxe :
+```java
+nomArrayList.add(position , variable);
+```
+
+Exemple : 
+```java
+temperatures.add(1, 35); //ajout en 2ème position de la liste de la valeur 35
+```
+
+##### Accéder aux éléments
+
+Il faut utiliser la clé pour accéder à la valeur avec la méthode "get".
+
+Syntaxe :
+```java
+nomHashMap.get("clé");
+```
+
+Exemple : 
+```java
+myFriends.get("toto"); //accéder à la valeur de la clé "toto"
+```
+
+
+##### Boucler dans un HashMap
+
+Pour afficher l'ensemble des données on utilise une boucle.
+
+La méthode "size" permet d'obtenir le nombre de paires "key:value" du HashMap :
+```java
+nomHashMap.size(); //retourne le nombre de paires
+```
+
+
+**Boucler avec un FOREACH** : un element dans (:) la liste d'éléments
+```java
+for (typeClé nomClé : nomHashMap.keyset())
+{
+    System.out.println(unElement);
+}
+```
+
+Exemple : les plats d'un restaurant (clé) et leur prix (valeur)
+```java
+for (String item : restaurantMenu.keySet()) 
+{
+   System.out.println("A " + item + " costs " + restaurantMenu.get(item) + " dollars.");
+}
+```
+
+
+
+## Synthèse Méthodes 
+
+| Méthodes | Fonction | Exemple 
+| :-------:|---------|---------
+| Integer.parseInt(String variable) | Convertir un chaîne de caractères en une entier | int maVariableInt = Integer.parseInt("1");
