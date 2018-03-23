@@ -1012,7 +1012,44 @@ for (String item : restaurantMenu.keySet())
 }
 ```
 
+## JavaDoc
 
+La JavaDoc est la documentation de l'ensemble des classes de notre projet.
+
+Exemple : 
+```java
+/**
+     * Get nom string.
+     *
+     * @return the string
+*/
+
+public String getNom(){
+  return nom;
+}
+```
+
+#### Créer la JavaDoc avec IntelliJ Idea (IDE)
+
+Installer le Plugin dans Plugin/Browse repositories : "JavaDoc - CODE TOOLS"
+
+##### Générer la JavaDoc dans les classes 
+
+* CTRL + Maj + Alt + G : génére pour toute la classe 
+* CTRL + Maj + Alt : génére pour uniquement la méthode sélectionnée 
+* CTRL + Maj + Alt + Z : supprimer la JavaDoc
+
+##### Générer la documentation JavaDoc
+
+Génére la documentation JavaDoc (fichier html, css...).
+
+* Créer un répertoire dans le projet "javadoc" où se stockeront l'ensemble des fichiers 
+* Dans Tools / Generate JavaDoc
+* Cocher "Whole project" ou en cas d'erreur dans la génération cocher "Custom Scope" et choisir "Module NomProjet"
+* Choisir l'emplacement où sera exportée la JavaDoc "Output directory"
+* Curseur : choisir toutes les classes private...public
+
+  
 
 ## Synthèse Méthodes 
 
