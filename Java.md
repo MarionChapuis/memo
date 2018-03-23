@@ -751,7 +751,11 @@ monPersonnage instanceof Magicien
 
 ## Méthode "toString" : afficher les infos d'un objet
 
-La méthode "toString" permettant de convertir en chaîne de caractères les informations d'un objet :
+La méthode "toString" permettant de convertir en chaîne de caractères les informations d'un objet.
+
+Toutes les classes héritent de la grande classe "Object" qui contient la méthode "toString". Il faut la surcharger dans nos classes pour qu'elle puisse retourner quelque chose par exemple.
+
+Exemple : 
 ```java
 package campus;
 
@@ -1035,9 +1039,10 @@ Installer le Plugin dans Plugin/Browse repositories : "JavaDoc - CODE TOOLS"
 
 ##### Générer la JavaDoc dans les classes 
 
-* CTRL + Maj + Alt + G : génére pour toute la classe 
-* CTRL + Maj + Alt : génére pour uniquement la méthode sélectionnée 
-* CTRL + Maj + Alt + Z : supprimer la JavaDoc
+* shift(maj) + ctrl + alt + G : génére pour toute la classe 
+* shift(maj) + alt + G : génére pour uniquement la méthode sélectionnée 
+* shift(maj) + ctrl + alt + Z : supprimer la JavaDoc pour toute la classe 
+* shift(maj) + alt + Z : supprimer la JavaDoc pour la méthode sélectionnée
 
 ##### Générer la documentation JavaDoc
 
