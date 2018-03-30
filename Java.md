@@ -1054,7 +1054,102 @@ Génére la documentation JavaDoc (fichier html, css...).
 * Choisir l'emplacement où sera exportée la JavaDoc "Output directory"
 * Curseur : choisir toutes les classes private...public
 
-  
+
+## Généricité 
+
+Le principe de la généricité est de faire des classes qui acceptent un certain type d'objets ou de données de façon dynamique. 
+
+Déclarer une classe générique :
+```java
+public class Solo<T> {
+ 
+  //Variable d'instance
+  private T valeur;
+        
+  //Constructeur par défaut
+  public Solo(){
+    this.valeur = null;
+  }
+
+  //Constructeur avec paramètre inconnu pour l'instant
+  public Solo(T val){
+    this.valeur = val;
+  }
+        
+  //Définit la valeur avec le paramètre
+  public void setValeur(T val){
+    this.valeur = val;
+  }
+        
+  //Retourne la valeur déjà « castée » par la signature de la méthode !
+  public T getValeur(){
+    return this.valeur;
+  }       
+}
+```
+
+Instancier cette classe 
+```java
+public static void main(String[] args) {
+  Solo<Integer> val = new Solo<Integer>(12);
+  int nbre = val.getValeur();             
+}
+```
+
+
+Il est également possible d'avoir plusieurs types dynamiques 
+```java
+public class Duo<T, S> { 
+  //Variable d'instance de type T
+  private T valeur1;
+
+  //Variable d'instance de type S
+  private S valeur2;
+        
+  //Constructeur par défaut
+  public Duo(){
+    this.valeur1 = null;
+    this.valeur2 = null;
+  }        
+
+  //Constructeur avec paramètres
+  public Duo(T val1, S val2){
+    this.valeur1 = val1;
+    this.valeur2 = val2;
+  }
+        
+  //Méthodes d'initialisation des deux valeurs
+  public void setValeur(T val1, S val2){
+    this.valeur1 = val1;
+    this.valeur2 = val2;
+  }
+ 
+  //Retourne la valeur T
+  public T getValeur1() {
+    return valeur1;
+  }
+ 
+  //Définit la valeur T
+  public void setValeur1(T valeur1) {
+    this.valeur1 = valeur1;
+  }
+ 
+  //idem pour la valeur S
+  }        
+}
+```
+
+Instancier cette classe avec 2 types dynamiques
+```java
+public static void main(String[] args) {
+  Duo<String, Boolean> dual = new Duo<String, Boolean>("toto", true);
+                  
+  Duo<Double, Character> dual2 = new Duo<Double, Character>(12.2585, 'C');
+}
+``` 
+
+
+
 
 ## Synthèse Méthodes 
 
