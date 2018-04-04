@@ -37,7 +37,6 @@ Le code est exécuté par une machine virtuelle grâce au JRE et JDK.
 
 
 
-
 ### IDE 
 
 Plusieurs IDE :
@@ -505,6 +504,27 @@ double d = sc.nextDouble(); // Récupérer un double
 long l = sc.nextLong(); 
 byte b = sc.nextByte();
 ```
+
+## Méthodes static 
+
+Pour appeler une méthode static : 
+```java
+Arme monArme = Arme.maMethodeStatic();
+```
+
+## Structurer son projet : package
+
+L'architecture : MonProjet/src/main/java/nomPackagePrincipal 
+Exemple : MonProjet/src/main/java/campus
+
+A l'intérieur du package "campus" il est possible de créer d'autres packages contenant des classes (regroupées par utilisation). 
+
+Dans les classes, créer des méthodes "public static" qui pourront être utilisées dans d'autres classes. 
+Il faudra alors importer les classes : 
+```java
+import campus.personnages.*; // * pour tout importer du package "personnages"
+```
+
 
 
 ## Les tableaux 
@@ -1147,6 +1167,13 @@ public static void main(String[] args) {
   Duo<Double, Character> dual2 = new Duo<Double, Character>(12.2585, 'C');
 }
 ``` 
+
+
+## UML 
+
+Le sigle « UML » signifie Unified Modeling Language, que l'on peut traduire par « langage de modélisation unifié ». 
+Il ne s'agit pas d'un langage de programmation, mais plutôt d'une méthode de modélisation. La méthode Merise, par exemple, en est une autre.
+
 
 
 
