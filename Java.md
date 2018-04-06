@@ -1024,7 +1024,7 @@ nomHashMap.size(); //retourne le nombre de paires
 ```java
 for (typeClé nomClé : nomHashMap.keyset())
 {
-    System.out.println(unElement);
+    System.out.println(nomClé);
 }
 ```
 
@@ -1174,7 +1174,13 @@ public static void main(String[] args) {
 Le sigle « UML » signifie Unified Modeling Language, que l'on peut traduire par « langage de modélisation unifié ». 
 Il ne s'agit pas d'un langage de programmation, mais plutôt d'une méthode de modélisation. La méthode Merise, par exemple, en est une autre.
 
+## Design Pattern
 
+Modèle de conception, permet de générer les comportements dynamiques. 
+Utilisation d'interfaces et de classes venant implémenter ces interfaces.
+
+*Exemple :*
+Avoir un comportement "Combattre" différent selon le type d'Arme utilisée. 
 
 
 
@@ -1183,3 +1189,4 @@ Il ne s'agit pas d'un langage de programmation, mais plutôt d'une méthode de m
 | Méthodes | Fonction | Exemple 
 | :-------:|---------|---------
 | Integer.parseInt(String variable) | Convertir un chaîne de caractères en une entier | int maVariableInt = Integer.parseInt("1");
+| equals("String variable") | Comparer une chaîne de caractères | String maVar = "Oui" ; maVar.equals("Non")  
