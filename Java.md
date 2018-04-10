@@ -1182,6 +1182,7 @@ Utilisation d'interfaces et de classes venant implémenter ces interfaces.
 *Exemple :*
 Avoir un comportement "Combattre" différent selon le type d'Arme utilisée. 
 
+[Exemple sur GIT Test_Interfaces](https://github.com/MarionChapuis/Test_Interfaces)
 
 
 ## Synthèse Méthodes 
