@@ -1174,6 +1174,7 @@ public static void main(String[] args) {
 Le sigle « UML » signifie Unified Modeling Language, que l'on peut traduire par « langage de modélisation unifié ». 
 Il ne s'agit pas d'un langage de programmation, mais plutôt d'une méthode de modélisation. La méthode Merise, par exemple, en est une autre.
 
+
 ## Design Pattern
 
 Modèle de conception, permet de générer les comportements dynamiques. 
@@ -1183,6 +1184,475 @@ Utilisation d'interfaces et de classes venant implémenter ces interfaces.
 Avoir un comportement "Combattre" différent selon le type d'Arme utilisée. 
 
 [Exemple sur GIT Test_Interfaces](https://github.com/MarionChapuis/Test_Interfaces)
+
+
+## JDBC : accès aux bases de données 
+
+[OpenClassRoom](https://openclassrooms.com/courses/apprenez-a-programmer-en-java/jdbc-la-porte-d-acces-aux-bases-de-donnees)
+
+JDBC : Java DataBase Connectivity
+
+Pour utiliser une BDD, vous avez besoin de deux éléments : la base de données et ce qu'on appelle le SGBD (Système de Gestion de Base de Données).
+
+### Se connecter à une BDD
+
+Pour se connecter avec Java à une BDD, il faut un fichier ".jar" qui est un driver.
+
+* Ce fichier ".jar" est à télécharger avec une belle recherche Google : pilote JDBC + postGreSQL(ou mysql...).
+* Ajouter le fichier "xxxxx-bin.jar" : 
+  * L'inclure dans votre projet et l'ajouter au CLASSPATH (à favoriser si l'application est vouée à être exportée sur d'autres postes)
+  * Le placer dans le dossier lib/ext présent dans le dossier d'installation du JRE.
+* Faire le lien dans le 'main' 
+
+* Code pour le lien avec PostGreSQL :
+```java
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+public static void main(String[] args) {      
+    try {
+      Class.forName("org.postgresql.Driver");
+      System.out.println("Driver O.K.");
+
+      String url = "jdbc:postgresql://localhost:5432/NomBDD";
+      String user = "postgres";
+      String passwd = "postgres";
+
+      Connection conn = DriverManager.getConnection(url, user, passwd);
+      System.out.println("Connexion effective !");         
+         
+    } catch (Exception e) {
+      e.printStackTrace();
+    }      
+  }
+```
+
+* Code pour le lien avec MySQL :
+```java
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+public static void main(String[] args) {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            System.out.println("Driver O.K.");
+
+            String url = "jdbc:mysql://localhost:3306/NomBDD";
+            String user = "root";
+            String passwd = "";
+
+            Connection conn = DriverManager.getConnection(url, user, passwd);
+            System.out.println("Connexion effective !");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+```
+
+L'url se compose de la manière suivante :
+* "jdbc:"
+* "localhost:" nom de la machine
+* nom de la BDD
+
+**Avec IDE IntelliJ** 
+* File / Project Structure 
+* Modules
+* Dependencies
+* Tout à droite : '+' "Jars or directories"
+* Selectionner le fichier dans "jre/bin/ext/...bin.jar"
+
+### IMPERATIF : Utiliser le Pattern Singleton 
+
+Il s'agit d'une bonne pratique afin d'utiliser un seul "câble" de connexion lors des différentes connexions à la BDD pour effectuer des requêtes. 
+
+* Créer une classe final 
+* 1 attribut static public du type de la Classe 
+* 1 attribut private de type "Connection" ainsi que son getter 
+* 1 méthode static retournant un objet du type de la Classe vérifiant si une connexion a déjà été établie et retourne la connexion (s'il n'existe pas de connexion alors elle instancie une nouvelle connexion)
+* 1 constructeur contenant un try catch avec la connexion à la BDD (user, password, drive..)
+
+Lorsqu'on souhaite se connecter à la BDD créer une variable de type "Connection" qui appelle la méthode static puis le getter de la connexion
+
+Classe contenant la connexion 
+```java
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+public final class Connect {
+
+    public static Connect connection;
+    private  Connection conn = null;
+
+    public  Connection getConn() {
+        return conn;
+    }
+
+
+    public static Connect getInstance()
+    {
+        if (connection==null)
+        {
+            connection = new Connect();
+        }
+        return connection;
+    }
+
+
+    public Connect() {
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            System.out.println("Driver O.K.");
+
+            String url = "jdbc:mysql://localhost:3306/testconnect";
+            String user = "root";
+            String passwd = "";
+
+            conn = DriverManager.getConnection(url, user, passwd);
+        }
+        catch (Exception e)
+        {
+            System.out.println("echec de la connexion");
+        }
+    }
+}
+```
+
+Utilisation de la connexion 
+```java
+public static void main(String[] args) {
+  try {
+    //Ouvrir une connexion à la BDD
+     Connection conn = Connect.getInstance().getConn();
+
+    //Effectuer les requêtes 
+    
+   }
+   catch (Exception e) {
+    e.printStackTrace();
+  }
+}
+```
+
+
+### Fouiller dans la BDD
+
+Les grandes étapes : 
+* création de l'objet Statement : permet d'exécuter des instructions SQL
+* exécution de la requête SQL 
+* récupération et affichage des données via l'objet ResultSet : permet de stocker les données 
+* fermeture des objets utilisés (bien que non obligatoire, c'est recommandé)
+
+Il est possible d'utiliser l'objet **ResultSetMetaData** qui permet de récupérer des infos utiles :
+* le nombre de colonnes d'un résultat ;
+* le nom des colonnes d'un résultat ;
+* le type de données stocké dans chaque colonne ;
+* le nom de la table à laquelle appartient la colonne (dans le cas d'une jointure de tables) ;
+* ...
+Il existe aussi un objet DataBaseMetaData qui fournit des informations sur la base de données.
+
+**Attention : les indices de colonnes SQL commencent à 1 contrairement aux indices de tableaux**
+
+#### Afficher les données 
+
+*Exemple : ce code est dans le "Try"*
+
+```java
+//Création d'un objet Statement
+Statement state = conn.createStatement();
+
+//L'objet ResultSet contient le résultat de la requête SQL
+ResultSet resultat = state.executeQuery("SELECT * FROM personnages");
+
+//On récupère les MetaData
+ResultSetMetaData resultMeta = resultat.getMetaData();
+
+System.out.println("\n**************");
+
+//On affiche le nom des colonnes
+for(int i = 1; i <= resultMeta.getColumnCount(); i++)
+System.out.print("\t" + resultMeta.getColumnName(i).toUpperCase() + "\t *");
+
+System.out.println("\n**************");
+
+//On affiche les résultats
+while(resultat.next()) {
+
+  for (int i = 1; i <= resultMeta.getColumnCount(); i++)
+  System.out.print("\t" + resultat.getObject(i).toString() + "\t |");
+
+  System.out.println("\n---------------------------------");
+}
+
+//On ferme les objets utilisés
+resultat.close();
+state.close();
+```
+
+La méthode next() permet de positionner l'objet sur la ligne suivante de la liste de résultats.
+
+Lorsque l'on connait le type de données que l'on récupère le code peut être le suivant :
+```java
+while(result.next()){
+  System.out.print("\t" + result.getInt("id") + "\t |");
+  System.out.print("\t" + result.getString("nom") + "\t |");
+  System.out.println("\n---------------------------------");
+}
+```
+
+| Méthodes GetXXX() |
+|-------------------|
+|getArray(int colummnIndex) |
+|getAscii(int colummnIndex) |
+|getBigDecimal(int colummnIndex) |
+|getBinary(int colummnIndex) |
+|getBlob(int colummnIndex) |
+|getBoolean(int colummnIndex) |
+|getBytes(int colummnIndex) |
+|getCharacter(int colummnIndex) |
+|getDate(int colummnIndex) |
+|getDouble(int colummnIndex) |
+|getFloat(int colummnIndex) |
+|getInt(int colummnIndex) |
+|getLong(int colummnIndex) |
+|getObject(int colummnIndex) |
+|getString(int colummnIndex) |
+
+
+#### Faire des requêtes avec liaisons et tris
+
+```java
+String query = "SELECT prof_nom, prof_prenom, mat_nom, cls_nom FROM professeur";
+query += " INNER JOIN j_mat_prof ON jmp_prof_k = prof_id";
+query += " INNER JOIN matiere ON jmp_mat_k = mat_id";
+query += " INNER JOIN j_cls_jmp ON jcm_jmp_k = jmp_id";
+query += " INNER JOIN classe ON jcm_cls_k = cls_id AND cls_id IN(1, 7)";
+query += " ORDER BY cls_nom DESC, prof_nom";
+
+ResultSet result = state.executeQuery(query);
+```
+
+
+#### Statement 
+
+Lors de la création de Statement via createStatement(), il est possible d'ajouter des paramètres :
+
+Le premier paramètre est utile pour la lecture du jeu d'enregistrements :
+
+TYPE_FORWARD_ONLY : le résultat n'est consultable qu'en avançant dans les données renvoyées, il est donc impossible de revenir en arrière lors de la lecture ;
+
+TYPE_SCROLL_SENSITIVE : le parcours peut se faire vers l'avant ou vers l'arrière et le curseur peut se positionner n'importe où, et si des changements surviennent dans la base pendant la lecture, ils seront directement visibles lors du parcours des résultats ;
+
+TYPE_SCROLL_INSENSITIVE : à la différence du précédent, les changements ne seront pas visibles.
+
+Le second concerne la possibilité de mise à jour du jeu d'enregistrements :
+
+CONCUR_READONLY : les données sont consultables en lecture seule, c'est-à-dire que l'on ne peut modifier des valeurs pour mettre la base à jour ;
+
+CONCUR_UPDATABLE : les données sont modifiables ; lors d'une modification, la base est mise à jour.
+
+Par défaut, les ResultSet issus d'un Statement sont de type TYPE_FORWARD_ONLY pour le parcours et CONCUR_READONLY pour les actions réalisables.
+
+*Exemple*
+```java
+Statement state = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+```
+
+
+#### Les requêtes préparées 
+
+A la place de Statement, il est possible d'utiliser PreparedStatement qui contient 2 avantages :
+* la requête SQL est précompilé ce qui permet de gagner du temps d'éxécution dans le moteur SQL de la BDD
+* il est possible d'utiliser des paramètres à trous
+
+*Exemple* :
+```java
+//On crée la requête
+String query = "SELECT prof_nom, prof_prenom FROM professeur";
+
+//Premier trou pour le nom du professeur
+query += " WHERE prof_nom = ?";
+
+//Deuxième trou pour l'identifiant du professeur
+query += " OR prof_id = ?";
+
+//On crée l'objet avec la requête en paramètre
+PreparedStatement prepare = conn.prepareStatement(query);
+
+//On remplace le premier trou par le nom du professeur
+prepare.setString(1, "MAMOU");
+
+//On remplace le deuxième trou par l'identifiant du professeur
+prepare.setInt(2, 2);
+
+//On affiche la requête exécutée
+System.out.println(prepare.toString());
+
+//On modifie le premier trou
+prepare.setString(1, "TOTO");
+
+//On affiche à nouveau la requête exécutée
+System.out.println(prepare.toString());
+
+//On modifie le deuxième trou
+prepare.setInt(2, 159753);
+
+//On affiche une nouvelle fois la requête exécutée
+System.out.println(prepare.toString());
+
+prepare.close();
+state.close();
+```
+
+Ici on utilise "prepare.setXXX" pour pouvoir indiquer les trous.
+
+Pour en terminer avec les méthodes de l'objet PreparedStatement, prepare.clearParameters() permet de réinitialiser la requête préparée afin de retirer toutes les valeurs renseignées.
+
+*Exemple : table 'personnages' afficher un personnage spécifique*
+```java
+//Afficher un perso en particulier
+System.out.println("Indiquer l'id du perso à afficher :");
+Scanner sc = new Scanner(System.in);
+int choix = sc.nextInt();
+System.out.println("vous avez sélectionné : " + choix);
+
+String query = "SELECT * FROM personnages";
+query+= " WHERE id = ?";
+
+//Creation de l'objet avec la requête en paramètre
+PreparedStatement prepare = conn.prepareStatement(query);
+
+//Remplacer le trou par le choix de l'utilisateur
+prepare.setInt(1, choix);
+
+//Afficher la requête
+System.out.println(prepare.toString());
+
+//L'objet ResultSet contient le résultat de la requête SQL
+ResultSet resultat = prepare.executeQuery();
+//On récupère les MetaData
+ResultSetMetaData resultMeta = resultat.getMetaData();
+
+//On affiche le nom des colonnes
+for (int i = 1; i <= resultMeta.getColumnCount(); i++)
+System.out.print("\t" + resultMeta.getColumnName(i).toUpperCase() + "\t |");
+
+System.out.println("\n------------------------------------------------------------------------------------------------------------------");
+
+//On affiche les infos des colonnes 
+while (resultat.next()) {
+  for (int i = 1; i <= resultMeta.getColumnCount(); i++)
+  System.out.print("\t" + resultat.getObject(i).toString() + "\t |");
+  System.out.println("\n------------------------------------------------------------------------------------------------------------------");
+}
+
+resultat.close();
+prepare.close();
+```
+
+
+
+#### ResultSet 
+
+L'objet ResultSet offre beaucoup de méthodes permettant d'explorer les résultats, à condition d'avoir bien préparé l'objet Statement.
+
+| objectif | méthode |
+|----------|:--------:|
+|vous positionner avant la première ligne de votre résultat | res.beforeFirst() ;
+|savoir si vous vous trouvez avant la première ligne | res.isBeforeFirst() ;
+|vous placer sur la première ligne de votre résultat | res.first() ;
+|savoir si vous vous trouvez sur la première ligne | res.isFirst() ;
+|vous retrouver sur la dernière ligne | res.last() ;
+|savoir si vous vous trouvez sur la dernière ligne | res.isLast() ;
+|vous positionner après la dernière ligne de résultat | res.afterLast() ;
+|savoir si vous vous trouvez après la dernière ligne | res.isAfterLast() ;
+|aller de la première ligne à la dernière | res.next() ;
+|aller de la dernière ligne à la première | res.previous() ;
+|vous positionner sur une ligne précise de votre résultat | res.absolute(5) ;
+|vous positionner sur une ligne par rapport à votre emplacement actuel | res.relative(-3)
+
+
+### Modifier les données 
+
+Pour remplacer les données, on remplace getXXX() par updateXXX(String nomColonne, valeur à attribuer).
+
+* MAJ : monResultat.updateString("nom", "Chapuis");
+* Validation MAJ : monResultat.updateRow();
+
+* Annuler des changements : cancelRowUpdates(); **A faire avant la méthode de validation**
+
+*Exemple : modifier les infos d'un personnage*
+```java
+//---------------------------------------------------Modifier les infos d'un perso--------------------------------------------------------
+//Creation de l'objet avec la requête en paramètre
+Statement state = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
+//Selectionner une ligne dans la BDD
+String query = "SELECT * FROM personnages " + "WHERE id = 1";
+ResultSet resultat = state.executeQuery(query);
+//Se position sur le résultat
+resultat.first();
+
+//Afficher la ligne
+System.out.println("---------------------Avant modif --------------------------------");
+System.out.println("Nom : " + resultat.getString("nom") + "\nImage : " + resultat.getString("image"));
+
+//Mettre à jour les champs
+resultat.updateString("nom", "Coin coin junior");
+resultat.updateString("image", "Super coin coin junior");
+resultat.updateString("bouclier", "Une plume magique");
+
+//On valide les modifications
+resultat.updateRow();
+
+//Afficher les modifications
+System.out.println("---------------------Après modif --------------------------------");
+System.out.println("Nom : " + resultat.getString("nom") + "\nImage : " + resultat.getString("image") + "\nBouclier : " + resultat.getString("bouclier"));
+
+//On ferme 
+resultat.close();
+state.close();
+```
+
+
+### Insérer, Supprimer .. les données 
+
+Les objets Statement sont chargés d'éxécuter les instructions SQL. Les requêtes INSERT, UPDATE, DELETE, CREATE sont exécutées par ces objets.
+
+*Exemple* ajouter un perso dans la BDD 
+
+```java
+//Création de l'objet
+Statement state = conn.createStatement();
+
+//Ajouter la ligne 
+state.executeUpdate("INSERT INTO personnages (id, type, niveauVie, nom, image, niveauAttaque, objetAttaque, bouclier) VALUES (NULL, 'Guerrier', '150', 'Romain', 'Un ptit Romain', '55', 'Arme', 'Humour atypique')");
+
+//L'objet ResultSet contient le résultat de la requête SQL pour affiche l'ensemble des personnages
+ResultSet liste = state.executeQuery("SELECT * FROM personnages");
+
+//On récupère les MetaData
+ResultSetMetaData resultMeta = liste.getMetaData();
+
+System.out.println("\n------------------------------------------------------------------------------------------------------------------");
+//On affiche le nom des colonnes
+for (int i = 1; i <= resultMeta.getColumnCount(); i++) {
+  System.out.print("\t" + resultMeta.getColumnName(i).toUpperCase() + "\t |");
+}
+System.out.println("\n------------------------------------------------------------------------------------------------------------------");
+
+//On affiche les infos de la BDD
+while (liste.next()) {
+  for (int i = 1; i <= resultMeta.getColumnCount(); i++) {
+    System.out.print("\t" + liste.getObject(i).toString() + "\t |");
+  }
+  System.out.println("\n------------------------------------------------------------------------------------------------------------------");
+}
+
+//On ferme
+state.close();
+liste.close();
+```
 
 
 ## Synthèse Méthodes 
