@@ -6,9 +6,9 @@
 
 JAVA est un langage compilé et typé.
 
-JDK : Java Development Kit 
+JDK : Java Development Kit (librairie JAVA avec notamment 'javac' le compilateur)
 
-JRE : Java Environment Execution
+JRE : Java Environment Execution (permet d'éxécuter sur l'ordinateur)
 
 Le code est exécuté par une machine virtuelle grâce au JRE et JDK.
 
@@ -58,7 +58,14 @@ javac
 ```
 
 
-### Installer Maven 
+### Maven 
+
+Maven permet de se faciliter la vie en Java : 
+* Gestionnaire de dépendances 
+* Récupèrer des librairies sur internet et l'ajouter dans le pom.xml
+* mvn install : permet de compiler et installer les dépendances (génère un fichier .jar)
+
+##### Installation Maven 
 
 * Télécharger : [lien](http://maven.apache.org/download.cgi)
 * Copier le dossier "apache-maven" (dans le zip) dans : C\Programmes par exemple
@@ -156,6 +163,7 @@ java -cp target/hello-1.jar hello.HelloWorld
 ### Dans l'IDE IntelliJ IDEA 
 
 ##### Changer la source dans les paramètres pour pouvoir utiliser le bon chemin dans "package NomDossier" (et non main.java.NomDossier) 
+
 * File / Project Structure / Module 
 * Clic droit sur le dossier "Java" dans l'arborescence 'src/main/java/NomDossier' 
 * Sélectionner "Sources"
@@ -170,7 +178,6 @@ java -cp target/hello-1.jar hello.HelloWorld
 * Configurer en ajoutant la "Main.class" (NomDossier/ClasseAjouer, ex: hello.HelloWorld)
 * Séllectionner "Apply" puis "ok" pour enregistrer les modifs 
 * Dans la liste déroulante, il y a à présent notre configuration que l'on peut sélectionner pour exécuter le code
-
 
 
 ## Exemple HelloWorld 
@@ -242,9 +249,28 @@ java -cp target/hello-1.jar hello.HelloWorld
 
 Contient une ou des méthodes qui peuvent être utilisées par plusieurs classes différentes.
 
-Créer une interface :
+* Créer une interface avec des méthodes :
 ```java
 public interface Bonjour{
+  public abstract String sayHello();
+  
+  public void Combat();
+
+}
+```
+
+* Des classes viennent implémenter cette méthode 
+```java
+public class Humain implements Bonjour {
+  
+  //Implémenter les méthodes de l'interface
+  public String sayHello(){
+    return "Bonjour";
+  }
+
+  public void Combat(){
+    System.out.println("Je lance le combat");
+  }
 
 }
 ```
@@ -790,7 +816,10 @@ Infos :
 * super.toString() : fait référence à la méthode "toString" de la classe parente 
 * "\n" permet d'aller à la ligne
 
-## Gérer les erreurs : try - catch
+## Gérer les erreurs - exceptions : try - catch
+
+
+### try - catch 
 
 Pour gérer les erreurs, utiliser try-catch. Dans le try se trouve le code qu'il faut essayer d'éxécuter puis dans le catch on attrape des erreurs pour pouvoir les traiter.
 
@@ -854,6 +883,66 @@ Pour cela, même si dans l'idée la variable est un Entier, il faut la déclarer
 
 ```
 
+
+### Créer ses propres exceptions 
+
+* Créer une classe avec l'exception : ici gérer un champ vide
+```java
+public class ChampVideException extends Exception {
+
+    public ChampVideException() {
+        System.out.println("Le champs ne peut être vide ! \nUn nom vous est donné par défaut");
+    }
+}
+```
+
+* Méthode permettant de créer un nom pour un Personnage 
+ * utiliser l'exception dans la méthode : methode() throws nomException {}
+ * générer l'exception : throw new ChampVideException()
+```
+public static String creationNom() throws ChampVideException{
+
+  String nomPerso = sc.nextLine();
+  {
+    while(nomPerso.equals(""))
+    {
+      throw new ChampVideException();
+    }
+  }
+  return nomPerso;
+}
+```
+
+* Dans le main, utiliser un try - catch pour attribuer s'il y a l'erreur ChampVide
+```java
+try {
+
+  System.out.println("Donnez-lui un nom ?");
+
+  //Mettre à jour le nom du guerrier avec la méthode permettant de créer un Nom
+  guerrier1.setNom(Saisie.creationNom());
+}
+catch (ChampVideException e) {
+  //Attraper l'erreur et donner un nom standard au Personnage
+  guerrier1.setNom("John Doe");
+} 
+```
+
+
+## Debbuger un programme 
+
+Utiliser le mode "Debug" de l'IDE, ici IntelliJ, qui permet d'éxécuter pas à pas le programme. 
+
+Le système se base sur des breakpoints, des marqueurs à placer sur les lignes de code que l'on souhaite analyser.
+
+* breakpoint : arrête le programme au début de la ligne 
+* step over : exécuter la ligne 
+* step into : entrer dans le processus
+* clic droit - set value : modifier la valeur d'une variable
+* clic droit - evaluate expression : tester une expression pour savoir ce qu'elle renvoit à l'endroit où on est dans le code
+* clic droit - watch : surveiller des variables en particulier
+
+
 ## Les collections 
 
 ### ArrayList 
@@ -861,7 +950,7 @@ Pour cela, même si dans l'idée la variable est un Entier, il faut la déclarer
 L'objet ArrayList est un objet qui n'a pas de taille limite et qui acceptent n'importe quel type de données y compris null.
 Il est également possible de typer les données à l'intérieur de l'ArrayList.
 
-##### ArrayList non typée 
+#### ArrayList non typée 
 
 ```java
 ArrayList al = new ArrayList();
@@ -871,7 +960,7 @@ ArrayList al = new ArrayList();
     al.add('d');
 ```
 
-##### Déclarer une ArrayList : 
+#### Déclarer une ArrayList : 
 
 Syntaxe :
 ```java
@@ -884,7 +973,7 @@ ArrayList<Integer> temperatures = new ArrayList<Integer>();
 ```
 
 
-##### Ajouter des données 
+#### Ajouter des données 
 
 Pour ajouter des données dans la liste on utilise la méthode "add".
 
@@ -899,7 +988,7 @@ temperatures.add(35);
 ```
 
 
-##### Insérer des données 
+#### Insérer des données 
 
 Pour insérer des données dans la liste on utilise la méthode "add" avec 2 paramètres :
 * 1er : la position dans la liste
@@ -915,7 +1004,7 @@ Exemple :
 temperatures.add(1, 35); //ajout en 2ème position de la liste de la valeur 35
 ```
 
-##### Accéder aux éléments
+#### Accéder aux éléments
 
 Il faut utiliser la position dans la liste pour accéder à l'élément avec la méthode "get". L'index commence à 0.
 
@@ -930,7 +1019,7 @@ temperatures.get(2); //accéder au 3ème élément de la liste
 ```
 
 
-##### Boucler dans une ArrayList 
+#### Boucler dans une ArrayList 
 
 Pour afficher l'ensemble des données on utilise une boucle ainsi que la méthode "size" pour obtenir le nombre d'éléments dans la liste (retourne un entier).
 
@@ -952,7 +1041,7 @@ for (Integer unElement : nomArrayList){
 
 Le principe est qu'il y a une "clé" et une "valeur associée".
 
-##### Déclarer un HashMap
+#### Déclarer un HashMap
 
 Syntaxe :
 ```java
@@ -964,7 +1053,7 @@ Par exemple : le nom d'un ami associé à son âge
 HashMap<String, Integer> myFriends = new HashMap<String, Integer>();
 ```
 
-##### Ajouter des données 
+#### Ajouter des données 
 
 Pour ajouter des données on utilise la méthodes "put".
 
@@ -979,7 +1068,7 @@ myFriends.put("Mark", 24);
 ```
 
 
-##### Insérer des données 
+#### Insérer des données 
 
 Pour insérer des données dans la liste on utilise la méthode "add" avec 2 paramètres :
 * 1er : la position dans la liste
@@ -995,7 +1084,7 @@ Exemple :
 temperatures.add(1, 35); //ajout en 2ème position de la liste de la valeur 35
 ```
 
-##### Accéder aux éléments
+#### Accéder aux éléments
 
 Il faut utiliser la clé pour accéder à la valeur avec la méthode "get".
 
@@ -1010,7 +1099,7 @@ myFriends.get("toto"); //accéder à la valeur de la clé "toto"
 ```
 
 
-##### Boucler dans un HashMap
+#### Boucler dans un HashMap
 
 Pour afficher l'ensemble des données on utilise une boucle.
 
@@ -1053,18 +1142,18 @@ public String getNom(){
 }
 ```
 
-#### Créer la JavaDoc avec IntelliJ Idea (IDE)
+### Créer la JavaDoc avec IntelliJ Idea (IDE)
 
 Installer le Plugin dans Plugin/Browse repositories : "JavaDoc - CODE TOOLS"
 
-##### Générer la JavaDoc dans les classes 
+#### Générer la JavaDoc dans les classes 
 
 * shift(maj) + ctrl + alt + G : génére pour toute la classe 
 * shift(maj) + alt + G : génére pour uniquement la méthode sélectionnée 
 * shift(maj) + ctrl + alt + Z : supprimer la JavaDoc pour toute la classe 
 * shift(maj) + alt + Z : supprimer la JavaDoc pour la méthode sélectionnée
 
-##### Générer la documentation JavaDoc
+#### Générer la documentation JavaDoc
 
 Génére la documentation JavaDoc (fichier html, css...).
 
@@ -1169,26 +1258,187 @@ public static void main(String[] args) {
 ``` 
 
 
-## UML 
+## Diagrammes : modéliser le programme
+
+Il existe 2 grands types de diagrammes : 
+* UML : modélisation des classes
+* Use case : représentation des fonctionnalités du programme
+
+Outils : 
+* Visual Paradigm
+
+### Diagrammes UML 
 
 Le sigle « UML » signifie Unified Modeling Language, que l'on peut traduire par « langage de modélisation unifié ». 
 Il ne s'agit pas d'un langage de programmation, mais plutôt d'une méthode de modélisation. La méthode Merise, par exemple, en est une autre.
+
+Ce diagramme permet de modéliser l'ensemble des classes (classes, interfaces ...) et leurs liens. 
+
+* -> : est une instance de cette classe 
+* -> (pleine) : extends de 
+* << Nom Interface >> 
+* - - -> : implémente l'interface
+
+[Vidéo Youtube uml diagramme de classe sous IntelliJ IDEA](https://www.youtube.com/watch?v=ddHXKWguxWk)
+
+
+#### Les diagrammes UML sous IntelliJ Idea 
+
+1. Créer un nouveau diagramme sous IntelliJ IDEA
+
+    * Aller sur `File / New / Diagram / Java Class Diagram`
+    * Créer dans le dossier `src` un dossier `uml`
+    * Créer dans ce dossier un fichier `monfichier.uml`
+    * Cliquer sur OK
+
+2. Créer chaque classe
+
+    * Clic droit + choisir `New / Class`
+    * Saisir le `Name` + `Package`
+
+3. Créer les attributs de la classe
+
+    * Clic droit + choisir `New / Field`
+    * Saisir les infos 
+        * Visibility (Private/Protected...)
+        * Type (String, int...)
+        * Name
+        * Initializer (Valeur par défaut)
+
+4. Créer les méthodes
+
+    * Aller sur la classe créée
+    * Faire `Alt + Inser`
+    * Choisir `getter / setter / toString...`
+    * Revenir sur le fichier uml
+    * Clic droit + `Show Categories / Methods`
+
+5. Héritage
+
+    * Clic droit `New / Line to`
+    * Choisir le parent
+
+6. Afficher le détail des classes
+
+    * Cliquer sur les icones 
+        f : Field (attributs)
+        m étoile : Constructeur
+        m : Méthodes
+
+7. Exporter en format image
+
+    * Cliquer sur icone `Export to file`
+    * Choisir le type d'image souhaitée
+    * Se positionner sur le dossier uml
+    * Cliquer sur OK
+    
+#### Pour créer un diagramme UML à partir d'un projet existant
+
+1. Créer un nouveau diagramme sous IntelliJ IDEA
+   
+   * Aller sur `File / New / Diagram / Java Class Diagram`
+   * Créer dans le dossier `src` un dossier `uml`
+   * Créer dans ce dossier un fichier `monfichier.uml`
+   * Cliquer sur OK
+
+2. Faire glisser sur la fenêtre les différentes classes créées 
+
+3. Choisir dans le menu ce que l'on veut afficher
+
+
+
+### Diagrammes Use Case 
+
+Il permet d'identifier les possibilités d'interaction entre le système et les acteurs (intervenants extérieurs au système), c'est-à-dire toutes les fonctionnalités que doit fournir le système.
+
+Acteur : 
+* Il représente un élément externe (utilisateur ou système tiers) qui interagit avec le programme
+
+Cas d'utilisation : 
+* Représente une fonctionnalité du programme
+* Se représente par une ellipse contenant un nom décrivant la fonctionnalité et éventuellement un stéréotype.
+* Le nom du use case doit se composer d'un verbe à l'infinitif qui décrit une action. Pour que l'ensemble du modèle soit cohérent il faut choisir tous les verbes soit du point de vue du système soit du point de vue de l'utilisateur (ce qui est généralement préférable).
+
+Relations entre cas d'utilisation : 
+* L'inclusion « include » : Cela implique obligatoirement l'inclusion d'un cas d'utilisation dans un autre comme ici « Retire argent » fait obligatoirement appel à « S'authentifier ».
+* L'extension « extended » : Cela permet éventuellement l'extension d'un cas d'utilisation par un autre comme ici « Vérifier solde » peut étendre « Effectuer virement ».
+* Le point d'extension : Il est possible de préciser exactement à quel moment une extension est appelée comme ci-dessous par un « Extension points » ici « verification_solde {après avoir demandé le montant}.
+* La condition d'extension : Il est possible d'ajouter en note sous quelle condition l'extension doit se produire comme ci-dessous si le montant est supérieur à 20€.
+* L'héritage : Il permet de définir la spécialisation d'un cas d'utilisation comme ici consulter un compte depuis le DAB ou consulter le compte depuis Internet.
+
+[Exemple](http://www.uml-sysml.org/diagrammes-uml-et-sysml/diagramme-uml/use-case-diagramme)
 
 
 ## Design Pattern
 
 Modèle de conception, permet de générer les comportements dynamiques. 
+
 Utilisation d'interfaces et de classes venant implémenter ces interfaces.
+
+[Exemple sur GIT Test_Interfaces](https://github.com/MarionChapuis/Test_Interfaces)
 
 *Exemple :*
 Avoir un comportement "Combattre" différent selon le type d'Arme utilisée. 
+Par exemple, afficher "je combat avec une épée" si le personnage a une épée, ou "Je tire à l'arc" s'il utilise un arc.
 
-[Exemple sur GIT Test_Interfaces](https://github.com/MarionChapuis/Test_Interfaces)
+* Création d'une interface "Esprit Combatif" comprenant une méthode "Combat()" qui sera implémentée 
+```java
+public interface EspritCombatif {
+    public void Combat();
+}
+```
+
+* Création de classes "CombatArc" et "CombatEpee" qui vont implémenter l'interface 
+```java
+public class CombatArc implements EspritCombatif {
+
+    @Override
+    public void Combat() {
+        System.out.println("Je tire à l'arc");
+    }
+}
+```
+
+* Création d'une classe Personnage qui va également implémenter l'interface
+   * Attribut 'e' du type de l'interface 'EspritCombatif' qui contiendra l'instance d'une des classes "CombatEpee" ou "CombatArc"
+   * La classe implémente la méthode Combat () en utilisant la méthode Combat() de son attribut dynamique 'e'
+   * Dans l'exemple ci-dessous, e.Combat() correspond à la méthode Combat de la classe "CombatEpee"
+```java
+public class Personnage implements EspritCombatif {
+
+    EspritCombatif e = new CombatEpee();
+
+    public Personnage(){
+    }
+
+    @Override
+    public void Combat() {
+        e.Combat();
+    }
+}
+```
+
+* Dans le main, instancier un personnage et afficher la méthode Combat selon l'Arme utilisée 
+```java
+public class Main {
+
+    public static void main(String[] args) {
+
+        Personnage perso = new Personnage();
+        perso.Combat(); //retournera "je combat avec une épée" car dans la Classe Personnage, l'attribut e = new CombatEpee()
+
+        perso.e = new CombatArc(); //modifier l'attribut 'e' (avec un setter c'est mieux) 
+        perso.Combat(); //retournera "Je tire à l'arc" 
+    }
+}
+```
+
+
 
 
 ## JDBC : accès aux bases de données 
 
-[OpenClassRoom](https://openclassrooms.com/courses/apprenez-a-programmer-en-java/jdbc-la-porte-d-acces-aux-bases-de-donnees)
+[OpenClassRooms JDBC](https://openclassrooms.com/courses/apprenez-a-programmer-en-java/jdbc-la-porte-d-acces-aux-bases-de-donnees)
 
 JDBC : Java DataBase Connectivity
 
@@ -1198,10 +1448,11 @@ Pour utiliser une BDD, vous avez besoin de deux éléments : la base de données
 
 Pour se connecter avec Java à une BDD, il faut un fichier ".jar" qui est un driver.
 
-* Ce fichier ".jar" est à télécharger avec une belle recherche Google : pilote JDBC + postGreSQL(ou mysql...).
-* Ajouter le fichier "xxxxx-bin.jar" : 
+* Ce fichier ".jar" est à télécharger avec une belle recherche Google : pilote JDBC + postGreSQL(ou mysql...) : [lien fichier zip](https://dev.mysql.com/downloads/connector/j/)
+* Ajouter le fichier "xxxxx-bin.jar", il existe 2 solutions : 
   * L'inclure dans votre projet et l'ajouter au CLASSPATH (à favoriser si l'application est vouée à être exportée sur d'autres postes)
-  * Le placer dans le dossier lib/ext présent dans le dossier d'installation du JRE.
+  * ou 
+  * Le placer dans le dossier "Java/lib/ext" présent dans le dossier d'installation du JRE.
 * Faire le lien dans le 'main' 
 
 * Code pour le lien avec PostGreSQL :
@@ -1249,6 +1500,7 @@ public static void main(String[] args) {
         }
     }
 ```
+*A noter, le '3306'* est indiqué dans PhpMyAdmin 'serve XXXX'
 
 L'url se compose de la manière suivante :
 * "jdbc:"
@@ -1370,16 +1622,17 @@ ResultSetMetaData resultMeta = resultat.getMetaData();
 System.out.println("\n**************");
 
 //On affiche le nom des colonnes
-for(int i = 1; i <= resultMeta.getColumnCount(); i++)
-System.out.print("\t" + resultMeta.getColumnName(i).toUpperCase() + "\t *");
-
+for(int i = 1; i <= resultMeta.getColumnCount(); i++) {
+  System.out.print("\t" + resultMeta.getColumnName(i).toUpperCase() + "\t *");
+}
 System.out.println("\n**************");
 
 //On affiche les résultats
 while(resultat.next()) {
 
-  for (int i = 1; i <= resultMeta.getColumnCount(); i++)
-  System.out.print("\t" + resultat.getObject(i).toString() + "\t |");
+  for (int i = 1; i <= resultMeta.getColumnCount(); i++){
+    System.out.print("\t" + resultat.getObject(i).toString() + "\t |");
+  }
 
   System.out.println("\n---------------------------------");
 }
@@ -1653,6 +1906,73 @@ while (liste.next()) {
 state.close();
 liste.close();
 ```
+
+
+## Insérer, modifier des données avec des requêtes préparées 
+
+*Exemple : ajouter un personnage avec les infos de l'utilisateur* 
+```java
+//---------------------------------------------------Créer un personnage avec la console--------------------------------------------------------
+
+Scanner sc = new Scanner(System.in);
+
+System.out.println("Nom du perso ? ");
+String nom = sc.nextLine();
+
+System.out.println("Image ? ");
+String image = sc.nextLine();
+
+System.out.println("Bouclier ? ");
+String bouclier = sc.nextLine();
+
+Guerrier guerrier = new Guerrier(nom, image, bouclier);
+
+//La requête d'insertion
+String query = "INSERT INTO personnages (id, type, niveauVie, nom, image, niveauAttaque, objetAttaque, bouclier) VALUES (NULL, ?, ?, ?, ?, ?, ?, ?)";
+
+//Exécution de la requête préparée
+PreparedStatement state = conn.prepareStatement(query);
+
+//Remplacer les ?
+state.setString(1,guerrier.getType());
+state.setInt(2, guerrier.getNiveauVie());
+state.setString(3,guerrier.getNom());
+state.setString(4, guerrier.getImage());
+state.setInt(5, guerrier.getNiveauAttaque());
+state.setString(6, guerrier.getObjetAttaque());
+state.setString(7, guerrier.getBouclier());
+
+//Exécuter la mise à jour 
+state.executeUpdate();
+
+//Afficher la liste des personnages
+
+//L'objet ResultSet contient le résultat de la requête SQL
+ResultSet liste = state.executeQuery("SELECT * FROM personnages");
+
+//On récupère les MetaData
+ResultSetMetaData resultMeta = liste.getMetaData();
+
+System.out.println("\n------------------------------------------------------------------------------------------------------------------");
+//On affiche le nom des colonnes
+for (int i = 1; i <= resultMeta.getColumnCount(); i++) {
+  System.out.print("\t" + resultMeta.getColumnName(i).toUpperCase() + "\t |");
+}
+System.out.println("\n------------------------------------------------------------------------------------------------------------------");
+
+//On affiche les infos de la BDD
+while (liste.next()) {
+  for (int i = 1; i <= resultMeta.getColumnCount(); i++) {
+    System.out.print("\t" + liste.getObject(i).toString() + "\t |");
+  }
+  System.out.println("\n------------------------------------------------------------------------------------------------------------------");
+}
+
+state.close();
+liste.close();
+```
+
+
 
 
 ## Synthèse Méthodes 
