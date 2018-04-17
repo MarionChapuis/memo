@@ -1827,6 +1827,8 @@ L'objet ResultSet offre beaucoup de méthodes permettant d'explorer les résulta
 
 ### Modifier les données 
 
+**Cette méthode existe mais il est préférable de passer par une requête direct "UPDATE" pour mieux gérer les éventuels conflits sur la BDD**
+
 Pour remplacer les données, on remplace getXXX() par updateXXX(String nomColonne, valeur à attribuer).
 
 * MAJ : monResultat.updateString("nom", "Chapuis");
@@ -1868,7 +1870,7 @@ state.close();
 ```
 
 
-### Insérer, Supprimer .. les données 
+### Insérer, Supprimer, Modifier .. les données 
 
 Les objets Statement sont chargés d'éxécuter les instructions SQL. Les requêtes INSERT, UPDATE, DELETE, CREATE sont exécutées par ces objets.
 
@@ -1981,3 +1983,5 @@ liste.close();
 | :-------:|---------|---------
 | Integer.parseInt(String variable) | Convertir un chaîne de caractères en une entier | int maVariableInt = Integer.parseInt("1");
 | equals("String variable") | Comparer une chaîne de caractères | String maVar = "Oui" ; maVar.equals("Non")  
+
+
