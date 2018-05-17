@@ -29,13 +29,16 @@ Route::get('nomdufichier', function () {
 
 Ajouter la ligne dans le template : 
 ```html
-<link rel="stylesheet" href="{{('css/app.css')}}">
+<link rel="stylesheet" href="{{asset('css/app.css')}}">
 ```
 
 ## Faire le lien avec notre css : 
 ```html
-<link rel="stylesheet" href="{{('css/style.css')}}">
+<link rel="stylesheet" href="{{asset('css/style.css')}}">
 ```
+
+**Utiliser le helper 'asset' pour retrouver les fichiers peu importe où nous sommes**
+
 
 ## Créer une vue 
 
