@@ -103,5 +103,15 @@ Pour télécharger une image depuis le disque interne :
 <input type="file">
 ```
 
+## Générer PDF 
+
+
+### Installation librairie
+
+* Installer la librairie 
+```bash
+composer require barryvdh/laravel-dompdf
+```
+* 
 
 
