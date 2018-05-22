@@ -103,8 +103,8 @@ Pour télécharger une image depuis le disque interne :
 <input type="file">
 ```
 
-## Générer PDF 
 
+## Générer PDF 
 
 ### Installation librairie
 
@@ -112,6 +112,70 @@ Pour télécharger une image depuis le disque interne :
 ```bash
 composer require barryvdh/laravel-dompdf
 ```
-* 
+* Configurer dans config/app.php
+```php
+<?php
+return [
+    ....
+    'providers' => [
+    	....
+        Barryvdh\DomPDF\ServiceProvider::class,
+    ],
 
+    'aliases' => [
+        ....
+        'PDF' => Barryvdh\DomPDF\Facade::class,
+    ]
+``` 
+
+### Utiliser la librairie
+
+* Créer la route dans web.php
+```php
+//------------------GENERER UN PDF------------------------------------------------------------------------
+Route::get('generate-pdf','CreationController@generatePDF')->name("telechargerPDF");
+```
+* Dans le Controller, avoir une méthode pour générer le pdf 
+```php
+use PDF;
+//Donner des infos aux PDF
+$data = ['title' => 'Mes créations'];
+//Instance du pdf envoyer à la vue avec les infos
+$pdf = PDF::loadView('creations.creationsPDF', $data);
+//Retourner le téléchargement du pdf
+return $pdf->download('creations.pdf');
+```
+* Créer la vue (dossier creations) creationsPDF.blade.php qui sera notre pdf
+```html
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <h1>{{ $title }}</h1>
+    <p>Mes créations sont ici</p>
+</body>
+</html>
+```
+
+
+## Dossier Storage
+
+Storage permet de stocker des images qui ne sont pas accessibles par tout le monde comme public.
+
+**Pour faire un lien symbolique avec le dossier "Public"** 
+* Ligne de commande :
+```bash
+php artisan storage:link
+```
+
+Il est possible ensuite dans les vues d'accèder aux infos dans storage :
+```html
+<img src="{{ public_path("storage/creations/28.png") }}" style="max-height : 100px"> 
+```
 
