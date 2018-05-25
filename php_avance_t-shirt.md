@@ -1,10 +1,18 @@
-# PHP AVANCE 
+# PHP AVANCE - PROJET TSHIRT
 
-## Projet t-shirt 
+Objectif : créer une interface pour la personnalisation de t-shirts.
 
-Création d'une interface pour la personnalisation de t-shirts.
 
-### Créer le projet 
+## Helpers Laravel 
+
+| Helper | Action | Exemple
+|:-------:| -------| -------
+| public_path() | Permet d'accèder directement au répertoire public | public_path("img/logos/photo.png");
+| storage_path() | Permet d'accèder directement au répertoire storage | storage_path("img/logos/photo.png");
+
+
+## Créer le projet 
+
 
 * Vérifier que Composer est installé 
 ```bash
@@ -55,6 +63,8 @@ use Intervention\Image\ImageManager;
 
 #### Utilisation 
 
+[Documentation Intervention Images](http://image.intervention.io/getting_started/introduction)
+
 Objectifs :
 - Insérer une image dans une autre
 - Redimensionner l'image à insérer
@@ -68,12 +78,12 @@ use Intervention\Image\ImageManager;
 
 public function store(Tshirt $tshirt, Logo $logo)
     {
-        //Chemin des images
-        $cheminLogo = public_path("img/logos/" . $logo->id . ".png");
-        $cheminTshirt = public_path("img/tshirts/" . $tshirt->id . ".png");
-
         //instance de ImageManager
         $manager = new ImageManager();
+
+        //Chemin des images
+        $cheminLogo = public_path("img/logos/" . $logo->id . ".png");
+        $cheminTshirt = public_path("img/tshirts/" . $tshirt->id . ".png");       
 
         //Image du tshirt
         $imageTshirt = $manager->make($cheminTshirt);
@@ -92,6 +102,7 @@ public function store(Tshirt $tshirt, Logo $logo)
         $y = intval($tshirt->origineY + (($tshirt->hauteurImpression / 2) - ($height / 2)));
 
         //Coller le logo sur le tshirt
+        
         $imageTshirt->insert($imageLogo, 'top-left', $x, $y);
 
         //Sauvegarder l'image
@@ -103,12 +114,32 @@ public function store(Tshirt $tshirt, Logo $logo)
     }
 ```
 
-## Helpers Laravel 
+#### Ajouter du texte 
 
-| Helper | Action | Exemple
-|:-------:| -------| -------
-| public_path() | Permet d'accèder directement au répertoire public | public_path("img/logos/photo.png");
-| storage_path() | Permet d'accèder directement au répertoire storage | storage_path("img/logos/photo.png");
+A noter, pour pouvoir définir la taille, il faut obligatoirement choisir une font personnalisée
+```php
+//Ajouter un texte avec une font personnalisée:
+$imageTshirt->text('Copyright Marion', $tshirt->origineX, 1900, function ($font) {
+    $font->file('fonts/Bleeding_Cowboys.ttf'); //font personnalisée
+    $font->color(array(255, 0, 0, 0.3)); 
+    $font->size(80); //en px
+});
+```
+Structure :
+```php
+$imageTshirt->text('Le texte', positionX, positionY);
+```
+
+## Manipulation des fichiers 
+
+#### Supprimer un fichier 
+
+Pour supprimer un fichier il faut utiliser : 
+```php
+File::delete("cheminDuFichier");
+
+File::delete(public_path("storage/creations/".$logo->id.".png"));
+```
 
 #### Créer un input pour télécharger une image 
 
@@ -117,6 +148,44 @@ Pour télécharger une image depuis le disque interne :
 <input type="file">
 ```
 
+#### Récupérer un fichier uploadé
+
+```php
+//Méthode pour récupérer une image externe
+public function fileUpload(Request $request)
+{
+	//Instance de manager
+    $manager = new ImageManager();
+
+    //Créer l'image temporaire
+    $img = $manager->make($_FILES['photo']['tmp_name']);
+
+    //Récupérer l'extension de l'image
+    $extension = explode("/", $img->mime())[1];
+
+    //Enregistrer l'image en BDD
+    $data = [
+        "nom" => "perso",
+        "largeur" => $img->width(),
+        "hauteur" => $img->height()
+    ];
+    $newLogo = Logo::create($data);
+
+    //Sauvegarder l'image dans le répertoire
+    $destination = public_path("img/logos/" . $newLogo->id . ".png");
+    $img->save($destination);
+
+    //Retour vers la page d'accueil
+    return redirect(route("images.index"));
+}
+```
+
+Récupérer un fichier temporaire : 
+```php
+$_FILES['champInput']['tmp_name'];
+
+// tmp_name permet de donner un nom temporaire au fichier
+```
 
 ## Générer PDF 
 
@@ -129,8 +198,6 @@ composer require barryvdh/laravel-dompdf
 * Configurer dans config/app.php
 ```php
 <?php
-return [
-    ....
     'providers' => [
     	....
         Barryvdh\DomPDF\ServiceProvider::class,
@@ -702,6 +769,8 @@ public function sendMailPdf()
 
 [Doc Laravel](https://laravel.com/docs/5.6/eloquent-resources)
 
+[Super exemple API CRUD](https://www.toptal.com/laravel/restful-laravel-api-tutorial)
+
 * Créer la Classe Ressource :
 ```bash
 php artisan make:resource LogoCollection
@@ -732,7 +801,11 @@ class LogoCollection extends ResourceCollection
     }
 }
 ```
-* Créer la route pour afficher l'ensemble des informations sur les logos : fichier Routes\api.php
+
+### API afficher tous les logos : 
+
+* Créer la route dans le fichier Routes\api.php
+
 ```php
 use App\Logo;
 use App\Http\Resources\LogoCollection;
@@ -743,7 +816,9 @@ Route::get("/logos", function() {
 });
 ```
 
-* Créer la route pour afficher un seul logo 
+### API afficher un seul logo :
+
+* Créer la route pour afficher un seul logo Routes\api.php
 ```php
 use App\Logo;
 use App\Http\Resources\LogoCollection;
@@ -754,22 +829,92 @@ Route::get("/logos/{logo}", function(Logo $logo) {
 });
 ```
 
-* Renommer la collection :
-	* Dans le fichier AppServiceProvider ajouter : ResourceCollection .... 
-	```php
-	public function boot()
-    {
-        Schema::defaultStringLength(191);
-        ResourceCollection::withoutWrapping();
-    }
-    ``` 
-    * Dans la classe Ressource : modifier le nom de la collection 
-    ```php
-    public function toArray($request)
-    {
-        return [
-            'Logos' => $this->collection,
-        ];
-    }
-    ```
+### Renommer la collection :
 
+* Dans le fichier AppServiceProvider ajouter : ResourceCollection .... 
+```php
+public function boot()
+{
+    Schema::defaultStringLength(191);
+    ResourceCollection::withoutWrapping();
+}
+``` 
+* Dans la classe Ressource : modifier le nom de la collection 
+```php
+public function toArray($request)
+{
+    return [
+       'Logos' => $this->collection,
+    ];
+}
+```
+
+### Ajouter une nouvelle création 
+
+L'exemple ci-dessous permet d'effectuer une requête POST avec des données en JSON pour créer une nouvelle Création composée d'un t-shirt et d'un texte.
+
+* Créer la route avec la méthode POST dans le fichier Routes\api.php
+```php
+Route::post("/creations", "LogoController@store");
+```
+* Dans un Controller, implémenter la méthode 'store' :
+```php
+public function store(Request $request)
+    {
+        //Récupérer les infos pour créer une nouvelle Creation en BDD
+        $creation = Creation::create($request->all());
+        //Créer un nouveau champs contenant le lien vers la création
+        $creation->infos = public_path("storage/creations/".$creation->id.".png");
+        //Récupérer le texte entré
+        $creation->texte = $request->input("texte");
+        //Instance du tshirt
+        $tshirt = Tshirt::find(1);
+
+        //Créer l'image avec le texte
+        $manager = new ImageManager();
+        $imageTshirt = $manager->make(public_path("img/tshirts/1.png"));
+        $imageTshirt->text($creation->texte, $tshirt->origineX, 1000, function ($font) {
+            $font->file('fonts/Inkfree.ttf');
+            $font->color(array(255, 0, 0, 0.8));
+            $font->size(80);
+        });
+
+        //Enregistrer dans le répertoire
+        $imageTshirt->save($creation->infos);
+
+        //Retourner du json avec une réponse 201
+        return response()->json($creation,201);
+    }
+```
+A noter : 
+* les champs $creation->infos et texte sont créés temporairement
+* $request->all() permet de récupérer toutes les infos JSON entrées
+
+Tester avec POSTMAN : 
+
+* Créer une requête POST sur l'url : http://localhost:8000/api/creations
+* Dans Headers indiquer : 
+	* key : Content-type
+	* value : application/json
+* Dans Body, sélectionner "raw" et entrer les données JSON :
+```json
+{
+    "tshirt_id" : 1,
+    "logo_id" : 0,
+    "user_id" : 1,
+    "texte" : "Alors, tu valides ????"
+}
+```
+* La réponse sera au format json également en ajoutant le lien vers l'image créée
+```json
+{
+    "tshirt_id": 1,
+    "logo_id": 0,
+    "user_id": 1,
+    "updated_at": "2018-05-25 09:37:40",
+    "created_at": "2018-05-25 09:37:40",
+    "id": 55,
+    "infos": "C:\\wamp64\\www\\tShirt\\public\\storage/creations/55.png",
+    "texte": "Alors, tu valides ????"
+}
+```
