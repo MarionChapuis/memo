@@ -36,7 +36,21 @@ php -i
 ```bash
 composer require intervention/image
 ```
-* 
+* Ajouter dans config/app.php
+```php
+'providers' => [
+	...
+	Intervention\Image\ImageServiceProvider::class,	
+],
+'aliases' => [
+	...
+	'Image' => Intervention\Image\Facades\Image::class,
+]
+```
+* Dans les controllers, ajouter dans les use 
+```php
+use Intervention\Image\ImageManager;
+```
 
 
 #### Utilisation 
@@ -164,6 +178,26 @@ return $pdf->download('creations.pdf');
 ```
 
 
+Exemple 
+```php
+//Générer un PDF
+public function generatePDF()
+{
+	//Donner des infos aux PDF
+    $data = [
+       'title' => 'Mes créations',
+       'creations' => Creation::all()
+    ];
+    //Instance du pdf retourner à la vue avec les infos
+    $pdf = PDF::loadView('creations.creationsPDF', $data);
+    //Retourner le téléchargement du pdf
+    return $pdf->download('creations.pdf');
+    //Afficher le pdf
+    //return $pdf->stream('creations.pdf');
+}
+```
+
+
 ## Dossier Storage
 
 Storage permet de stocker des images qui ne sont pas accessibles par tout le monde comme public.
@@ -178,4 +212,564 @@ Il est possible ensuite dans les vues d'accèder aux infos dans storage :
 ```html
 <img src="{{ public_path("storage/creations/28.png") }}" style="max-height : 100px"> 
 ```
+
+
+
+## Queues 
+
+[Doc Laravel](https://laravel.com/docs/5.6/queues)
+
+Les Queues permettent de réaliser des tâches de manière asynchrone, c'est-à-dire réaliser une tâche lourde en fond tout en ne bloquant pas l'application. 
+
+Des priorités entre les tâches peuvent être données. 
+
+Les **Connections** sont les connexions aux drivers permettant de gérer les queues. 
+
+Il est possible d'utiliser autant de Queue Driver que l'on veut.
+
+### Configurer le driver : Database 
+
+* Il est nécessaire de créer une table qui contiendra toutes les tâches.
+
+```bash
+php artisan queue:table
+```
+```bash
+php artisan migrate
+```
+
+Structure générée pour la migration pour la table 
+```php 
+public function up()
+{
+Schema::create('jobs', function (Blueprint $table) {
+           $table->bigIncrements('id');
+           $table->string('queue')->index();
+           $table->longText('payload');
+           $table->unsignedTinyInteger('attempts');
+           $table->unsignedInteger('reserved_at')->nullable();
+           $table->unsignedInteger('available_at');
+           $table->unsignedInteger('created_at');
+       }
+   );
+}
+```
+
+* Indiquer dans le fichier .env le driver qu'on veut utiliser (normalement QUEUE_DRIVER = sync) 
+```bash
+QUEUE_DRIVER=database
+```
+
+### Créer un Job 
+
+#### Générer une classe Job 
+
+Si le répertoire contenant les jobs n'existe pas dans app/Jobs, il sera automatiquement créé lors de la génération d'une classe job.
+
+* Créer une classe Job nommée ProcessPodcast
+```bash 
+php artisan make:job ProcessPodcast
+```
+
+La classe générée viendra implémenter l'interface Illuminate\Contracts\Queue\ShouldQueue. 
+
+#### Structure de la classe Job 
+
+La méthode "handle" contient ce que doit faire le job.
+
+```php
+<?php
+
+namespace App\Jobs;
+
+use App\Podcast;
+use App\AudioProcessor;
+use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+
+class ProcessPodcast implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+    protected $podcast;
+
+    /**
+     * Create a new job instance.
+     *
+     * @param  Podcast  $podcast
+     * @return void
+     */
+    public function __construct(Podcast $podcast)
+    {
+        $this->podcast = $podcast;
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @param  AudioProcessor  $processor
+     * @return void
+     */
+    public function handle(AudioProcessor $processor)
+    {
+        // Process uploaded podcast...
+    }
+}
+```
+
+### Dispatcher les Jobs
+
+Une fois la classe Job créée, il faut utiliser "dispatch" dans le controller. 
+
+L'argument passé à "dispatch" est donné par le constructeur de la classe Job (non obligatoire).
+
+```php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Jobs\ProcessPodcast;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+
+class PodcastController extends Controller
+{
+    /**
+     * Store a new podcast.
+     *
+     * @param  Request  $request
+     * @return Response
+     */
+    public function store(Request $request)
+    {
+        // Create podcast...
+
+        ProcessPodcast::dispatch($podcast);
+    }
+}
+```
+
+Envoyer un job à la queue par défaut 
+```php 
+Job::dispatch();
+```
+
+Envoyer un job à la queue 'emails'
+```php
+Job::dispatch()->onQueue('emails');
+```
+
+Donner une priorité importante en ligne de commande
+```bash 
+php artisan queue:work --queue=high,default
+```
+
+### Différer les dispatchs
+
+Pour différer l'exécution d'une tâche il est possible d'utiliser la méthode "delay" lorsqu'on effectu le dispatch. 
+
+Par exemple, différer de 10 minutes : 
+```php 
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Jobs\ProcessPodcast;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+
+class PodcastController extends Controller
+{
+    /**
+     * Store a new podcast.
+     *
+     * @param  Request  $request
+     * @return Response
+     */
+    public function store(Request $request)
+    {
+        // Create podcast...
+
+        ProcessPodcast::dispatch($podcast)
+                ->delay(now()->addMinutes(10));
+    }
+}
+```
+
+### Enchaîner les jobs 
+
+Il est possible de créer une séquence de tâches à exécuter, les unes après les autres, avec la méthode "withChain".
+
+Attention, si une des tâches ne fonctionne pas, les suivantes ne seront pas exécutées. 
+
+```php
+ProcessPodcast::withChain([
+    new OptimizePodcast,
+    new ReleasePodcast
+])->dispatch();
+```
+
+
+### Exemple : Générer un pdf avec une Queue
+
+* Générer le Job : classe ProcessPDF en ligne de commande 
+```bash
+php artisan make:job ProcessPDF
+```
+* Implémenter la méthode handle() en mettant ce qui va être effectué
+```php
+<?php
+
+namespace App\Jobs;
+
+
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Foundation\Bus\Dispatchable;
+use App\Creation;
+use PDF;
+
+class ProcessPDF implements ShouldQueue
+{
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+
+
+    /**
+     * Create a new job instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+
+    }
+
+    /**
+     * Execute the job.
+     *
+     * @return void
+     */
+    public function handle()
+    {
+        //Donner des infos aux PDF
+        $data = [
+            'title' => 'Mes créations',
+            'creations' => Creation::all()
+        ];
+
+        //Instance du pdf retourner à la vue avec les infos
+        $pdf = PDF::loadView('creations.creationsPDF', $data);
+        //Sauvegarder le pdf
+        $pdf->save('creations.pdf');
+    }
+}
+```
+* Dans le Controller, effectuer le dispatch 
+```php
+//Générer un PDF
+public function generatePDF()
+{
+    //Générer le pdf via une Queue
+    ProcessPDF::dispatch();
+    //Rester sur la même page
+    return back();
+}
+```
+
+* Dans un Bash, lancer en ligne de commande, l'écoute des jobs 
+```bash
+php artisan queue:work
+```
+* Laisser ouvert le bash avec la commande et lorsqu'un Job sera demandé, il va être stocké dans la BDD (table jobs) puis exécuté dès que possible grâce à "php artisan queue:work"
+
+
+
+
+## Envoyer un email
+
+[Laravel Doc](https://laravel.com/docs/5.6/mail)
+
+### Installer Guzzle 
+
+Il est obligatoire d'installer, pour toutes les API, Guzzle en ligne de commande : 
+```bash
+composer require guzzlehttp/guzzle
+```
+
+### Choisir un Driver : MAILGUN
+
+Par exemple, utiliser Mailgun (créer un compte sur Mailgun et récupérer son domaine et sa clé). 
+
+* Dans config/mail.php, remplacer "smtp" par mailgun dans le driver :
+```php
+'driver' => env('MAIL_DRIVER', 'mailgun'),
+```
+* Il est également possible de déclarer un FROM global si tous les emails sont envoyés depuis le même FROM, dans le fichier config/mail.php
+```php
+    'from' => [
+        'address' => env('MAIL_FROM_ADDRESS', 'postmaster@sandb****************3ab6d.mailgun.org'),
+        'name' => env('MAIL_FROM_NAME', 'M(arion)&S(ergio)'),
+    ],
+```
+* Dans config/services, il faut conserver la configuration suivante car c'est dans le .env que cette config ira chercher le "MAILGUN_DOMAIN" & "MAILGUN_SECRET" :
+```php
+    'mailgun' => [
+        'domain' => env('MAILGUN_DOMAIN'),
+        'secret' => env('MAILGUN_SECRET'),
+    ],
+```
+* Modifier dans le fichier .env les informations suivantes
+```bash
+#Parametrer l'envoi d'email
+MAIL_DRIVER=mailgun
+MAILGUN_DOMAIN=sandbox1fa*************f3ab6d.mailgun.org
+MAILGUN_SECRET=key-1628*********4e6
+```
+* Télécharger le certificat (premier lien) sur le lien : https://curl.haxx.se/docs/caextract.html 
+* Copier le fichier dans : C:\wamp64\bin\php\php7.1.9\extras\ssl 
+* Compléter dans le fichier "php.ini" disponible dans (C:\wamp64\bin\php\php7.1.9) en supprimant le point virgule : 
+``` 
+//lien vers le fichier cacert.pem
+curl.cainfo = C:\wamp64\bin\php\php7.1.9\extras\ssl\cacert.pem
+```
+* Relancer le "php artisan serve" lorsque le .env est modifié
+
+
+### Générer la classe 
+
+Les classes des emails se stockent dans le répertoire app/Mail (si le répertoire n'existe pas il se créera en même temps que la création de la première classe email).
+
+* En ligne de commande créer la classe 
+```bash
+php artisan make:mail SendPdf
+```
+
+### Paramétrer l'email 
+
+Dans la nouvelle classe créée, il est possible de paramétrer l'email :
+```php 
+<?php
+
+namespace App\Mail;
+
+use Illuminate\Bus\Queueable;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Contracts\Queue\ShouldQueue;
+
+class SendPdf extends Mailable
+{
+    use Queueable, SerializesModels;
+
+    /**
+     * Create a new message instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        //
+    }
+
+    /**
+     * Build the message.
+     *
+     * @return $this
+     */
+    public function build()
+    {
+    	//permet de retourner la vue qui sera donc l'email
+        return $this->view('creations.mailpdf');
+    }
+}
+```
+
+* Créer la vue de l'email 
+```html 
+@extends("templates/structure")
+
+@section('contenu')
+    <div>Bonjour,</div>
+    <div>Vous trouverez ci-joint l'historique de vos créations.</div>
+    <div>Bisous</div>
+@endsection
+```
+
+* Créer la méthode pour envoyer l'email dans le Controller 
+```php
+//Envoyer un email
+public function sendMailPdf()
+{
+    Mail::to('marion.chapuis@campus-numerique-in-the-alps.com')
+        ->cc('sergio.custodio@campus-numerique-in-the-alps.com')
+        ->bcc('chapuis.marion@gmail.com')
+        ->send(new SendPdf());
+    }
+```
+
+* Créer une route pour envoyer l'email 
+```php
+//-----------------------------ENVOYER UN EMAIL----------------------------------------------------------
+Route::get('sendmail', 'CreationController@sendMailPdf')->name('sendEmailPdf');
+```
+
+*S'il y a une erreur "add your domain ... " il faut ajouter les emails qui peuvent réceptionner nos emails dans mailgun. La personne doit accepter. En effet, pendant les tests c'est le seul moyen.*
+
+### Ajouter une PJ à l'email 
+
+Dans la classe de l'email "SendPdf.php", ajouter dans la méthode *build* la pièce-jointe grâce à "attach" :
+```php
+public function build()
+    {
+        return $this->view('creations.mailpdf', $data)
+            ->attach(public_path("storage/creations/28.png"));
+    }
+```
+
+### Ajouter des données personnalisées dans l'email 
+
+Dans la classe de l'email "SendPdf.php", ajouter dans la méthode *build* les données et les retourner avec la vue :
+```php
+public function build()
+    {
+        $data = [
+            "user" => "Marion"
+        ];
+        return $this->view('creations.mailpdf', $data)
+            ->attach(public_path("storage/creations/28.png"));
+    }
+```
+
+Méthode dans Laravel (la doc) avec "with":
+```php
+public function build()
+    {
+        return $this->view('emails.orders.shipped')
+                    ->with([
+                        'orderName' => $this->order->name,
+                        'orderPrice' => $this->order->price,
+                    ]);
+    }
+```
+Et il y aura dans la vue : 
+```html
+<div>
+    Price: {{ $orderPrice }}
+</div>
+```
+
+### Modifier le sujet de l'email 
+
+Toujours dans la classe de l'email 'Mail/SendPdf.php' ajouter la méthode "subject"
+```php
+    public function build()
+    {
+        $data = [
+            "user" => "Marion"
+        ];
+        return $this->view('creations.mailpdf', $data)
+            ->subject("Votre t-shirt")
+            ->attach(public_path("storage/creations/28.png"));
+    }
+```
+
+### Envoyer un email avec une Queue 
+
+Dans le Controller, remplacer le 'send' par 'queue' pour l'envoi de l'email et hop le tour est joué :
+```php
+//Envoyer un email
+public function sendMailPdf()
+{
+        //Envoyer un email tout de suite
+		//Mail::to("marion.chapuis@campus-numerique-in-the-alps.com")->send(new SendPdf());
+
+    //Envoyer un email avec une Queue
+    Mail::to("marion.chapuis@campus-numerique-in-the-alps.com")->queue(new SendPdf());
+
+    //Rester sur la même page
+    return back();
+}
+```
+
+
+## Créer une API 
+
+[Doc Laravel](https://laravel.com/docs/5.6/eloquent-resources)
+
+* Créer la Classe Ressource :
+```bash
+php artisan make:resource LogoCollection
+```
+* Implémenter la classe créée LogoCollection
+```php
+<?php
+
+namespace App\Http\Resources;
+
+use Illuminate\Http\Resources\Json\ResourceCollection;
+
+class LogoCollection extends ResourceCollection
+{
+    /**
+     * Transform the resource collection into an array.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return array
+     */
+    public function toArray($request)
+    {
+
+    	//Permet de retourner l'ensemble de la collection en Json
+        return [
+            'data' => $this->collection,
+        ];
+    }
+}
+```
+* Créer la route pour afficher l'ensemble des informations sur les logos : fichier Routes\api.php
+```php
+use App\Logo;
+use App\Http\Resources\LogoCollection;
+
+//--------------------------------ROUTES API------------------------------------------------------
+Route::get("/logos", function() {
+    return new LogoCollection(Logo::all());
+});
+```
+
+* Créer la route pour afficher un seul logo 
+```php
+use App\Logo;
+use App\Http\Resources\LogoCollection;
+
+//--------------------------------ROUTES API------------------------------------------------------
+Route::get("/logos/{logo}", function(Logo $logo) {
+    return new LogoCollection(Logo::find($logo));
+});
+```
+
+* Renommer la collection :
+	* Dans le fichier AppServiceProvider ajouter : ResourceCollection .... 
+	```php
+	public function boot()
+    {
+        Schema::defaultStringLength(191);
+        ResourceCollection::withoutWrapping();
+    }
+    ``` 
+    * Dans la classe Ressource : modifier le nom de la collection 
+    ```php
+    public function toArray($request)
+    {
+        return [
+            'Logos' => $this->collection,
+        ];
+    }
+    ```
 
