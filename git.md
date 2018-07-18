@@ -76,3 +76,52 @@ La gestion de conflit
 
 
 
+## Pull Request
+
+Un pull request permet de demander d'écrire sur un projet. Le principe est de faire une branche pour travailler dans son coin puis effectuer une pull request. 
+Si le propriétaire du projet est d'accord, il mergera la branche avec master. 
+
+#### Etapes pour créer une Pull Request :
+
+* Fork du projet
+* Cloner le projet en local
+* Effectuer un git pull origin master (pour garantir qu'on est à jour si on ne vient pas de cloner le projet)
+* Créer une branche 
+```bash
+git checkout -b Nom-ma-branche
+```
+* Effectuer son travail 
+* Add, commit et push sur la branche
+* Si le repo sur Github ne connait pas la branche, il faut donc l'ajouter lors du push:
+```
+git push --set-upstream origin nomMaBranche
+```
+* Sur Github, cliquer sur "new pull request" (ou sur le message en jaune proposant de faire le pull request)
+* Choisir comme "base" notre projet sur master et dans "compare" choisir notre branche
+* Utiliser Writer (et preview) pour laisser des messages explicites (listes à puces, copies d'écran...)
+* Cliquer sur "Create Pull Request"
+
+#### Etapes pour valider et merger :
+
+Pour le propriétaire du projet, il peut valider la pull request en mergeant avec Master.
+
+* Sur Github aller dans l'onglet "Pull Requests"
+* Sélectionner la pull request
+* Cliquer sur "Merge pull request" pour valider et merge
+
+Il est possible de voir les commits sur la pull request, les fichiers changés mais aussi laisser des commentaires et ne pas valider la pull request.
+
+Tant que la pull request reste ouverte, le développeur peut continuer son travail et pusher sur la branche pour la mettre à jour.
+
+
+## Créer un backlog avec Github
+
+Etapes:
+* Se positionner dans notre projet
+* Onglet "Projects"
+* Choisir "New Project"
+* Donner un nom, renseigner la description et choisir comme template "Basic Kanban"
+* Cliquer sur "Create project"
+* S'afficher alors la structure "To do, In Progress, Done"
+
+Il est possible d'ajouter des colonnes et créer un backlog par branche...

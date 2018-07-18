@@ -1255,3 +1255,113 @@ data() {
 <router-view v-bind:machines="machines" :loading="loading" :error="error"></router-view>
 ```
 
+## Importer des fichiers JavaScript
+
+Pour construire une application dans l'esprit MVC, il est possible de créer des modèles.
+
+Créer un répertoire "Models", par exemple, et mettre les fichiers JavaScript correspondant à nos modèles.
+
+Exemple pour le jeu Bataille Navale, le répertoire contient :
+* bateau.js
+* caseBateau.js
+* plateau.js
+* casePlateau.js
+
+#### Exporter les variables JS :
+
+Les fichiers JS contiennent des variables, des fonctions, console.log et tout ce qu'il peut y avoir en JS. 
+
+Pour pouvoir exporter ces informations : 
+* Déclarer un "export default"
+* Donner un nom au fichier pour l'export
+* Ajouter les variables que l'on veut exporter
+
+Par exemple, fichier bateau.js :
+```JavaScript 
+console.log("Bateau");
+
+var objetBateau = {
+  id : "id",
+  nom : "nom bateau",
+  taille : "nombre cases",
+  cases : ["case", "case"],
+  status : "true of false",
+}
+
+var idBateau = objetBateau.id;
+
+export default {
+  name : "bateau",
+  idBateau,
+  objetBateau
+}
+```
+
+#### Importer dans un composant 
+
+Pour importer ces informations dans un composant : 
+* Créer un import du fichier
+* Passer les variables JS dans la Data() 
+* Pour appeler une variable JS utiliser le nom (donné dans export default - name) avec un point et le nom de la variable : monFichier.maVariable
+
+Par exemple, composant App.vue :
+```javascript
+<template>
+  <div id="app">
+    <router-view/>
+    <liste-bateaux></liste-bateaux> //mon composant "ListeBateaux"
+
+    //Bouton avec onclick l'appel à une fonction
+    <button class="btn btn-primary" v-on:click="afficherBateau(sousMarin)">afficher</button>
+
+    //Afficher une variable de Data 
+    {{sousMarin}}
+
+  </div>
+</template>
+
+<script>
+  import ListeBateaux from "./components/ListeBateaux.vue";
+  //Importer mon fichier javascript en utilisant le nom donné dans "export default - name"
+  import bateau from "./models/bateau.js";
+
+  export default {
+    components: {ListeBateaux},
+    name: 'App',
+    data() {
+      return {
+        sousMarin : bateau.objetBateau,
+        afficherBateau : function (typeBateau) {
+          console.log(typeBateau);
+        }
+      }
+    }
+  }
+</script>
+```
+
+
+## Créer des composants avec VGC
+
+[Lien NPM](https://www.npmjs.com/package/vue-generate-component)
+
+VGC est une dépendance permettant de générer des composants en ligne de commande. 
+
+* Installer VGC en global sur son ordinateur 
+```bash
+npm install -g vue-generate-component
+``` 
+
+* Créer un composant au format "Dossier comprenant les fichiers du composant " : 
+```bash
+vgc NomComposant
+```
+* Créer un composant au format "Dossier comprenant le composant en un seul fichier" :
+```bash
+vgc -s NomComposant --folder
+```
+* Créer un composant au format "Simplement le composant dans un fichier unique"
+```bash
+vgc -s NomComposant
+```
+
