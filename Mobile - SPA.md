@@ -1365,3 +1365,98 @@ vgc -s NomComposant --folder
 vgc -s NomComposant
 ```
 
+## Passer des données au parent : $emit
+
+Pouvoir passer des données au parent depuis l'enfant. 
+
+Par exemple, pour la bataille navale, la structure est la suivante : 
+* composant CaseGrille : contenant l'objet "caseJeu" (positions x et y, attacked, occupied ...)
+* compoasnt Grille : affichant l'ensemble des grilles avec l'objet "listeCasesJeu" 
+
+Le parent "Grille" connait l'ensemble des cases. Mon but est de savoir quand je clique sur une case, si les 3 cases à droite de cette dernière sont disponibles. 
+
+Le problème est que le composant enfant "CaseGrille" ne connait pas les infos des cases voisines. Il faut donc passer par le parent qui connait l'ensemble des cases. 
+
+**Principe : L'enfant va émettre ses infos au parent**
+
+Dans le composant enfant CaseGrille : 
+* Créer une fonction avec un émetteur : this.$emit("nom", data)
+* Appeler la fonction lors d'un évenement comme le click par exemple
+```javascript
+<template>
+  <div v-on:click="doSomething(); getId();" class="color" :caseJeu="caseJeu" @dblclick="setOccupied()">
+  </div>
+</template>
+
+<script>
+  import fichierCasePlateau from '@/models/casePlateau'
+
+  export default {
+    name: "case-grille",
+    data() {
+      return {}
+    },
+    methods: {
+      getId : function () {
+        var idCaseAttaque = this.caseJeu.id;
+        // console.log("id case : " +idCaseAttaque);
+        return idCaseAttaque;
+      },
+      doSomething : function () {
+        //l'enfant émet avec 'position' et en paramètre la PositionY de la case
+        this.$emit('position', this.caseJeu.positionY);
+        console.log("l'enfant donne position Y : " + this.caseJeu.positionY);
+      }
+    },
+    props: ['message', 'color', 'caseJeu', 'occupied']
+  }
+</script>
+```
+
+Dans le composant parent Grille : 
+* Créer une fonction avec un paramètre dans les méthodes du parent
+* Appeler la fonction du parent avec le nom de l'émetteur : '@position="methodeParent($event)" '
+* $event permet de récupérer la data de l'enfant
+```javascript
+<template>
+  <div class="container">
+      <div class="col-sm-1" v-for="n in 10">
+        <caseGrille :message="n"></caseGrille>
+      </div>
+      <div v-for="n in 10">
+        <div class="col-sm-2"><caseGrille style="text-align: right; padding-right: 0" :message="lettres[n-1]" ></caseGrille></div>
+        <div class="col-sm-1" v-for="caseJeu in listeCasesJeu.slice((n*10-10),(n*10))">
+
+        //Avec le nom de l'émetteur 'position' appeler une méthode du parent avec le paramètre '$event'
+
+          <caseGrille color="true"  :id="caseJeu.id" :caseJeu="caseJeu" :occupied="caseJeu.occupied" @position="bateauPositionnable($event)"></caseGrille>
+
+        </div>
+      </div>
+      </div>
+  </div>
+</template>
+
+<script>
+  import caseGrille from '@/components/CaseGrille.vue'
+  import fichierCasePlateau from '@/models/casePlateau'
+
+  export default {
+    name: "grille",
+    components: {caseGrille},
+    props: ['listeCasesJeu'],
+    data() {
+      return {
+        lettres: ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
+      }
+    },
+    methods:{
+      bateauPositionnable(paramPosition){
+        console.log("dans le parent : "  + paramPosition);
+      }
+    }
+  }
+</script>
+
+```
+
