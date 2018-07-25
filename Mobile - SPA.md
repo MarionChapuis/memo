@@ -1460,3 +1460,19 @@ Dans le composant parent Grille :
 
 ```
 
+## Utiliser SASS 
+
+Dans un composant, utiliser Sass : 
+
+
+Pour utiliser Sass avec 'webpack', si cela ne fonctionne pas car il manque le "sass-loader", il faut lancer la commande :
+```bash
+npm install -D sass-loader node-sass
+```
+Puis 
+```bash
+npm install
+```
+
+
+
