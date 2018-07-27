@@ -1531,7 +1531,7 @@ Créer une propriété calculée :
 
 Exemple :
 ```html
-<template lang="html">
+<template>
   <section class="marion">
     <h1>Validons</h1>
     <h2>{{name}}</h2>
@@ -1584,7 +1584,7 @@ Par exemple, quand l'utilisateur renseigne son email, pouvoir vérifier qu'il s'
 
 Exemple : Vérifier que l'input entré est bien un nombre
 ```html
-<template lang="html">
+<template>
 
   <section class="marion">
     <h1>Validons</h1>
@@ -1640,7 +1640,7 @@ Par exemple, mettre une donnée en majuscule ou seulement la première lettre, s
 
 Exemple : 
 ```html
-<template lang="html">
+<template>
 
   <section class="marion">
     <h1>Validons</h1>
@@ -1705,13 +1705,13 @@ Vue.use(Vuex)
 ```javascript
 export default new Vuex.Store({
   state: {
-    //Les datas que l'on souhaite utiliser
+    //Les données que l'on souhaite utiliser
   },
   getters:{
-    //Les getters pour avoir accès à ces data
+    //Les getters pour avoir accès à ces données
   },
   mutations: {
-    //les fonctions pour modifier ces data (ajouter des lettres, multiplier des chiffres ...)
+    //les fonctions pour modifier ces données (ajouter des lettres, multiplier des chiffres ...)
   },
   actions: {
     //diverses fonctions
@@ -1746,36 +1746,35 @@ export default new Vuex.Store({
   },
   actions: {
     //
-  },
-  plugins: [vuexLocal.plugin] //Ajout du plugin pour utiliser vueX Persist
+  }
 })
 
 ```
 
-### Utiliser les data dans les composants 
+### Utiliser les données dans les composants 
 
 
 * Importer le store dans le composant 
 ```html
 <script lang="js">
-  //Importer store pour avoir les data globales
+  //Importer store pour avoir les données globales
   import store from '../store'
 </script>
 ```
-* Dans 'computed', créer des fonctions portant le nom de la data que l'on veut récupérer
-* Dans la fonction retourner la data avec son getters : return store.getters.getOutil;
-* Dans le template appeler simplement le nom de la data : {{outil}}
+* Dans 'computed', créer des fonctions portant le nom de la donnée que l'on veut récupérer
+* Dans la fonction retourner la donnée avec son getters : return store.getters.getOutil;
+* Dans le template appeler simplement le nom de la donnée : {{outil}}
 * Dans 'methods' créer des fonctions et appeler à l'intérieur le mutateur : store.commit("nomMutateur") 
 * Dans le template, appeler la fonction créée tout simplement 
 
 Exemple : 
 ```html
-<template lang="html">
+<template> 
 
   <section class="marion">
     <h1>Validons</h1>
 
-    <!--------------------------Utiliser les data du State Manager ------------------------------>
+    <!--------------------------Utiliser les données du State Manager ------------------------------>
     <h2>{{name}}</h2>
     <h3>{{outil}}</h3>
 
@@ -1788,7 +1787,7 @@ Exemple :
 </template>
 
 <script lang="js">
-  //Importer store pour avoir les data globales
+  //Importer store pour avoir les données globales
   import store from '../store'
 
   export default {
@@ -1857,6 +1856,46 @@ export default new Vuex.Store({
 
 A présent toutes les données modifiées resteront même lors d'un rafraichissement.
 
+Exemple complet : 
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+import VuexPersistence from 'vuex-persist'
+
+const vuexLocal = new VuexPersistence({
+  storage: window.localStorage
+})
+
+Vue.use(Vuex)
+export default new Vuex.Store({
+  state: {
+    name:"Compétence State",
+    outil : "VueJS"
+  },
+  getters:{
+    getName: state =>{
+      return state.name;
+    },
+    getOutil: state =>{
+      return state.outil;
+    }
+  },
+  mutations: {
+    addE(state){
+      state.name = state.name + "e"
+    },
+    removeE(state){
+      state.name = "Compétence State";
+    },
+  },
+  actions: {
+    //
+  },
+  plugins: [vuexLocal.plugin]
+})
+
+```
+
 #### API Storage
 
 On peut également utiliser l'API de Local Storage [ici](https://developer.mozilla.org/fr/docs/Web/API/Storage)
@@ -1872,7 +1911,7 @@ Lorsqu'on utilise le removeItem, on met en paramètre la clé liée aux données
 
 Lorsqu'on installe 'Webpack' (vue init webpack NomMonProjet) préciser que l'on souhaite utiliser "Jest" pour les tests. 
 
-Un dossier 'test' est créé et les tests sont à mettre dans : 'test/unir/spects/'
+Un dossier 'test' est créé et les tests sont à mettre dans : 'test/unir/specs/'
 
 ### Configurer les tests
 
