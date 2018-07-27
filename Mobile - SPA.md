@@ -1462,9 +1462,6 @@ Dans le composant parent Grille :
 
 ## Utiliser SASS 
 
-Dans un composant, utiliser Sass : 
-
-
 Pour utiliser Sass avec 'webpack', si cela ne fonctionne pas car il manque le "sass-loader", il faut lancer la commande :
 ```bash
 npm install -D sass-loader node-sass
@@ -1473,6 +1470,480 @@ Puis
 ```bash
 npm install
 ```
+Pour que les variables soient connues dans tous les composants, il faut supprimer dans le style "scoped" et mettre les variables dans "app.vue".
+
+Il est également possible de mettre l'ensemble des variables dans un fichier ".scss" et l'importer (à l'intérieur des balises 'style'). Pour cela, il faut s'assurer que 'Webpack' ou celui qu'on utilise, soit capable de comprendre et compiler les fichiers '.scss'.
+
+* Déclarer une variable :
+```css
+$fontColor : #5287F0;
+```
+Pour pouvoir travailler les couleurs, un [site référence](http://jackiebalzer.com/color)  
+
+Exemple : 
+```javascript
+<style lang="scss">
+  //Déclarer des variables correspondant à des couleurs
+  $fontColor : #5287F0;
+  //Utiliser des fonctions pour retravailler les couleurs
+  $fontDark : darken($fontColor, 20%);
+  $fontVeryDark : darken($fontDark,10%);
+
+  .marion {
+    border: 2px solid $fontDark;
+    padding-bottom: 20px;
+    color: $fontColor;
+  }
+  h1{
+    color : $fontDark;
+  }
+  .resultat {
+    font-weight: bold;
+    color: $fontColor;
+  }
+  .distance {
+    border: 4px outset $fontVeryDark;
+    width: 400px;
+    margin: auto;
+    color: $fontColor;
+  }
+
+</style>
+```
+
+
+## Propriétés Computed - Watched
+
+### Computed - Propriétés Calculées 
+
+Les propriétés calculées permettent de créer de nouvelles propriétés à partir de propriétés existantes. 
+
+Par exemple : 
+* Propriété existante : "nom" et "prenom"
+* Propriété calculée : "nomComplet" qui s'appuie sur les propriétés existantes "nom" et "prenom" pour en créer une nouvelle 
+
+Créer une propriété calculée :
+* Dans 'computed' créer une fonction avec le nom de la nouvelle propriété
+* Construire la propriété en utilisant des données existantes dans le composant
+* Retourner dans la fonction la nouvelle propriété
+* Appeler la propriété calculée dans le template {{maPropriété}}
+
+
+Exemple :
+```html
+<template lang="html">
+  <section class="marion">
+    <h1>Validons</h1>
+    <h2>{{name}}</h2>
+    <h3>{{outil}}</h3>
+
+    <!--------------------------Utiliser des propriétés calculées "computed" nomComplet------------------------------>
+    <h4>Propriété calculée : {{nomComplet}}</h4>
+
+  </section>
+
+</template>
+
+<script lang="js">
+
+  export default {
+    name: 'marion',
+    props: [],
+
+    data() {
+      return {
+        name: 'composant',
+        outils: 'vueJs'
+      }
+    },
+    computed: {
+      nomComplet() {
+        let nomComplet = this.name + " - " + this.outil;
+        return nomComplet;
+      }
+    }
+  }
+</script>
+
+<style scoped lang="scss">
+</style>
+```
+
+### Watched - Propriétés Observées 
+
+Les propriétés observées sont de moins en moins utilisées car les propriétés calculées peuvent également faire ce travail.
+
+Watched permet de regarder si une propriété a changé de valeur et donc d'appliquer une fonction, par exemple, lorsqu'il y a un changement.
+
+Par exemple, quand l'utilisateur renseigne son email, pouvoir vérifier qu'il s'agit bien d'un format email. 
+
+**Créer une propriété observée** :
+* Dans 'watch' créer une propriété observée ayant le nom de la donnée qu'elle observe : maData : function(){}
+* Renseigner la fonction 
+
+
+Exemple : Vérifier que l'input entré est bien un nombre
+```html
+<template lang="html">
+
+  <section class="marion">
+    <h1>Validons</h1>
+    <!--------------------------Utiliser des observateurs "watch"------------------------------>
+
+    <div>
+        <label>Entrez un nombre de kms</label>
+        <br>
+        <input v-model="km">
+        <p>{{message}}</p>
+    </div>
+
+  </section>
+
+</template>
+
+<script lang="js">
+  export default {
+    name: 'marion',
+    props: [],
+    data() {
+      return {
+        km: '',
+        message:''
+      }
+    },
+    watch: {
+      km: function (val) {
+        if (isNaN(val)) {
+          this.message = "Attention ce n'est pas un nombre";
+        }
+      }
+    },
+  }
+</script>
+
+<style scoped lang="scss">
+
+</style>
+
+```
+
+## Filtres 
+
+Les filtres permettent d'effectuer des modifications dans l'affichage de la donnée. 
+
+Par exemple, mettre une donnée en majuscule ou seulement la première lettre, sans pour autant créer une nouvelle donnée. 
+
+* Ajouter dans 'filters', une fonction permettant d'effectuer un traitement (sur un paramètre) et de retourner la modif
+* Lorsqu'on appelle la donnée dans le template, ajouter un pipe | et mettre le nom du filtre 
+* Il est possible d'enchainer plusieurs filtres en ajoutant à chaque fois un | 
+
+
+Exemple : 
+```html
+<template lang="html">
+
+  <section class="marion">
+    <h1>Validons</h1>
+
+    <!--------------------------Utiliser les filtres ------------------------------>
+    <h2>{{name | capitalize}}</h2>
+
+  </section>
+
+</template>
+
+<script lang="js">
+  export default {
+    name: 'marion',
+    props: [],
+    data() { },
+    filters: {
+      capitalize: function (value) {
+        if (!value) {
+          return '';
+        }
+        value = value.toString();
+        return value.toUpperCase();
+      }
+    }
+  }
+</script>
+
+<style scoped lang="scss">
+</style>
+
+```
+
+
+## Les étapes de vie de l'instance de vie
+
+
+* Created : Création de l'instance de vue 
+* Mounted : Le composant est monté dans le DOM.
+* Destroyed : Le composant est détruit
+
+
+## VueX : State Manager
+
+Permet d'avoir un composant générale avec des données globales. Très pratique pour pouvoir partager des données entre composants.
+
+### Installer VueX 
+
+* Entrer la ligne de commande 
+```bash
+npm install --save vuex
+```
+* Créer dans 'src' un dossier 'store' et un fichier 'index.js'
+* Dans ce fichier 'index.js' effectuer les imports nécessaires 
+```javascript
+import Vue from 'vue'
+import Vuex from 'vuex'
+
+Vue.use(Vuex)
+```
+* Ajouter un export default :
+```javascript
+export default new Vuex.Store({
+  state: {
+    //Les datas que l'on souhaite utiliser
+  },
+  getters:{
+    //Les getters pour avoir accès à ces data
+  },
+  mutations: {
+    //les fonctions pour modifier ces data (ajouter des lettres, multiplier des chiffres ...)
+  },
+  actions: {
+    //diverses fonctions
+  },
+  plugins: [//les plugins comme vueX Persist]
+})
+
+```
+
+Exemple : 
+```javascript
+export default new Vuex.Store({
+  state: {
+    name:"Compétence State",
+    outil : "VueJS"
+  },
+  getters:{
+    getName: state =>{
+      return state.name;
+    },
+    getOutil: state =>{
+      return state.outil;
+    }
+  },
+  mutations: {
+    addE(state){
+      state.name = state.name + "e"
+    },
+    removeE(state){
+      state.name = "Compétence State";
+    },
+  },
+  actions: {
+    //
+  },
+  plugins: [vuexLocal.plugin] //Ajout du plugin pour utiliser vueX Persist
+})
+
+```
+
+### Utiliser les data dans les composants 
+
+
+* Importer le store dans le composant 
+```html
+<script lang="js">
+  //Importer store pour avoir les data globales
+  import store from '../store'
+</script>
+```
+* Dans 'computed', créer des fonctions portant le nom de la data que l'on veut récupérer
+* Dans la fonction retourner la data avec son getters : return store.getters.getOutil;
+* Dans le template appeler simplement le nom de la data : {{outil}}
+* Dans 'methods' créer des fonctions et appeler à l'intérieur le mutateur : store.commit("nomMutateur") 
+* Dans le template, appeler la fonction créée tout simplement 
+
+Exemple : 
+```html
+<template lang="html">
+
+  <section class="marion">
+    <h1>Validons</h1>
+
+    <!--------------------------Utiliser les data du State Manager ------------------------------>
+    <h2>{{name}}</h2>
+    <h3>{{outil}}</h3>
+
+    <!--------------------------Utiliser les mutateurs du State Manager - VueX------------------------------>
+    <button @click="addE" class="btn btn-success">Add</button>
+    <button @click="resetName" class="btn btn-warning">Reset</button>
+
+  </section>
+
+</template>
+
+<script lang="js">
+  //Importer store pour avoir les data globales
+  import store from '../store'
+
+  export default {
+    name: 'marion',
+    props: [],
+    data() {
+      return {
+      }
+    },
+    methods: {
+      addE() {
+        store.commit("addE")
+      },
+      resetName() {
+        store.commit("removeE")
+      }
+    },
+    computed: {
+      name() {
+        return store.getters.getName;
+      },
+      outil() {
+        return store.getters.getOutil;
+      }
+    }
+  }
+</script>
+
+<style scoped lang="scss">
+</style>
+
+```
+
+
+## Le Local Storage : VueX Persist
+
+Conserver dans le navigateur les données même lorsqu'on rafraichit la page. Très pratique pour conserver des données même lorsque l'utilisateur ferme l'application. 
+
+
+### Installation VueX Persist 
+
+* En ligne de commande 
+```bash
+npm install --save vuex-persist
+```
+* Importer vueX Persist dans le fichier 'index.js'
+```javascript
+import VuexPersistence from 'vuex-persist'
+```
+* Créer une instance de vueX Persistence dans le fichier 'index.js'
+```javascript
+const vuexLocal = new VuexPersistence({
+  storage: window.localStorage
+})
+```
+* Dans l'export default (dans le fichier 'index.js') dans plugins ajouter dans un tableau vueX Persist
+```javascript
+export default new Vuex.Store({
+  state: {},
+  getters:{},
+  mutations: {},
+  actions: {},
+  plugins: [vuexLocal.plugin]
+  })
+```
+
+A présent toutes les données modifiées resteront même lors d'un rafraichissement.
+
+#### API Storage
+
+On peut également utiliser l'API de Local Storage [ici](https://developer.mozilla.org/fr/docs/Web/API/Storage)
+
+A noter, ne jamais faire de Storage.clear mais favoriser Storage.removeItem().
+Dans Storage.removeItem('vuex'), on peut nettoyer tous les éléments. 
+
+Lorsqu'on utilise le removeItem, on met en paramètre la clé liée aux données. Par défaut, les données sont stockées sous la clé "vuex".
 
 
 
+## Tester un composant 
+
+Lorsqu'on installe 'Webpack' (vue init webpack NomMonProjet) préciser que l'on souhaite utiliser "Jest" pour les tests. 
+
+Un dossier 'test' est créé et les tests sont à mettre dans : 'test/unir/spects/'
+
+### Configurer les tests
+
+Dans Webstorm : 
+* Aller en haut à droite sur la flèche et choisir 'edit configuration'
+* Cliquer sur le '+'
+* Sélectionner 'Jest' et renseigner les infos suivantes :
+    * 'Name' : nom du test
+    * 'Configuration File' : pointer sur le fichier test/unit/jest.conf.js
+    * 'Working directory' : pointer sur le dossier 'test'
+* Apply
+
+Pour lancer le test cliquer sur la flèche "play" en haut à droite.
+
+
+### Créer un test 
+
+**Nom du fichier : nomFichier.spec.js**
+
+Exemple d'un test permettant de tester la présence d'un 'h1' contenant le texte 'tests Component' dans le composant "Tests.vue"
+```javascript
+import Vue from 'vue'
+//importer mon composant
+import Tests from '@/components/Tests'
+
+describe('Tests.vue', () => {
+  it('should render correct contents', () => {
+    const Constructor = Vue.extend(Tests)
+    const vm = new Constructor().$mount()
+    expect(vm.$el.querySelector('h1').textContent)
+      .toEqual('tests Component')
+  })
+})
+```
+
+
+## Déployer son application 
+
+Il y a plusieurs possibilités pour déployer son application : 
+* [Github Pages](https://pages.github.com)
+* [Surge.sh](http://surge.sh)
+* [Netlify](https://www.netlify.com)
+
+
+### Github Pages 
+
+* Aller dans Settings du projet Github
+* Se rendre dans Deployed 
+* Choisir 'Master' et Save
+
+### Surge
+
+* Installer Surge en global
+```bash
+npm install --global surge
+```
+* Builder le projet 
+```
+npm run build
+```
+* Récupérer le dossier "dist" comprenant le dossier 'static' et le index.html puis le mettre dans un nouveau dossier
+* Se rendre dans ce nouveau dossier et déployer le site en ligne de commande
+```bash
+surge
+```
+* Renseigner les informations (email, domaine ...)
+* Avoir la liste des déploiements 
+```bash
+surge list
+```
+* Supprimer un site (nom domaine = nom dans la liste)
+```bash
+surge teardown NomDomaineSite
+```
