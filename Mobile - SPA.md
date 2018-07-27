@@ -1911,7 +1911,7 @@ Lorsqu'on utilise le removeItem, on met en paramètre la clé liée aux données
 
 Lorsqu'on installe 'Webpack' (vue init webpack NomMonProjet) préciser que l'on souhaite utiliser "Jest" pour les tests. 
 
-Un dossier 'test' est créé et les tests sont à mettre dans : 'test/unir/specs/'
+Un dossier 'test' est créé et les tests sont à mettre dans : 'test/unit/specs/'
 
 ### Configurer les tests
 
@@ -1930,6 +1930,8 @@ Pour lancer le test cliquer sur la flèche "play" en haut à droite.
 ### Créer un test 
 
 **Nom du fichier : nomFichier.spec.js**
+
+Les tests sont à mettre dans : 'test/unit/specs/'
 
 Exemple d'un test permettant de tester la présence d'un 'h1' contenant le texte 'tests Component' dans le composant "Tests.vue"
 ```javascript
