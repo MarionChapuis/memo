@@ -439,6 +439,17 @@ namespace Helloworld
 | System.Console.ReadLine() | Récupérer l'entrée utilisateur | String saisie = System.Console.ReadLine();
 
 
+### Interface
+
+Pour créer rapidement une interface à partir de la classe qui l'implémentera : 
+* Dans la classe se positionner sur le nom de la classe et cliquer sur le tournevis (tout à gauche)
+* Choisir "Extraire l'interface" 
+
+Résultat : 
+* l'interface sera créée ainsi que la ou les méthode(s) qui étaient dans la classe
+* dans la classe il y aura déjà la syntaxe pour l'implémentation de l'interface
+
+
 
 ### Tests Unitaires 
 
@@ -459,6 +470,7 @@ La doublure de tests fait suite à l'injection de dépendance et permet d'utilis
 Ces objets doubles sont classés en plusieurs catégories selon leur degré d'intelligence et selon la manière donc ils vont imiser le comportement de la classe remplacée.
 
 Dans l'exemple ci-dessous, ces objets seront utilisés dans la classe FakeTime qui implémente l'interface ITime. Ils permettront d'implémenter la propriété "Date" de l'interface. 
+
 
 
 #### Dummy
@@ -530,6 +542,8 @@ namespace HelloworldTests
 }
 ```
 
+
+
 #### Spy
 
 Le Spy fonctionne comme un Stub mais en enregistrant les informations pendant le test que l'on pourra aller chercher ensuite.
@@ -562,6 +576,7 @@ Le problème est que dans cette fonction, on initialise une date à la date actu
 Solution :  
 
 * Créer une interface pour isoler la dépendance : 
+    * **Super astuce** : Voir la super astuce dans "Interface" pour créer une interface rapidement
     * nom du fichier : ITime.cs dans le projet "Helloworld"
     * contient une propriété "Date" de type DateTime : 
     ```c#
@@ -965,7 +980,7 @@ namespace TransportLibrary
     public class DataLignesProximite
     {
         //Récupérer une liste de type Ligne 
-        public List<Ligne> GetDataLignesProximite(String latitude, String longitude, Int32 distance)
+        private List<Ligne> GetDataLignesProximite(String latitude, String longitude, Int32 distance)
         {
             ConnectApi connexion = new ConnectApi();
             String url = "http://data.metromobilite.fr/api/linesNear/json?x=" + longitude + "&y=" + latitude + "&dist=" + distance + "&details=true";
@@ -1041,6 +1056,9 @@ namespace TransportsGrenoble
     }
 }
 ```
+
+**A noter: les classes qui ne seront pas utilisées dans le Program.cs doivent être en "private"**
+
 
 ### Générer la librairie 
 
