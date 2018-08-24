@@ -158,6 +158,60 @@ foreach (int chiffre in chiffres)
 }
 ```
 
+### Dictionary 
+
+Les Dictionary fonctionnent avec une "Key" et une "Value" et il ne peut pas y avoir de doublons dans les clés.
+
+##### Déclarer et ajouter dans un Dictionary
+
+Syntaxe : 
+```c#
+// Création du dictionnaire.
+Dictionary<string, string> openWith = new Dictionary<string, string>();
+
+// Ajout de quelques éléments. Il ne peut pas y avoir
+// deux clefs identiques mais les valeurs peuvent l'être.
+openWith.Add("txt", "notepad.exe");
+openWith.Add("bmp", "paint.exe");
+openWith.Add("dib", "paint.exe");
+openWith.Add("rtf", "wordpad.exe");
+```
+
+##### Afficher les données 
+
+Les Dictionary possédent des propriétés utiles : 
+* `monDictionnaire.Keys` : collection qui contient les clés du dictionnaire.
+* `monDictionnaire.Values` : est une collection qui contient les valeurs du dictionnaire.
+
+Afficher les clés d'un dictionnaire : 
+```c#
+//Afficher les clés du Dictionary (liste sans doublons)
+foreach (String key in listeSansDoublons.Keys)
+{
+    Console.WriteLine(key);
+}
+```
+Parcourir un Dictionary 
+```c#
+//Parcourir la lite sans doublons (type Dictionary) pour afficher la paire "key - value"
+foreach (KeyValuePair<String, List<String>> kvp in listeSansDoublons)
+{
+    //Afficher ma clé 
+    Console.WriteLine(kvp.Key);
+
+    //Afficher les values (car ma valeur est une Liste)
+    foreach (String val in kvp.Value)
+    {
+        Console.WriteLine(val);
+    }
+}
+```
+
+**Vérifier si le Dictionary contient une clé déjà**
+```c#
+monDictionnaire.ContainsKey("keyName");
+```
+
 
 ### Boucles
 
@@ -376,6 +430,14 @@ namespace Helloworld
     }
 }
 ```
+
+### Quelques commandes 
+
+| Syntaxe | Action | Exemple |
+|:--------:|-------|---------|
+| System.Console.WriteLine("") | Ecrire dans la console | System.Console.WriteLine("Chaîne caractères" + maVariable);
+| System.Console.ReadLine() | Récupérer l'entrée utilisateur | String saisie = System.Console.ReadLine();
+
 
 
 ### Tests Unitaires 
@@ -690,39 +752,300 @@ internal Message(ITime time, int matin, int midi, int soir)
 ```
 
 
-### Mini-Projet
 
-Avoir une solution qui permet d'afficher un message selon l'heure et le jour avec une boucle tant que l'utilisateur ne tape pas "exit".
+### Travailler avec une API 
 
-Code du "main" dans le fichier "Program.cs" :
-```c# 
+#### Se connecter à l'API  
+
+La première ligne est importante pour éviter les erreurs de communication. Elle doit être placée en première dans le programme.
+
+*Exemple : liste des lignes de transport à proximité d'un point*
+```c#
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TransportsGrenoble
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //Permet d'éviter les erreurs de communication avec l'API 
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+
+            Console.WriteLine("Transports à pied c'est mieux de Grenoble");
+
+            //Définir les éléments : latitude, longitude et distance  pour ensuite faire appel à l'API
+            String latitude = "45.185476";
+            String longitude = "5.727772";
+            //Int32 est important pour fonctionner en .NET
+            Int32 distance = 500; //périmètre de recherche
+
+            //Créer une connexion à l'API
+            WebRequest request = WebRequest.Create("http://data.metromobilite.fr/api/linesNear/json?x="+longitude+ "&y="+latitude+ "&dist=" + distance + "&details=true");
+            //Récupérer la réponse de la connexion à l'API
+            WebResponse response = request.GetResponse();
+            //Afficher le status de la réponse pour la connexion à l'API 
+            Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+            // Obtenir le flux contenant les données de réponse envoyées par le serveur 
+            Stream dataStream = response.GetResponseStream();
+            // Ouvrir le flux de données avec le StreamReader pour faciliter la lecture  
+            StreamReader reader = new StreamReader(dataStream);
+            // Lire le contenu
+            string responseFromServer = reader.ReadToEnd();
+            // Afficher le contenu
+            Console.WriteLine(responseFromServer);
+            // Fermer les différentes connexions  
+            reader.Close();
+            dataStream.Close();
+            response.Close();
+        }
+    }
+}
+```
+
+
+#### Convertir les données JSON en c\#
+
+Avec le gestionnaire de packages NuGet, il faut installer "Newtonsoft.Json" pour pouvoir transformer les données JSON en objets C#. 
+
+Nom du package : "Newtonsoft.Json" à installer avec NuGet.
+
+Etapes :
+* Télécharger le package 
+* Créer une classe qui a les mêmes propriétés que les données JSON. Pour cela, utiliser [ce traducteur](http://json2csharp.com) pour transformer les données JSON en classe C#
+```c#
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Helloworld
+namespace TransportLibrary
+{
+    public class Ligne
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public double lon { get; set; }
+        public double lat { get; set; }
+        public List<string> lines { get; set; }
+    }
+}
+```
+* Stocker dans une liste (si nécessaire) du type de la classe les données récupérées de l'API 
+```c#
+// (Voir plus haut les éléments précédents) 
+//Lire le contenu
+string responseFromServer = reader.ReadToEnd();
+//Stocker dans une liste d'objets Ligne l'ensemble des informations au format JSON pour les convertir en objet c#
+List <Ligne> listeArrets = JsonConvert.DeserializeObject<List<Ligne>>(responseFromServer);
+```
+* Afficher les données de la liste 
+```c#
+//Boucler sur la liste d'objets de type Ligne
+foreach (Ligne arret in listeArrets)
+{
+    //un arret contient une liste de lignes : arret.lines (d'où le 2ème foreach)
+    foreach (String ligne in arret.lines)
+    {
+        //Avoir uniquement le numéro de ligne sans le "SEM:"
+        int delimiter = ligne.IndexOf(":");
+        Console.WriteLine("Id : "+ arret.id+ " Arret : " + arret.name + " - ligne " + ligne.Substring(delimiter + 1));
+    }
+}
+```
+
+
+### Créer une librairie (.dll)
+
+La librairie est un nouveau projet de type "Librairie" permettant d'avoir des classes qui seront utilisées pour les projets à venir (ex : traitement des données d'une API).
+
+Il faut créer un projet "Librairie" dans notre solution et ajouter les classes nécessaires.
+
+Ces classes contiendront, par exemple, toutes les méthodes nécessaires pour effectuer les requêtes et de récolter les données provenant d'une API.
+
+##### Mise en place d'une librairie 
+
+*Exemple* : Projet Transports en Commun, avoir un programme qui affiche à partir d'une localisation, l'ensemble des arrêts à proximité avec les lignes disponibles à ces arrêts. 
+
+
+* Créer un projet "Class Library" (ou "Bibliothèque de classes (.NET Framework)")
+* Nommer ce nouveau projet : par exemple "TransportLibrary"
+* Une classe "Class1.cs" est déjà créée, elle peut donc servir de première classe 
+
+Le principe est de faire :
+* une classe généraliste avec une méthode pour se connecter à l'API et récupérer les données
+* une classe pour traiter les données (chaque URL de l'API aura sa classe puisque les données traitées ne seront pas les mêmes)
+
+Concernant l'exemple, en l'état, la solution contient :
+* un projet de type "Console" : contient uniquement la classe principale "Program.cs"
+* un projet de type "Librairie" qui contient l'ensemble des classes (y compris la classe "Ligne" par exemple)
+
+
+**Recupérer les arrêts à proximité d'un point et les lignes qui sont liées à ces arrêts**
+* Classe Ligne.cs 
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TransportLibrary
+{
+    public class Ligne
+    {
+        public string id { get; set; }
+        public string name { get; set; }
+        public double lon { get; set; }
+        public double lat { get; set; }
+        public List<string> lines { get; set; }
+    }
+}
+```
+* Classe ConnectApi.cs (classe généraliste permettant la connexion à une API)
+```c#
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TransportLibrary
+{
+    public class ConnectApi
+    {
+        //Méthode pour se connecter à l'API et renvoyer les données 
+        public String ConnexionApi(String url)
+        {
+            //Permet d'éviter les erreurs de communication avec l'API 
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+            //Créer une connexion à l'API
+            WebRequest request = WebRequest.Create(url);
+            //Récupérer la réponse de la connexion à l'API
+            WebResponse response = request.GetResponse();
+            //Afficher le status de la réponse pour la connexion à l'API 
+            //Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+            // Obtenir le flux contenant les données de réponse envoyées par le serveur 
+            Stream dataStream = response.GetResponseStream();
+            // Ouvrir le flux de données avec le StreamReader pour faciliter la lecture  
+            StreamReader reader = new StreamReader(dataStream);
+            // Lire le contenu
+            String responseFromServer = reader.ReadToEnd();
+            // Fermer les différentes connexions  
+            reader.Close();
+            dataStream.Close();
+            response.Close();
+            //Retourner les données
+            return responseFromServer;
+        }
+
+    }
+}
+```
+* Classe DataLignesProximite.cs
+```c#
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TransportLibrary
+{
+    public class DataLignesProximite
+    {
+        //Récupérer une liste de type Ligne 
+        public List<Ligne> GetDataLignesProximite(String latitude, String longitude, Int32 distance)
+        {
+            ConnectApi connexion = new ConnectApi();
+            String url = "http://data.metromobilite.fr/api/linesNear/json?x=" + longitude + "&y=" + latitude + "&dist=" + distance + "&details=true";
+            String responseFromServer = connexion.ConnexionApi(url);
+            //Stocker dans une liste d'objets Ligne l'ensemble des informations au format JSON pour les convertir en objet c#
+            List<Ligne> listeArrets = JsonConvert.DeserializeObject<List<Ligne>>(responseFromServer);
+            return listeArrets;
+        }
+
+        //Supprimer les doublons dans les arrets et lignes 
+        public Dictionary<String, List<String>> GetDataLignesProximiteSansDoublons (String latitude, String longitude, Int32 distance)
+        {
+            List<Ligne> listeArrets = GetDataLignesProximite(latitude, longitude, distance);
+            //Liste sans doublons : Créer un objet de type Dictionary contenant comme Key : Arret et Value : listeLignes
+            Dictionary<String, List<String>> listeSansDoublons = new Dictionary<string, List<String>>();
+            //Boucler sur les données pour créer un Dictionary(NomArret, Lignes)
+            foreach (Ligne arret in listeArrets)
+            {
+                if (!listeSansDoublons.ContainsKey(arret.name))
+                {
+                    //Ajouter dans la liste sans doublons la paire "Key : nom arret, value : listeLignes" 
+                    listeSansDoublons.Add(arret.name, arret.lines);
+                }
+                //Mon arret est déjà dans la liste, je vais donc vérifier que toutes les lignes de l'arrêt sont déjà dans la liste de cet arret
+                else
+                {
+                    //Boucler sur les lignes de l'arrêt
+                    foreach (String ligne in arret.lines)
+                    {
+                        //Si la ligne n'est pas déjà dans la liste des lignes de l'arret dans le Dictionary (liste sans doublons)
+                        if (!listeSansDoublons[arret.name].Contains(ligne))
+                        {
+                            //J'ajoute maligne dans le "Value" de mon arrêt à la liste des lignes
+                            listeSansDoublons[arret.name].Add(ligne);
+                        }
+                    }
+                }
+            }
+            return listeSansDoublons;
+        }
+    }
+}
+```
+* Program.cs (Dans le projet Console)
+```c#
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using TransportLibrary;
+
+namespace TransportsGrenoble
 {
     class Program
     {
         static void Main(string[] args)
         {
-            String saisie = "";
-            do
-            {
-                //Créer une instance de la classe message
-                Message message = new Message(9, 12, 20);
-                //Afficher la résultat de la méthode GetHelloMessage (retournant un message)
-                System.Console.WriteLine(message.GetHelloMessage());
-
-                //Poser une question à l'utilisateur 
-                System.Console.WriteLine("Ecrire 'exit' pour terminer");
-                //Récupérer l'entrée utilisateur 
-                saisie = System.Console.ReadLine();
-            } while (saisie != "exit");
-            
+            //Définir les éléments : latitude, longitude et distance  pour ensuite faire appel à l'API
+            String latitude = "45.185476";
+            String longitude = "5.727772";
+            Int32 distance = 500; //périmètre de recherche
+            //Instance pour traitement des données
+            DataLignesProximite dataLignesProximite = new DataLignesProximite();
+            //Récupérer les lignes et arrêts sans doublons à proximité
+            Dictionary<String, List<String>> listeSansDoublons = dataLignesProximite.GetDataLignesProximiteSansDoublons(latitude, longitude, distance);
+            //Foreach pour afficher les données...
         }
     }
 }
 ```
+
+### Générer la librairie 
+
+Une librairie peut être utilisée depuis un autre projet. Il faut donc générer un fichier .dll qui pour être utilisé depuis un autre projet.
+
+* Dans Visual Studio, dans le petit menu déroulant "Gestionnaire de configurations" choisir "Release" au lieu de "Debug"
+* Générer / Générer NomLibrairie (MAJ+F6) 
+* Les fichiers sont créés dans NomLibrairie/bin/release/
