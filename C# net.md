@@ -450,6 +450,19 @@ Résultat :
 * dans la classe il y aura déjà la syntaxe pour l'implémentation de l'interface
 
 
+### Stocker des ressources 
+
+Il est possible de stocker des ressources, comme par exemple des données JSON, dans une classe spécifique et pouvoir ensuite faire appel à cette classe.
+
+* Créer une nouvelle Classe de type "Fichier de ressources" : "Resource.resx"
+* Renseigner un nom pour la variable
+* Copier tel quel le JSON (provenant d'une API par exemple)
+* Pour l'utiliser dans une classe 
+```c#
+NomResource.maVariable;
+```
+
+
 
 ### Tests Unitaires 
 
@@ -567,7 +580,7 @@ Ces librairies s'ajoutent via les packages NuGet.
 
 
 
-#### Exemple avec un Fake  
+#### Exemple avec un Fake : implémenter une propriété  
 
 *Exemple :* Avoir une fonction GetHelloMessage dans Message qui retourne un message selon l'heure et le jour. 
 
@@ -613,7 +626,7 @@ namespace Helloworld
             //date = new DateTime(2018, 08, 20, 8, 52, 12);
             String message = "";
             //Pour la tranche vendredi soir au lundi matin
-            if (date.DayOfWeek == DayOfWeek.Friday && date.Hour >= this.soir || date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday || date.DayOfWeek == DayOfWeek.Monday && date.Hour < this.matin)
+            if (_time.Date.DayOfWeek == DayOfWeek.Friday && _time.Date.Hour >= this.soir || _time.Date.DayOfWeek == DayOfWeek.Saturday || _time.Date.DayOfWeek == DayOfWeek.Sunday || _time.Date.DayOfWeek == DayOfWeek.Monday && _time.Date.Hour < this.matin)
             {
                 message = "Bon week-end";
             }
@@ -766,6 +779,175 @@ internal Message(ITime time, int matin, int midi, int soir)
 }
 ```
 
+#### Exemple avec un Fake : implémenter une méthode 
+
+*Exemple :* Avoir une fonction `GetDetailsLigne` dans la classe DataTypeTransport qui retourne les détails sur une ligne (appel API métromobilité). 
+
+Le problème est que dans cette fonction, on se connecte à une API pour obtenir les données. Il faut donc isoler cette dépendance, pour pouvoir tester la méthode, même lorsque l'API ne fonctionne pas. 
+
+L'idée est qu'on utilise une classe `ConnectApi` avec une méthode `ConnexionApi` qui permet de se connecter à une API et de retourner le résultat au format JSON. 
+
+Le principe est donc de créer une classe "Fake" qui retourne simplement un résultat JSON pour ensuite pouvoir tester notre méthode `GetDetailsLigne`.
+
+Solution :  
+
+* Créer une interface pour isoler la dépendance : 
+    * **Super astuce** : Voir la super astuce dans "Interface" pour créer une interface rapidement
+    * nom du fichier : IConnectApi.cs dans le projet "TransportLibrary"
+    * contient une méthode `ConnexionApi` (comme dans la classe concrète `ConnectApi`)
+    * interface IConnectApi.cs :  
+```c#
+using System;
+
+namespace TransportLibrary
+{
+    public interface IConnectApi
+    {
+        String ConnexionApi(String url);
+    }
+}
+```
+* Avoir une classe concrète `ConnectApi` implémentant l'interface et permettant la connexion à l'API 
+* Dans la classe `DataTypeTransport` :
+    * Ajouter un attribut du type de l'interface
+    * Se servir de l'attribut pour appeler la méthode de connexion : monAttribut.ConnexionApi();
+    * Ajouter un constructeur permettant d'initialiser l'attribut 
+    * Classe `DataTypeTransport`
+```c#
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace TransportLibrary
+{
+    public class DataTypeTransport
+    {
+        //Attribut du type de l'interface
+        private IConnectApi connect;
+
+        //Obtenir les détails d'une ligne
+        public TypeTransport GetDetailsLigne(String idLigne)
+        {
+            String url = "http://data.metromobilite.fr/api/routers/default/index/routes?codes=" + idLigne;
+            //Appeler la méthode de connexion en passant par l'attribut 'connect'
+            String responseFromServer = this.connect.ConnexionApi(url);
+            List<TypeTransport> listDetailsLigne = JsonConvert.DeserializeObject<List<TypeTransport>>(responseFromServer);
+            return listDetailsLigne[0];
+        }
+
+        //Constructeur initialisant l'attribut connect
+        public DataTypeTransport(IConnectApi connect)
+        {
+            this.connect = connect;
+        }
+    }
+}
+```
+* Dans le fichier "Program.cs" corriger le code pour que le programme fonctionne toujours en ajoutant un paramètre lors de l'instanciation de la classe `DataTypeTransport`
+```c#
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text;
+using System.Threading.Tasks;
+using TransportLibrary;
+
+namespace TransportsGrenoble
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //...//
+            //Parcourir la lite sans doublons (type Dictionary) pour afficher la paire "key - value"
+            foreach (KeyValuePair<String, List<String>> kvp in listeSansDoublons)
+            {
+                Console.WriteLine("******* " + kvp.Key + " *******");
+                foreach (String idLigne in kvp.Value)
+                {
+                    //Instancier DataTypeTransport avec en paramètre la vraie connexion à l'API
+                    DataTypeTransport dataTypeTransport = new DataTypeTransport(new ConnectApi());
+                    TypeTransport detailsLigne = dataTypeTransport.GetDetailsLigne(idLigne);
+                    Console.WriteLine(detailsLigne.mode + " - " + detailsLigne.shortName + " : " + detailsLigne.longName);
+                }
+            }
+        }
+    }
+}
+```
+* Créer la classe Fake : `FakeConnectApi.cs`
+    * Créer un dossier "Fakes" dans le projet de test `TransportLibraryTest`
+    * Créer la classe `FakeConnectApi.cs` dans le dossier Fakes
+    * Implémenter la méthode `ConnexionApi` pour qu'elle retourne un JSON spécifique (étant la vraie réponse de l'appel à l'API)
+    * Créer un attribut qui sera retourné par la méthode et plus tard lors des tests nous initialiserons cet attribut
+    * Classe FakeConnectApi.cs
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TransportLibrary;
+
+namespace TransportLibraryTests.Fakes
+{
+    class FakeConnectApi : IConnectApi
+    {
+        public String resultatJson { get; set; }
+
+        public String ConnexionApi(String url)
+        {
+            return resultatJson;
+        }
+    }
+}
+```
+* Utiliser une classe de type `Fichier de Ressources` pour stocker le JSON (voir dans le mémo un peu plus haut)
+* Créer la classe de test 
+    * Instancier une FakeConnectApi 
+    * Initialiser la valeur de l'attribut en lui donnant celle de la ressource 
+    * Instancier la classe que l'on test DataTypeTransport avec en paramètre l'instance de la fausse connexion 
+    * Comparer les résultat avec des `Assert` pour tester le résultat
+```c#
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using TransportLibrary;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TransportLibraryTests.Fakes;
+using TransportLibraryTests;
+
+namespace TransportLibrary.Tests
+{
+    [TestClass()]
+    public class DataTypeTransportTests
+    {
+        [TestMethod()]
+        public void GetDetailsLigneTest()
+        {
+            FakeConnectApi fake = new FakeConnectApi();
+            fake.resultatJson = Resource.detailLigne12;
+            DataTypeTransport dataTypeTransport = new DataTypeTransport(fake);
+            TypeTransport resultat = dataTypeTransport.GetDetailsLigne("SEM:12");
+            Assert.AreEqual(resultat.shortName, "12");
+            Assert.AreEqual(resultat.longName, "Eybens Maisons Neuves / Saint-Martin-d'Hères Les Alloves");
+            Assert.AreEqual(resultat.color, "009930");
+            Assert.AreEqual(resultat.mode, "BUS");
+            Assert.AreEqual(resultat.type, "PROXIMO");
+        }
+    }
+}
+``` 
+* Lancer les tests (Test/Executer/Tous les tests) et prier pour voir du vert
 
 
 ### Travailler avec une API 
