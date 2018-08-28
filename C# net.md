@@ -1249,3 +1249,158 @@ Une librairie peut être utilisée depuis un autre projet. Il faut donc génére
 * Dans Visual Studio, dans le petit menu déroulant "Gestionnaire de configurations" choisir "Release" au lieu de "Debug"
 * Générer / Générer NomLibrairie (MAJ+F6) 
 * Les fichiers sont créés dans NomLibrairie/bin/release/
+
+
+### Application MVVM 
+
+[Ressource présentation MVVM](https://blogs.msdn.microsoft.com/msgulfcommunity/2013/03/13/understanding-the-basics-of-mvvm-design-pattern/)
+[Petit exemple dans la doc](https://docs.microsoft.com/fr-fr/dotnet/framework/wpf/getting-started/walkthrough-my-first-wpf-desktop-application)
+[Autre petit exemple]()
+
+
+Le design pattern MVVM : 
+* Model (données)
+* View (la vue)
+* ViewModel (l'interface permettant de transmettre les données à la vue)
+
+
+#### Créer un projet WPF 
+
+WPF (Windows Presentation Foundation) dernière approche de Windows en terme de framework GUI (Graphical User Interface).
+
+Fonctionne avec le XAML (eXtensible Application Markup Language - Langage extensible de description d'application). Fonctionne comme avec HTML.  
+
+* Fichier / Nouveau Projet
+* Dans "Visual C# / Windows Desktop" et choisir `Application WPF (.NET Framework)`
+* Nommer le projet et choisir le dossier d'emplacement 
+
+
+#### Structure WPF
+
+* `App.xaml` : Définit une application WPF et les ressources. Se servir de ce fichier pour spécifier l'interface utilisateur qui s'affiche automatiquement quand l'application s'ouvre (StartupUri).
+```c#
+<Application x:Class="ExpenseIt.App"
+     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+     StartupUri="MainWindow.xaml">
+    <Application.Resources>
+         
+    </Application.Resources>
+</Application>
+```
+* `MainWindow.xaml` : Fenêtre principale de l'application qui affiche le contenu créé dans les pages. Le `Window` définit les propriétés d'une fenêtre (titre, taille, icône, évènements...).
+* `MainWindow.xaml.cs` : Ce fichier est un fichier code-behind qui contient le code pour gérer les événements déclarés dans MainWindow.xaml. Ce fichier contient une classe partielle pour la fenêtre définie en XAML.
+
+Une fenêtre WPF est la combinaison d'un fichier XAML (.xaml), dans lequel l'élément <Window> est la racine, et un fichier de CodeBehind (littéralement "code derrière") (.cs).
+
+
+#### Boîte à outils WPF
+
+Module très utile pour ajouter des éléments facilement à notre page : la boîte à outils.
+
+`Affichage/Boite à outils` pour ajouter le module. Pour l'utiliser cliquer sur l'élément souhaité puis cliquer sur l'endroit de notre page où l'on souhaite le mettre.
+
+
+#### Développer une application MVVM - WPF
+
+Afficher des données :
+
+Code du Grid de `StudentView.xaml` :
+```c#
+<Grid>
+    <StackPanel HorizontalAlignment = "Left">
+
+        <ItemsControl ItemsSource = "{Binding Path = Students}">
+
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation = "Horizontal">
+                        <TextBox Text = "{Binding FirstName, Mode = TwoWay}" 
+                    Width = "100" Margin = "3 5 3 5"/>
+
+                        <TextBox Text = "{Binding Path = LastName, Mode = TwoWay}" 
+                    Width = "100" Margin = "0 5 3 5"/>
+
+                        <TextBlock Text = "{Binding Path = FullName, Mode = OneWay}" 
+                    Margin = "0 5 3 5"/>
+
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+
+        </ItemsControl>
+
+    </StackPanel>
+</Grid>
+```
+
+* `ItemControl` : permet d'afficher des informations, très utile pour des données Bindées
+* `ItemSource` : permet de définir la collection servant de source
+* `Binding Path = NomCollection` : liaison avec une collection disponible dans la classe `ViewModel`
+* `ItemsControl.ItemTemplate` : définir la structure d'affichage des données 
+* `DataTemplate` : définir la structure des données 
+* `StackPanel` : container WPF permettant de contenir plusieurs éléments (ici plusieurs TextBox et TextBlock)
+* `TextBox` et `TextBlock` : balises WPF pour afficher du texte
+
+
+Depuis la page principal afficher une vue spécifique 
+
+* Il faut ajouter le lien vers notre dossier "Views" contenant les vues de notre appli : `xmlns:views = "clr-namespace:MVVMDemo.Views"`
+* 
+
+#### Explications JC 
+
+##### Classe principale `MainWindow.xaml`
+
+La classe principale `MainWindow.xaml` est composée d'une `Window` (balises) avec à l'intérieure une ou plusieurs `Grid`. 
+
+Il est possible d'insérer des vues qui correspondent à des `UserControl` (des contrôles utilisateurs). Ces vues sont insérées de la manière suivante : 
+```c# 
+<Window x:Class="MVVMDemo.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MVVMDemo"
+        xmlns:views = "clr-namespace:MVVMDemo.Views"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="350" Width="525">
+    <Grid>
+        <views:StudentView x:Name= "StudentViewControl" Loaded = "StudentViewControl_Loaded" />
+    </Grid>
+</Window>
+```
+* Dans la 1ère balise `Window` il faut déclarer le NameSpace des vues (le dossier où les vues se situent) : `xmlns:views = "clr-namespace:MVVMDemo.Views"`
+* Appeler la vue avec la balise `views:NomVue` 
+* `x:Name` correspond au nom qu'aura notre vue dans le code c# (ex: Dans la classe `MainWindow.xaml.cs` on utilisera ce nom pour déclarer le DataContext )
+
+
+#### DataContext 
+
+
+##### Grid 
+
+Une `Grid` est très puissante et permet de positionner les éléments grâce à des lignes et colonnes. Par défaut, la grid possède une ligne et une colonne. 
+Il faut donc préciser combien de colonnes et lignes nous souhaitons : 
+```c# 
+<Grid>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="2*" />
+        <ColumnDefinition Width="1*" />
+        <ColumnDefinition Width="1*" />
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+        <RowDefinition Height="2*" />
+        <RowDefinition Height="1*" />
+        <RowDefinition Height="1*" />
+    </Grid.RowDefinitions>
+</Grid>
+``` 
+* Il est possible de définir la taille des colonnes et lignes via "2\*", ce qui équivaut à 2 fois plus qu'une colonne ou ligne normale. 
+* On peut également écrire "0.5\*" qui équivaut à "la moitié de l'espace disponible".
+
+
+#### UserControl : Vues 
+
+
+
