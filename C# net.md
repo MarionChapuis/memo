@@ -1251,7 +1251,7 @@ Une librairie peut être utilisée depuis un autre projet. Il faut donc génére
 * Les fichiers sont créés dans NomLibrairie/bin/release/
 
 
-### Application MVVM 
+## Application MVVM 
 
 [Ressource présentation MVVM](https://blogs.msdn.microsoft.com/msgulfcommunity/2013/03/13/understanding-the-basics-of-mvvm-design-pattern/)
 [Petit exemple dans la doc](https://docs.microsoft.com/fr-fr/dotnet/framework/wpf/getting-started/walkthrough-my-first-wpf-desktop-application)
@@ -1263,8 +1263,10 @@ Le design pattern MVVM :
 * View (la vue)
 * ViewModel (l'interface permettant de transmettre les données à la vue)
 
+Une application MVVM s'appuie sur l'utilisation de WPF pour l'interface graphique.
 
-#### Créer un projet WPF 
+
+### Créer un projet WPF 
 
 WPF (Windows Presentation Foundation) dernière approche de Windows en terme de framework GUI (Graphical User Interface).
 
@@ -1274,8 +1276,26 @@ Fonctionne avec le XAML (eXtensible Application Markup Language - Langage extens
 * Dans "Visual C# / Windows Desktop" et choisir `Application WPF (.NET Framework)`
 * Nommer le projet et choisir le dossier d'emplacement 
 
+Il faut également créer 3 dossiers pour ordonner les classes :
+* Model
+* ViewModel
+* Views 
 
-#### Structure WPF
+L'exemple utilisé dans le mémo est disponible sur GitHub : [MVVM_Demo](https://github.com/MarionChapuis/MVVM_Demo/tree/master)
+
+**Définir le projet Interface Graphique comme projet de démarrage**. 
+
+Si notre solution comporte également un projet console, lorsqu'on lance avec CTRL + F5 le programme, c'est le projet console qui s'affiche.
+
+Pour modifier cela et afficher notre interface graphique, il faut :
+* se positionner sur le projet de l'interface graphique 
+* Click droit
+* Choisir "Définir comme projet de démarrage"
+
+
+
+
+### Structure WPF
 
 * `App.xaml` : Définit une application WPF et les ressources. Se servir de ce fichier pour spécifier l'interface utilisateur qui s'affiche automatiquement quand l'application s'ouvre (StartupUri).
 ```c#
@@ -1289,68 +1309,20 @@ Fonctionne avec le XAML (eXtensible Application Markup Language - Langage extens
 </Application>
 ```
 * `MainWindow.xaml` : Fenêtre principale de l'application qui affiche le contenu créé dans les pages. Le `Window` définit les propriétés d'une fenêtre (titre, taille, icône, évènements...).
-* `MainWindow.xaml.cs` : Ce fichier est un fichier code-behind qui contient le code pour gérer les événements déclarés dans MainWindow.xaml. Ce fichier contient une classe partielle pour la fenêtre définie en XAML.
+* `MainWindow.xaml.cs` : Ce fichier est un fichier code-behind qui contient le code pour gérer les événements déclarés dans MainWindow.xaml. Cette classe est `partial` car lors de la compilation, le code dans la Window sera compilé et traduit en C# pour créer une classe complète.
 
 Une fenêtre WPF est la combinaison d'un fichier XAML (.xaml), dans lequel l'élément <Window> est la racine, et un fichier de CodeBehind (littéralement "code derrière") (.cs).
 
 
-#### Boîte à outils WPF
+
+### Boîte à outils WPF
 
 Module très utile pour ajouter des éléments facilement à notre page : la boîte à outils.
 
 `Affichage/Boite à outils` pour ajouter le module. Pour l'utiliser cliquer sur l'élément souhaité puis cliquer sur l'endroit de notre page où l'on souhaite le mettre.
 
 
-#### Développer une application MVVM - WPF
-
-Afficher des données :
-
-Code du Grid de `StudentView.xaml` :
-```c#
-<Grid>
-    <StackPanel HorizontalAlignment = "Left">
-
-        <ItemsControl ItemsSource = "{Binding Path = Students}">
-
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel Orientation = "Horizontal">
-                        <TextBox Text = "{Binding FirstName, Mode = TwoWay}" 
-                    Width = "100" Margin = "3 5 3 5"/>
-
-                        <TextBox Text = "{Binding Path = LastName, Mode = TwoWay}" 
-                    Width = "100" Margin = "0 5 3 5"/>
-
-                        <TextBlock Text = "{Binding Path = FullName, Mode = OneWay}" 
-                    Margin = "0 5 3 5"/>
-
-                    </StackPanel>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-
-        </ItemsControl>
-
-    </StackPanel>
-</Grid>
-```
-
-* `ItemControl` : permet d'afficher des informations, très utile pour des données Bindées
-* `ItemSource` : permet de définir la collection servant de source
-* `Binding Path = NomCollection` : liaison avec une collection disponible dans la classe `ViewModel`
-* `ItemsControl.ItemTemplate` : définir la structure d'affichage des données 
-* `DataTemplate` : définir la structure des données 
-* `StackPanel` : container WPF permettant de contenir plusieurs éléments (ici plusieurs TextBox et TextBlock)
-* `TextBox` et `TextBlock` : balises WPF pour afficher du texte
-
-
-Depuis la page principal afficher une vue spécifique 
-
-* Il faut ajouter le lien vers notre dossier "Views" contenant les vues de notre appli : `xmlns:views = "clr-namespace:MVVMDemo.Views"`
-* 
-
-#### Explications JC 
-
-##### Classe principale `MainWindow.xaml`
+### Classe principale `MainWindow.xaml`
 
 La classe principale `MainWindow.xaml` est composée d'une `Window` (balises) avec à l'intérieure une ou plusieurs `Grid`. 
 
@@ -1372,13 +1344,62 @@ Il est possible d'insérer des vues qui correspondent à des `UserControl` (des 
 ```
 * Dans la 1ère balise `Window` il faut déclarer le NameSpace des vues (le dossier où les vues se situent) : `xmlns:views = "clr-namespace:MVVMDemo.Views"`
 * Appeler la vue avec la balise `views:NomVue` 
-* `x:Name` correspond au nom qu'aura notre vue dans le code c# (ex: Dans la classe `MainWindow.xaml.cs` on utilisera ce nom pour déclarer le DataContext )
+* `x:Name` correspond au nom qu'aura notre vue dans le code c# (ex: Dans la classe `MainWindow.xaml.cs` on utilisera ce nom pour déclarer le DataContext)
+* `Loaded` : Méthode qui sera appelée au chargement de la page (permet d'injecter les vraies données via le DataContext)
 
 
-#### DataContext 
+### DataContext 
+
+Lorsque dans notre classe principale `MainWindow.xaml` on insére une vue, il faut déclarer le DataContext.
+
+Le DataContext indique les vraies données qui seront utilisées (par exemple, une collection). 
+
+Dans la balise <views>, permettant d'insérer une vue, il y a un attribut `Loaded` qui indique une méthode à appeler lors du chargement de la vue. 
+Les vraies données sont déclarées dans cette méthode.
+
+Code `MainWindow.xaml.cs` :
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+
+namespace MVVMDemo
+{
+    /// <summary>
+    /// Logique d'interaction pour MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+        }
+
+        //Méthode permettant d'indiquer les données à utiliser pour la vue 
+        private void StudentViewControl_Loaded(object sender, RoutedEventArgs e)
+        {
+            //Instance de la vue 'StudentViewModel' (dans le constructeur de la ViewModel nous avons ajouté la création d'une ObservableCollection)
+            ViewModel.StudentViewModel studentViewModelObject = new ViewModel.StudentViewModel();
+            //Définir le DataContext en utilisant le nom StudentViewControl donné dans la balise <views x:Name="StudentViewControl">
+            StudentViewControl.DataContext = studentViewModelObject;
+        }
+    }
+}
+```
 
 
-##### Grid 
+### Grid 
 
 Une `Grid` est très puissante et permet de positionner les éléments grâce à des lignes et colonnes. Par défaut, la grid possède une ligne et une colonne. 
 Il faut donc préciser combien de colonnes et lignes nous souhaitons : 
@@ -1399,8 +1420,173 @@ Il faut donc préciser combien de colonnes et lignes nous souhaitons :
 * Il est possible de définir la taille des colonnes et lignes via "2\*", ce qui équivaut à 2 fois plus qu'une colonne ou ligne normale. 
 * On peut également écrire "0.5\*" qui équivaut à "la moitié de l'espace disponible".
 
+Dans la Grid il est possible d'ajouter de nombreux éléments (listBox, checkbox, button,...). 
 
-#### UserControl : Vues 
+Un élément très utile pour contenir plusieurs objet `StackPanel`, il s'agit d'un container. 
+```c# 
+<Grid>
+    <StackPanel HorizontalAlignment = "Left">
+        <TextBox Text = "Bonjour" Width = "100" Margin = "3 5 3 5"/>
+        <TextBox Text = "Aurevoir" Width = "100" Margin = "0 5 3 5"/>
+        <TextBlock Text = "Tcho" Margin = "0 5 3 5"/>
+    </StackPanel>
+</Grid>
+```
+
+### Afficher des données : Binding
+
+Lorsqu'on souhaite afficher des données en utilisant des données existantes, on utilise le binding. 
+
+Le `Binding` ne se fait que sur des `propriétés` (property), c'est-à-dire qu'on ne peut pas binder des attributs d'une classe. 
+L'avantage des propriétés est qu'elles ont des getters et setters permettant d'accèder et modifier les données.
+
+Le Binding se fait en écrivant `Content="{Binding Path = NomProperty }"`
+
+Exemple : binding d'une property ButtonText dans la StudentView.xaml
+```c#
+<Grid>
+    <StackPanel HorizontalAlignment = "Left">
+        <Button Content="{Binding Path = ButtonText }"/>
+    </StackPanel>
+</Grid>
+```
+Code : StudentView.xaml.cs
+```c# 
+using MVVMDemo.Model;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MVVMDemo.ViewModel
+{
+    public class StudentViewModel
+    {
+        public StudentViewModel()
+        {
+            Students = new ObservableCollection<Student>();
+            Students.Add(new Student { FirstName = "Marion", LastName = "Chapuis" });
+            Students.Add(new Student { FirstName = "Sergio", LastName = "Custodio" });
+            Students.Add(new Student { FirstName = "Romain", LastName = "Joubert" });
+
+            //Initialiser la valeur de la property ButtonText
+            ButtonText = "Click me";
+            _text = "Default";
+        }
+        //property ButtonText
+        public string ButtonText { get; set; }
+    }
+}
+```
 
 
+#### Afficher une ObservableCollection 
+
+Pour pouvoir itérer sur une collection d'objets, il faut que cette collection soit de type `ObservableCollection`. 
+
+* Créer une ObservableCollection dans la classe `StudentViewModel.cs`
+```c#
+using MVVMDemo.Model;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace MVVMDemo.ViewModel
+{
+    public class StudentViewModel
+    {
+        //Constructeur permettant d'ajouter des données dans notre ObservableCollection
+        public StudentViewModel()
+        {
+            Students = new ObservableCollection<Student>();
+            Students.Add(new Student { FirstName = "Marion", LastName = "Chapuis" });
+            Students.Add(new Student { FirstName = "Sergio", LastName = "Custodio" });
+            Students.Add(new Student { FirstName = "Romain", LastName = "Joubert" });
+        }
+
+        //Property Students étant une ObservableCollection de Student
+        public ObservableCollection<Student> Students
+        {
+            get;
+            set;
+        }
+    }
+}
+```
+* Afficher la collection dans la vue StudentView.xaml
+```c#
+<Grid>
+    <StackPanel HorizontalAlignment = "Left">
+        <ItemsControl ItemsSource = "{Binding Path = Students}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation = "Horizontal"> 
+                        <TextBox Text = "{Binding Path = FirstName, Mode = TwoWay}" Width = "100" Margin = "3 5 3 5"/>
+                        <TextBox Text = "{Binding Path = LastName, Mode = TwoWay}" Width = "100" Margin = "0 5 3 5"/>
+                        <TextBlock Text = "{Binding Path = FullName, Mode = OneWay}" Margin = "0 5 3 5"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</Grid>
+```
+
+* `ItemControl` : permet d'afficher des informations, très utile pour des données Bindées
+* `ItemSource` : permet de définir la property servant de source (ici une ObservableCollection)
+* `Binding Path = NomProperty` : liaison avec la property (ici une ObservableCollection) disponible dans la classe `StudentViewModel.cs` 
+* `ItemsControl.ItemTemplate` : définir la structure qu'aura chaque élément
+* `DataTemplate` : Contient la structure d'un élément
+* `StackPanel` : container WPF permettant de contenir plusieurs éléments (ici plusieurs TextBox et TextBlock)
+* `TextBox` et `TextBlock` : balises WPF pour afficher du texte
+* `Mode` : TwoWay permet d'utiliser le getter et setter de la property alors que OneWay utilise juste le getter (on ne pourra donc pas modifier)
+
+
+### Modification des données : INotifyPropertyChanged
+
+L'interface INotifyPropertyChanged permet de notifier aux vues lorsqu'un élément a été modifié pour permettre aux vues de s'actualiser.
+
+Il est possible d'implémenter cette interface soit dans le Model, soit dans le ViewModel. 
+
+**Une très bonne pratique à réaliser est de créer une classe mère abstraite implémentant l'interface INotifyPropertyChanged puis de créer nos Models en indiquant qu'ils héritent de cette classe mère.** 
+
+Code de la classe mère 
+```c# 
+public abstract class NomClasseMere : INotifyPropertyChanged
+{
+    //évnènement permettant de détecter lorsqu'un élément change
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    //Lorsqu'une property change, notifier aux vues le changement
+    private void RaisePropertyChanged(string property)
+    {
+        if (PropertyChanged != null)
+        {
+            PropertyChanged(this, new PropertyChangedEventArgs(property));
+        }
+    }
+}
+```
+Code de la classe Model `Student.cs` (le nom StudentModel dans l'exemple n'est pas génial)
+```c#
+public class Student : NomClasseMere
+{
+    //Student hérite de l'ensemble des éléments de la classe mère
+    //... 
+}
+``` 
+
+### UserControl : Vues 
+
+Lorsque l'on crée des vues, il faut créer un type d'élèment spécifique nommé `User Control` : 
+* Click droit : ajouter 
+* Choisir `Controle Utilisateur`
+* Choisir le type de la classe `Controle utilisateur WPF`
+
+Les vues seront composées d'une Grid contenant l'ensemble de l'interface graphique. 
 
