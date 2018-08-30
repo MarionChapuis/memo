@@ -1402,6 +1402,7 @@ namespace MVVMDemo
 ### Grid 
 
 Une `Grid` est très puissante et permet de positionner les éléments grâce à des lignes et colonnes. Par défaut, la grid possède une ligne et une colonne. 
+
 Il faut donc préciser combien de colonnes et lignes nous souhaitons : 
 ```c# 
 <Grid>
@@ -1420,6 +1421,25 @@ Il faut donc préciser combien de colonnes et lignes nous souhaitons :
 * Il est possible de définir la taille des colonnes et lignes via "2\*", ce qui équivaut à 2 fois plus qu'une colonne ou ligne normale. 
 * On peut également écrire "0.5\*" qui équivaut à "la moitié de l'espace disponible".
 
+Ensuite lorsqu'on ajoute des éléments, on peut préciser quelles lignes et colonnes ils occupents (index commençant par 0) avec les attributs `Grid.Row` et `Grid.Column` : 
+```c# 
+<Grid>
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="70*"></ColumnDefinition>
+        <ColumnDefinition Width="110*"></ColumnDefinition>
+        <ColumnDefinition Width="70*"></ColumnDefinition>
+        <ColumnDefinition Width="110*"></ColumnDefinition>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+        <RowDefinition></RowDefinition>
+    </Grid.RowDefinitions>
+    <Label Grid.Column="0" Grid.Row="0" FontSize="14" HorizontalAlignment="Right" >Latitude:</Label>
+    <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Path=Latitude}" FontSize="14" VerticalAlignment="Center" Padding="5 0 5 0"/>
+    <Label Grid.Column="2" Grid.Row="0" FontSize="14" HorizontalAlignment="Right">Longitude:</Label>
+    <TextBox Grid.Column="3" Grid.Row="0" Text="{Binding Path=Longitude}" FontSize="14" VerticalAlignment="Center" Padding="5 0 5 0"/>
+</Grid>
+```
+
 Dans la Grid il est possible d'ajouter de nombreux éléments (listBox, checkbox, button,...). 
 
 Un élément très utile pour contenir plusieurs objet `StackPanel`, il s'agit d'un container. 
@@ -1432,6 +1452,16 @@ Un élément très utile pour contenir plusieurs objet `StackPanel`, il s'agit d
     </StackPanel>
 </Grid>
 ```
+
+### UserControl : Vues 
+
+Lorsque l'on crée des vues, il faut créer un type d'élèment spécifique nommé `User Control` : 
+* Click droit : ajouter 
+* Choisir `Controle Utilisateur`
+* Choisir le type de la classe `Controle utilisateur WPF`
+
+Les vues seront composées d'une Grid contenant l'ensemble de l'interface graphique. 
+
 
 ### Afficher des données : Binding
 
@@ -1581,12 +1611,314 @@ public class Student : NomClasseMere
 }
 ``` 
 
-### UserControl : Vues 
+*Exemple :* Dans la classe `StationViewModel.cs` qui implémente la classe `Mere` (implémentant elle-même INotifyPropertyChanged), utilisation de la méthode `RaisePropertyChanged`
 
-Lorsque l'on crée des vues, il faut créer un type d'élèment spécifique nommé `User Control` : 
-* Click droit : ajouter 
-* Choisir `Controle Utilisateur`
-* Choisir le type de la classe `Controle utilisateur WPF`
+```c#
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TransportInterfaceGraphique.Model;
+using TransportLibrary;
 
-Les vues seront composées d'une Grid contenant l'ensemble de l'interface graphique. 
+namespace TransportInterfaceGraphique.ViewModel
+{
+    public class StationViewModel : Mere
+    {
+        private String latitude;
+        private String longitude;
+        private Int32 distance;
+        private ObservableCollection<DataStation> stations;
+
+        public ObservableCollection<DataStation> Stations
+        {
+            get
+            {
+                return stations;
+            }
+
+            set
+            {
+                if (stations != value)
+                {
+                    stations = value;
+                    RaisePropertyChanged("Stations");
+                }
+            }
+        }
+
+        public String Latitude
+        {
+            get
+            {
+                return latitude;
+            }
+
+            set
+            {
+                if (latitude != value)
+                {
+                    latitude = value;
+                    DoRequest();
+                }
+            }
+        }
+
+        public String Longitude
+        {
+            get
+            {
+                return longitude;
+            }
+
+            set
+            {
+                if (longitude != value)
+                {
+                    longitude = value;
+                    DoRequest();
+                }
+            }
+        }
+
+        public Int32 Distance
+        {
+            get
+            {
+                return distance;
+            }
+
+            set
+            {
+                if (distance != value)
+                {
+                    distance = value;
+                    DoRequest();
+                }
+            }
+        }
+
+        public StationViewModel()
+        {
+            latitude = "45.185476";
+            longitude = "5.727772";
+            distance = 400;
+            DoRequest();
+        }
+
+        private void DoRequest()
+        {
+            DataLignesProximite dataLignesProximite = new DataLignesProximite(new ConnectApi());
+            Dictionary<String, List<Ligne>> dicoLignesProximite = dataLignesProximite.GetDataDetailsLigneProximite(latitude, longitude, distance);
+            Stations = ConvertInObsCollection(dicoLignesProximite);
+        }
+
+        private ObservableCollection<DataStation> ConvertInObsCollection(Dictionary<String, List<Ligne>> dicoLignes)
+        {
+            ObservableCollection<DataStation> listLignesProx = new ObservableCollection<DataStation>();
+            foreach (KeyValuePair<String, List<Ligne>> kvp in dicoLignes)
+            {
+                DataStation data = new DataStation(kvp.Key, kvp.Value);
+                listLignesProx.Add(data);
+            }
+            return listLignesProx;
+        }
+    }
+}
+```
+Explications : 
+* Il faut que toutes les Property soient liées à des attributs 
+* Utiliser les attributs dans le code de la classe (par exemple, pour passer en paramètre la latitude, longitude et distance)
+* Dans les setters des property, on relance la méthode permettant de mettre à jour l'ObservableCollection `Stations`
+* Il faut notifier aux vues que `Stations` (property que la vue utilise pour afficher les lignes à proximité) a changé et qu'il faut que les vues s'actualisent : méthode `RaisePropertyChanged("Stations")` 
+* la méthode `RaisePropertyChanged(string)` est décrite dans la classe Mere 
+* La classe `StationViewModel.cs` hérite de la classe Mere contenant la méthode `RaisePropertyChanged(string)`
+
+Pour compléter l'exemple : code de la vue `StationView.xaml`
+```c#
+<UserControl x:Class="TransportInterfaceGraphique.Views.StationView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TransportInterfaceGraphique.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <StackPanel>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70*"></ColumnDefinition>
+                    <ColumnDefinition Width="110*"></ColumnDefinition>
+                    <ColumnDefinition Width="70*"></ColumnDefinition>
+                    <ColumnDefinition Width="110*"></ColumnDefinition>
+                    <ColumnDefinition Width="70*"></ColumnDefinition>
+                    <ColumnDefinition Width="110*"></ColumnDefinition>
+                    <ColumnDefinition Width="110*"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Label Grid.Column="0" Grid.Row="0">Latitude:</Label>
+                <TextBox Grid.Column="1" Grid.Row="0" Text="{Binding Path=Latitude}"/>
+                <Label Grid.Column="2" Grid.Row="0">Longitude:</Label>
+                <TextBox Grid.Column="3" Grid.Row="0" Text="{Binding Path=Longitude}"/>
+                <Label Grid.Column="4" Grid.Row="0">Distance:</Label>
+                <TextBox Grid.Column="5" Grid.Row="0" Text="{Binding Path=Distance}"/>
+            </Grid>
+        </StackPanel>
+        <StackPanel>
+            <TextBlock Text="Liste des lignes à proximité" FontSize="20" Foreground="DarkBlue" Margin="10 40 0 10"/>
+
+            <ItemsControl ItemsSource="{Binding Path= Stations}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="16 2 2 2">
+                            <TextBlock Text="{Binding Path= Arret}" FontSize="14" FontStyle="Italic"/>
+
+                            <ListBox Name="listeLignes" ItemsSource="{Binding Path=Lignes}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text= "{Binding Path=shortName}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+        </StackPanel>
+    </Grid>
+</UserControl>
+```
+
+
+### RelayCommand
+
+Permet d'effectuer une action, par exemple, lors d'un click sur un bouton. 
+
+* Créer une classe `RelayCommand.cs` qui implémente l'interface `ICommand`
+* Copier le code (ci-dessous)
+* Dans notre classe `ViewModel.cs` : 
+    * Créer une property 
+    * Créer une méthode avec les actions qu'on souhaite effectuer 
+    * Dans le Constructeur initialiser la property en lui donnant une instance de RelayCommand avec en paramètre la méthode effectuant les actions
+* Dans la vue `View.xaml` : 
+    * Ajouter à un bouton l'attribut `Command = "{ Binding Path = NomProperty }"`
+
+Code `RelayCommand.cs` : 
+```c#
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Input;
+
+namespace TransportInterfaceGraphique.Model
+{
+    public class RelayCommand : ICommand
+    {
+        public event EventHandler CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+        private Action methodToExecute;
+        private Func<bool> canExecuteEvaluator;
+        public RelayCommand(Action methodToExecute, Func<bool> canExecuteEvaluator)
+        {
+            this.methodToExecute = methodToExecute;
+            this.canExecuteEvaluator = canExecuteEvaluator;
+        }
+        public RelayCommand(Action methodToExecute)
+            : this(methodToExecute, null)
+        {
+        }
+        public bool CanExecute(object parameter)
+        {
+            if (this.canExecuteEvaluator == null)
+            {
+                return true;
+            }
+            else
+            {
+                bool result = this.canExecuteEvaluator.Invoke();
+                return result;
+            }
+        }
+        public void Execute(object parameter)
+        {
+            this.methodToExecute.Invoke();
+        }
+    }
+}
+```
+Code de `StationViewModel.cs` :
+```c#
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using TransportInterfaceGraphique.Model;
+using TransportLibrary;
+
+namespace TransportInterfaceGraphique.ViewModel
+{
+    public class StationViewModel : Mere
+    {
+        //...
+        //Constructeur
+        public StationViewModel()
+        {
+            latitude = "45.185476";
+            longitude = "5.727772";
+            distance = 400;
+            DoRequest();
+            //Initialiser la property avec une instance de RelayCommand avec pour paramètre la méthode contenant les actions à mener
+            FindLignes = new RelayCommand(RechercherLignes);
+            //ou alors directement avec DoRequest() qui effectivement n'est pas static mais ça fonctionne
+            FindLignes = new RelayCommand(DoRequest);
+        }
+
+        //Méthode effectuant une action : donner à Stations les lignes à proximité
+        private void DoRequest()
+        {
+            DataLignesProximite dataLignesProximite = new DataLignesProximite(new ConnectApi());
+            Dictionary<String, List<Ligne>> dicoLignesProximite = dataLignesProximite.GetDataDetailsLigneProximite(latitude, longitude, distance);
+            Stations = ConvertInObsCollection(dicoLignesProximite);
+        }
+
+        //La property qu'on appellera dans notre vue
+        public RelayCommand FindLignes { get; set; }
+
+        //Méthode effectuant une action simple 
+        private static void RechercherLignes()
+        {
+            MessageBox.Show("Hello");
+        }
+    }
+}
+```
+Code de la vue `StationView.xaml` :
+```c#
+<Grid>
+    <Button Command="{Binding Path=FindLignes}">Rechercher</Button>
+</Grid>
+```
+
+
+
+
+
+
 
