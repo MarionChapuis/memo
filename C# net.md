@@ -6,6 +6,8 @@
 * [Documentation .NET](https://docs.microsoft.com/fr-fr/dotnet/standard/)
 * [Documentation c#](https://docs.microsoft.com/fr-fr/dotnet/csharp/tour-of-csharp/)
 * [Guide programmation c#](https://docs.microsoft.com/fr-fr/dotnet/csharp/programming-guide/index)
+* [Exemple MVVM_Demo Github](https://github.com/MarionChapuis/MVVM_Demo/tree/master)
+* [Projet Transports Grenoble](https://github.com/MarionChapuis/TransportsGrenoble)
 
 
 ### Définitions
@@ -57,6 +59,8 @@ Quelques raccourcis utiles :
 | ctrl + k et ctrl + c | Commenter 
 | ctrl + k et ctrl + u | Décommenter
 | ctrl + k et ctrl + d | Indenter 
+| prop (puis double tabulation) | Créer une Property
+| propfull (puis double tabulation) | Créer une Property et son attribut associé 
 
 
 ### Créer une solution C\# .net 
@@ -1730,7 +1734,7 @@ namespace TransportInterfaceGraphique.ViewModel
 }
 ```
 Explications : 
-* Il faut que toutes les Property soient liées à des attributs 
+* Il faut que toutes les Property soient liées à des attributs
 * Utiliser les attributs dans le code de la classe (par exemple, pour passer en paramètre la latitude, longitude et distance)
 * Dans les setters des property, on relance la méthode permettant de mettre à jour l'ObservableCollection `Stations`
 * Il faut notifier aux vues que `Stations` (property que la vue utilise pour afficher les lignes à proximité) a changé et qu'il faut que les vues s'actualisent : méthode `RaisePropertyChanged("Stations")` 
@@ -1917,8 +1921,162 @@ Code de la vue `StationView.xaml` :
 ```
 
 
+### WPF - Mise en forme 
+
+
+#### Scroll
+
+Pour ajouter un scroll sur l'ensemble de la page, il faut ajouter les balises `<ScrollViewer>` dans la vue principale `MainWindow.xaml`
+```c#
+<ScrollViewer>
+    <Grid>
+        <StackPanel >
+            <TextBlock Text ="Transports Grenoble"  Grid.Row="1" FontSize="30" FontWeight="Bold" Foreground="MidnightBlue" HorizontalAlignment="Center"/>
+        </StackPanel>
+        <views:StationView x:Name="StationViewControl" Loaded="StationViewControl_Loaded" Margin="30,60,20,40" Grid.RowSpan="2"/>
+    </Grid>
+</ScrollViewer>
+```
+
+Pour que le scroll soit disponible dans l'ensemble de la page (il peut être annulé quand la souris est sur une ListBox par exemple). 
+* Ajouter dans la Vue (ici StationView.xaml), au dessus de la grid, un code spécifique 
+```c#
+<UserControl.Resources>
+    <ControlTemplate x:Key="NoScroll">
+        <ItemsPresenter></ItemsPresenter>
+    </ControlTemplate>
+</UserControl.Resources>
+
+<Grid>
+//...
+</Grid>
+```
+* Dans notre ListBox, ajouter dans l'attribut `Template` en StaticResource, le NoScroll qu'on vient de créer 
+```c#
+ <ListBox Name="listeLignes" ItemsSource="{Binding Path=Lignes}" Template="{StaticResource NoScroll}">
+    <ListBox.ItemTemplate>
+        <DataTemplate>
+            <StackPanel Orientation="Horizontal" >
+                <TextBlock Width="50" Text="{Binding Path=mode}" FontSize="16" Margin="5 0 5 0" Padding="4 2 4 2"/>
+                <TextBlock Width="50" TextAlignment="Center" Text= "{Binding Path=shortName}" Padding="4 2 4 2"  Background="{Binding Path=realColor}" FontWeight="Bold" FontSize="16"/>
+                <TextBlock Text="{Binding Path=longName}" FontSize="16" Margin="10 0 0 0"/>
+            </StackPanel>
+        </DataTemplate>
+    </ListBox.ItemTemplate>
+</ListBox>
+```
+* Pour garder les bordures qui sont disponibles dans la ListBox, il faut ajouter un `DockPanel` avec une balise `Border` autour de la ListBox
+```c#
+<ItemsControl ItemsSource="{Binding Path= Stations}">
+    <ItemsControl.ItemTemplate>
+        <DataTemplate>
+            <StackPanel Margin="16 2 2 2">
+                <TextBlock Text="{Binding Path= Arret}" FontSize="18" FontStyle="Italic" FontWeight="DemiBold" Margin="0 10 0 4" Foreground="DarkBlue"/>
+
+                <DockPanel>
+                    <Border BorderThickness="1"
+                            BorderBrush="Gray"
+                            CornerRadius="10"
+                            Padding="5"
+                            Background="GhostWhite">
+
+                        <ListBox Name="listeLignes" ItemsSource="{Binding Path=Lignes}" Template="{StaticResource NoScroll}">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal" >
+                                        <TextBlock Width="50" Text="{Binding Path=mode}" FontSize="16" Margin="5 0 5 0" Padding="4 2 4 2"/>
+                                        <TextBlock Width="50" TextAlignment="Center" Text= "{Binding Path=shortName}" Padding="4 2 4 2"  Background="{Binding Path=realColor}" FontWeight="Bold" FontSize="16"/>
+                                        <TextBlock Text="{Binding Path=longName}" FontSize="16" Margin="10 0 0 0"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+
+                    </Border>
+                </DockPanel>
+
+            </StackPanel>
+        </DataTemplate>
+    </ItemsControl.ItemTemplate>
+</ItemsControl>
+```
+
+
+#### Style 
+
+Dans le fichier `App.xaml` il est possible de créer des styles.
+
+Exemple : Styliser les boutons 
+```c# 
+<Application.Resources>
+    <Style TargetType="Button">
+        <Setter Property="Width" Value="90"/>
+        <Setter Property="Margin" Value="10"/>
+        <Setter Property="Background" Value="#FF141415"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Opacity" Value="0.8"/>
+    </Style>
+</Application.Resources>
+```
 
 
 
 
 
+#### Ajouter une image 
+
+
+Pour ajouter une image dans le projet : 
+* Dans notre projet, créer un dossier "Images"
+* Placer les images souhaitées dans ce dossier 
+* Dans l'IDE, clique droit sur le dossier "Images" et choisir `Ajouter / Element existant` (puis l'image à ajouter)
+
+
+#### Binder sur une image 
+
+* Dans la classe `Ligne.cs`, avoir une Image différente selon le mode de transport :
+```c# 
+public Uri Image
+{
+    get
+    {
+        if (mode == "BUS")
+        {
+            return new Uri(@"\Images\logoGeneral.png", UriKind.RelativeOrAbsolute);
+        }
+        else
+        {
+            return new Uri(@"\Images\logoGeneral.png", UriKind.RelativeOrAbsolute);
+        }
+    }
+}
+```
+* Dans la vue `StationView.xaml`, avoir les balises `Image` et faire un binding sur `UriSource`:
+```c#
+ <StackPanel Orientation="Horizontal" >
+    <Image Width="30" Height="30">
+        <Image.Source>
+            <BitmapImage UriSource="{Binding Image}"/>
+        </Image.Source>
+    </Image>
+</StackPanel>
+```
+
+#### Ajouter une simple image
+
+* Dans la vue `StationView.xaml`, déclarer l'image dans un `Window.Resources` au dessus du grid : 
+```c#
+<Window.Resources>
+    <BitmapImage x:Key="MyLogo" UriSource="\Images\logoGeneral.png"/>
+</Window.Resources>
+<ScrollViewer>
+    <Grid>
+        <Image Source="{StaticResource MyLogo}" HorizontalAlignment="Right" Width="100" Margin="0,10,25,0"/>
+    </Grid>
+</ScrollViewer>
+```
+* Afficher l'image dans la vue `StationView.xaml` en utilisant `StaticResource` et la `x:Key`
+```c#
+<Image Source="{StaticResource MyLogo}" HorizontalAlignment="Right" Width="100" Margin="0,10,25,0"/>
+```
