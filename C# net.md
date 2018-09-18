@@ -2021,9 +2021,6 @@ Exemple : Styliser les boutons
 ```
 
 
-
-
-
 #### Ajouter une image 
 
 
@@ -2033,7 +2030,7 @@ Pour ajouter une image dans le projet :
 * Dans l'IDE, clique droit sur le dossier "Images" et choisir `Ajouter / Element existant` (puis l'image à ajouter)
 
 
-#### Binder sur une image 
+##### Binder sur une image 
 
 * Dans la classe `Ligne.cs`, avoir une Image différente selon le mode de transport :
 ```c# 
@@ -2063,7 +2060,7 @@ public Uri Image
 </StackPanel>
 ```
 
-#### Ajouter une simple image
+##### Ajouter une simple image
 
 * Dans la vue `StationView.xaml`, déclarer l'image dans un `Window.Resources` au dessus du grid : 
 ```c#
