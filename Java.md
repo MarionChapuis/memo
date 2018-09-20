@@ -1068,22 +1068,6 @@ myFriends.put("Mark", 24);
 ```
 
 
-#### Insérer des données 
-
-Pour insérer des données dans la liste on utilise la méthode "add" avec 2 paramètres :
-* 1er : la position dans la liste
-* 2ème : la valeur à ajouter
-
-Syntaxe :
-```java
-nomArrayList.add(position , variable);
-```
-
-Exemple : 
-```java
-temperatures.add(1, 35); //ajout en 2ème position de la liste de la valeur 35
-```
-
 #### Accéder aux éléments
 
 Il faut utiliser la clé pour accéder à la valeur avec la méthode "get".
